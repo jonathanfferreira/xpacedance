@@ -2,8 +2,15 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { rateLimit, getClientIp } from '@/utils/rate-limit'
+import { validateCsrf } from '@/utils/csrf'
 
 export async function POST(request: Request) {
+    // CSRF validation
+    const csrfError = validateCsrf(request);
+    if (csrfError) {
+        return NextResponse.json({ error: 'Requisição inválida.' }, { status: 403 });
+    }
+
     // Rate limit: max 3 partner applications per minute per IP
     const ip = getClientIp(request);
     const { limited } = rateLimit(`partner:${ip}`, 3);

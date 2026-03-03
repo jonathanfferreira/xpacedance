@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Home, PlaySquare, Award, User, Settings, LogOut, BarChart3, Rocket } from 'lucide-react';
+import { Home, PlaySquare, Award, User, Settings, LogOut, BarChart3, Rocket, Compass, Handshake } from 'lucide-react';
 
 export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () => void }) {
     const pathname = usePathname();
@@ -36,6 +36,8 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
 
                     <SidebarItem href="/dashboard" icon={<Home size={20} />} label="Holo-Deck" active={pathname === '/dashboard'} onClick={onClose} />
                     <SidebarItem href="/dashboard/cursos" icon={<PlaySquare size={20} />} label="Meus Acessos" active={pathname?.startsWith('/dashboard/cursos')} onClick={onClose} />
+                    <SidebarItem href="/dashboard/explore" icon={<Compass size={20} />} label="Navegar Cursos" active={pathname?.startsWith('/dashboard/explore')} onClick={onClose} />
+                    <SidebarItem href="/dashboard/afiliados" icon={<Handshake size={20} />} label="Parcerias" active={pathname?.startsWith('/dashboard/afiliados')} onClick={onClose} />
                     <SidebarItem href="/dashboard/conquistas" icon={<Award size={20} />} label="Conquistas" active={pathname?.startsWith('/dashboard/conquistas')} onClick={onClose} />
                     <SidebarItem href="/dashboard/ranking" icon={<BarChart3 size={20} />} label="Ranking" active={pathname?.startsWith('/dashboard/ranking')} onClick={onClose} />
 

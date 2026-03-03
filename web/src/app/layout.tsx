@@ -93,8 +93,17 @@ export default function RootLayout({
       <body
         className={`${chillax.variable} ${steelfish.variable} ${poppins.variable} font-sans antialiased text-gray-100 bg-black`}
       >
+        {/* Skip Navigation — Acessibilidade WCAG 2.1 AA */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-white focus:text-black focus:px-4 focus:py-2 focus:rounded focus:text-sm focus:font-bold focus:uppercase focus:tracking-widest"
+        >
+          Pular para o conteúdo
+        </a>
         <PowerOnPreloader>
-          {children}
+          <main id="main-content">
+            {children}
+          </main>
         </PowerOnPreloader>
         <script dangerouslySetInnerHTML={{
           __html: `

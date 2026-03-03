@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Play } from 'lucide-react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
@@ -91,7 +92,7 @@ export default async function MeusAcessosPage() {
                     {courses.map(course => (
                         <div key={course.id} className="bg-[#0A0A0A] border border-[#222] rounded-sm overflow-hidden group hover:border-primary/30 transition-colors">
                             <div className="relative h-40 bg-[#111] overflow-hidden">
-                                <img src={course.thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity" />
+                                <Image src={course.thumbnail} alt="" fill className="object-cover opacity-40 group-hover:opacity-60 transition-opacity" unoptimized />
                                 <div className="absolute inset-0 flex items-center justify-center">
                                     <div className="w-12 h-12 rounded-full bg-primary/80 flex items-center justify-center pl-0.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_20px_#6324b2]">
                                         <Play size={24} fill="currentColor" className="text-white" />

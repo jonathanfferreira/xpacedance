@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { logAuditEvent } from "@/utils/audit";
+import { getClientIp } from "@/utils/rate-limit";
+import { walletSchema } from "@/lib/validators";
 
 const ASAAS_API_URL = process.env.ASAAS_API_URL || "https://sandbox.asaas.com/api/v3";
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
@@ -13,31 +18,66 @@ const supabaseAdmin = createClient(
 export async function POST(request: Request, { params }: { params: Promise<{ tenantId: string }> }) {
     const { tenantId } = await params;
 
+    // Auth guard: verify session and authorization
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { cookies: { getAll() { return cookieStore.getAll(); }, setAll() { } } }
+    );
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+    }
+
+    // Only admin or tenant owner can create wallets
+    const role = user.app_metadata?.role || user.user_metadata?.role || 'aluno';
+    if (role !== 'admin') {
+        const { data: tenant } = await supabaseAdmin
+            .from('tenants')
+            .select('owner_id')
+            .eq('id', tenantId)
+            .single();
+        if (!tenant || tenant.owner_id !== user.id) {
+            return NextResponse.json({ error: "Acesso negado. Apenas o dono do tenant ou admin pode criar wallet." }, { status: 403 });
+        }
+    }
+
     if (!ASAAS_API_KEY) {
         return NextResponse.json({ error: "ASAAS_API_KEY não configurada." }, { status: 500 });
     }
 
     try {
-        const body = await request.json();
-        const { pixKey, bankCode, bankAgency, bankAccount, companyType, documentCpfCnpj, name, email, phone } = body;
-
-        if (!documentCpfCnpj || !name || !email) {
-            return NextResponse.json({ error: "Dados cadastrais incompletos (Nome, Email, CPF/CNPJ)." }, { status: 400 });
+        let rawBody: unknown;
+        try {
+            rawBody = await request.json();
+        } catch {
+            return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
         }
 
-        // 1. Cria a conta base no Asaas (Subconta / White Label)
+        // Zod validation - exige campos reais (sem hardcoded de sandbox)
+        const result = walletSchema.safeParse(rawBody);
+        if (!result.success) {
+            return NextResponse.json(
+                { error: "Dados incompletos.", details: result.error.flatten().fieldErrors },
+                { status: 422 }
+            );
+        }
+
+        const { pixKey, bankCode, bankAgency, bankAccount, companyType, documentCpfCnpj, name, email, phone, postalCode, address, addressNumber, province } = result.data;
+
+        // Cria a conta base no Asaas (Subconta / White Label)
         const accountPayload = {
             name,
             email,
-            loginEmail: email, // Usando o mesmo email
+            loginEmail: email,
             cpfCnpj: documentCpfCnpj,
             companyType: companyType || (documentCpfCnpj.length > 11 ? "LIMITED" : undefined),
             mobilePhone: phone || undefined,
-            // Necessita capturar endereço também em produção. Passando hardcoded para fins de ativação Sandbox.
-            postalCode: "01001-000",
-            address: "Praça da Sé",
-            addressNumber: "1",
-            province: "Sé",
+            postalCode,
+            address,
+            addressNumber,
+            province,
         };
 
         const createAccountRes = await fetch(`${ASAAS_API_URL}/accounts`, {
@@ -77,6 +117,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
             asaas_wallet_id: asaasWalletId,
             company_type: companyType
         });
+
+        // Audit log
+        await logAuditEvent(
+            user.id,
+            'wallet_created',
+            'tenant',
+            tenantId,
+            { walletId: asaasWalletId, name, email },
+            getClientIp(request)
+        );
 
         return NextResponse.json({
             success: true,

@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import Image from 'next/image';
 import { Trophy } from 'lucide-react';
 
 interface LeaderboardRow {
@@ -87,7 +88,7 @@ export async function LeaderboardWeekly() {
                             <div className="w-10 h-10 rounded-full bg-[#222] flex items-center justify-center font-heading text-white border border-[#333] shrink-0 relative overflow-hidden">
                                 {user.rank === 1 && <div className="absolute inset-0 bg-yellow-400/20" />}
                                 {user.avatar_url ? (
-                                    <img src={user.avatar_url} alt={initials} className="absolute inset-0 w-full h-full object-cover" />
+                                    <Image src={user.avatar_url} alt={initials} fill className="object-cover" unoptimized />
                                 ) : (
                                     <span className="relative z-10 text-sm">{initials}</span>
                                 )}

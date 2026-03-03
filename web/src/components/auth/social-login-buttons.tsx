@@ -12,8 +12,13 @@ export default function SocialLoginButtons() {
         setLoading(provider)
         const supabase = createClient()
 
-        // Use env var in production, fallback to window.location.origin in dev
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+        // Use env var only - never fallback to window.location.origin to prevent open redirect
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+        if (!siteUrl) {
+            console.error('NEXT_PUBLIC_SITE_URL is not configured.')
+            setLoading(null)
+            return
+        }
 
         const { error } = await supabase.auth.signInWithOAuth({
             provider,

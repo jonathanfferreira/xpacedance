@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 import { Users, PlayCircle, TrendingUp, DollarSign } from 'lucide-react';
 
 async function getStudioStats() {
@@ -83,18 +84,18 @@ export default async function StudioDashboardPage() {
                         <div className="lg:col-span-2 bg-[#0a0a0a] border border-[#1a1a1a] rounded-sm p-6">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="font-heading font-bold uppercase text-white tracking-wide">Seus Cursos</h2>
-                                <a href="/studio/cursos" className="text-xs text-primary font-mono hover:text-white transition-colors">VER TODOS</a>
+                                <Link href="/studio/cursos" className="text-xs text-primary font-mono hover:text-white transition-colors">VER TODOS</Link>
                             </div>
 
                             {stats.recentCourses.length === 0 ? (
                                 <div className="text-center py-8 text-[#555] text-sm">
                                     <p>Nenhum curso criado ainda.</p>
-                                    <a href="/studio/cursos/novo" className="text-primary hover:text-white text-xs mt-2 inline-block">+ Criar meu primeiro curso</a>
+                                    <Link href="/studio/cursos/novo" className="text-primary hover:text-white text-xs mt-2 inline-block">+ Criar meu primeiro curso</Link>
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-4">
                                     {stats.recentCourses.map((c: any) => (
-                                        <a
+                                        <Link
                                             key={c.id}
                                             href={`/studio/cursos/${c.id}`}
                                             className="flex items-center gap-4 p-3 hover:bg-[#111] border border-transparent hover:border-[#222] transition-colors rounded"
@@ -109,15 +110,14 @@ export default async function StudioDashboardPage() {
                                                 </p>
                                             </div>
                                             <div className="text-right">
-                                                <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border ${
-                                                    c.is_published
-                                                        ? 'text-green-400 border-green-400/30 bg-green-400/10'
-                                                        : 'text-[#666] border-[#333] bg-[#111]'
-                                                }`}>
+                                                <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border ${c.is_published
+                                                    ? 'text-green-400 border-green-400/30 bg-green-400/10'
+                                                    : 'text-[#666] border-[#333] bg-[#111]'
+                                                    }`}>
                                                     {c.is_published ? 'Publicado' : 'Rascunho'}
                                                 </span>
                                             </div>
-                                        </a>
+                                        </Link>
                                     ))}
                                 </div>
                             )}

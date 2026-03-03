@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { MessageSquare, Send, Heart, CornerDownRight } from 'lucide-react'
+import Image from 'next/image'
 import { createClient } from '@/utils/supabase/client'
 
 interface CommunityBoardProps {
@@ -178,7 +179,7 @@ export function CommunityBoard({ lessonId }: CommunityBoardProps) {
             <div className="bg-[#0A0A0A] border border-[#222] rounded-sm p-4 mb-8 flex gap-4 items-start">
                 <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center font-heading text-primary border border-primary/30 shrink-0 overflow-hidden">
                     {currentUserProfile?.avatar_url ? (
-                        <img src={currentUserProfile.avatar_url} alt="Profile" className="w-full h-full object-cover grayscale" />
+                        <Image src={currentUserProfile.avatar_url} alt="Profile" fill className="object-cover grayscale" unoptimized />
                     ) : (
                         currentUserProfile?.full_name?.substring(0, 2).toUpperCase() || "YOU"
                     )}
@@ -227,7 +228,7 @@ export function CommunityBoard({ lessonId }: CommunityBoardProps) {
                             <div key={comment.id} className="flex gap-4">
                                 <div className="w-10 h-10 rounded-full bg-[#222] flex items-center justify-center font-heading text-[#888] border border-[#333] shrink-0 overflow-hidden">
                                     {comment.users?.avatar_url ? (
-                                        <img src={comment.users.avatar_url} alt="User" className="w-full h-full object-cover grayscale" />
+                                        <Image src={comment.users.avatar_url} alt="User" fill className="object-cover grayscale" unoptimized />
                                     ) : (
                                         comment.users?.full_name?.substring(0, 2).toUpperCase() || "?"
                                     )}
@@ -267,7 +268,7 @@ export function CommunityBoard({ lessonId }: CommunityBoardProps) {
                                                 <div key={reply.id} className="flex gap-3">
                                                     <div className="w-8 h-8 rounded-full bg-[#111] flex items-center justify-center font-heading text-white border border-[#333] shrink-0 overflow-hidden">
                                                         {reply.users?.avatar_url ? (
-                                                            <img src={reply.users.avatar_url} alt="User" className="w-full h-full object-cover grayscale" />
+                                                            <Image src={reply.users.avatar_url} alt="User" fill className="object-cover grayscale" unoptimized />
                                                         ) : (
                                                             reply.users?.full_name?.substring(0, 2).toUpperCase() || "?"
                                                         )}

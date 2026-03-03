@@ -1,10 +1,37 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, Bell, Menu } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, Menu } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { NotificationBell } from './notification-bell';
 
 export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
-    const [showNotifications, setShowNotifications] = useState(false);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+    const searchInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInputRef.current?.focus();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            if (searchQuery.trim() === '') {
+                router.push('/dashboard/explore');
+            } else {
+                router.push(`/dashboard/explore?q=${encodeURIComponent(searchQuery)}`);
+            }
+        }
+    };
+
     return (
         <header className="h-16 border-b border-[#151515] bg-[#020202]/90 backdrop-blur-md sticky top-0 z-40 px-4 md:px-6 flex items-center justify-between gap-4">
 
@@ -23,8 +50,12 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
                         <Search size={18} />
                     </div>
                     <input
+                        ref={searchInputRef}
                         type="text"
-                        placeholder="Comando de busca rápida..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={handleSearch}
+                        placeholder="Pesquisar cursos na rede (⌘K)..."
                         className="w-full bg-[#080808] border border-[#222] focus:border-primary/50 text-white font-sans text-sm py-2 pl-10 pr-4 outline-none transition-all placeholder:text-[#444] rounded-sm focus:ring-1 focus:ring-primary/20"
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -54,28 +85,7 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
 
                 <div className="w-px h-8 bg-[#222]"></div>
 
-                <div className="relative">
-                    <button
-                        onClick={() => setShowNotifications(!showNotifications)}
-                        className="relative text-[#666] hover:text-white transition-colors p-2"
-                    >
-                        <Bell size={20} />
-                        {/* Unread Badge */}
-                        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary ring-2 ring-[#020202]"></span>
-                    </button>
-
-                    {/* Notifications Dropdown (Mock) */}
-                    {showNotifications && (
-                        <div className="absolute right-0 mt-2 w-72 bg-[#0A0A0A] border border-[#222] rounded-md shadow-2xl z-50 overflow-hidden">
-                            <div className="p-3 border-b border-[#222]">
-                                <h3 className="text-white font-bold text-sm tracking-wide uppercase">Notificações</h3>
-                            </div>
-                            <div className="p-4 text-center">
-                                <p className="text-[#666] text-sm">Você não possui novas notificações no momento.</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                <NotificationBell />
 
                 {/* Minimalist Profile HUD */}
                 <div className="md:pl-4 md:border-l border-[#222] flex items-center gap-3 cursor-pointer group">

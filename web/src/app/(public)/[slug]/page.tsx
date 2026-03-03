@@ -17,7 +17,7 @@ async function getProfileData(slug: string) {
     // Find tenant by slug
     const { data: tenant } = await supabase
         .from('tenants')
-        .select('id, name, slug, bio, avatar_url, instagram, owner_id')
+        .select('id, name, slug, bio, avatar_url, instagram, owner_id, brand_color, logo_url')
         .eq('slug', slug)
         .eq('status', 'active')
         .single();
@@ -59,8 +59,19 @@ async function getProfileData(slug: string) {
         });
     }
 
+    // Fetch active subscription plan for this tenant
+    const { data: activePlan } = await supabase
+        .from('subscription_plans')
+        .select('id, name, price, cycle')
+        .eq('tenant_id', tenant.id)
+        .eq('is_active', true)
+        .order('price', { ascending: true })
+        .limit(1)
+        .single();
+
     return {
         tenant,
+        activePlan: activePlan || null,
         courses: (courses || []).map(c => ({
             ...c,
             materialsCount: materialsMap[c.id] || 0,
@@ -85,8 +96,8 @@ export default async function ProfessorProfilePage({ params }: Props) {
         );
     }
 
-    const { tenant, courses } = data;
-    const brandColor = "#6324b2"; // XPACE Purple
+    const { tenant, courses, activePlan } = data;
+    const brandColor = tenant.brand_color || "#6324b2"; // XPACE Purple fallback
 
     return (
         <div className="min-h-screen bg-[#050505] font-sans selection:bg-primary/30 text-white relative">
@@ -102,7 +113,7 @@ export default async function ProfessorProfilePage({ params }: Props) {
                 <div className="flex flex-col md:flex-row gap-8 items-center md:items-start mb-20 text-center md:text-left">
                     <div className="w-32 h-32 md:w-40 md:h-40 bg-[#111] border-2 flex items-center justify-center shrink-0 shadow-[0_0_40px_rgba(99,36,178,0.3)] relative overflow-hidden" style={{ borderColor: brandColor }}>
                         {tenant.avatar_url ? (
-                            <img src={tenant.avatar_url} alt={tenant.name} className="absolute inset-0 w-full h-full object-cover" />
+                            <Image src={tenant.avatar_url} alt={tenant.name} fill className="object-cover" unoptimized />
                         ) : (
                             <>
                                 <div className="absolute inset-0 bg-[#222]"></div>
@@ -114,8 +125,11 @@ export default async function ProfessorProfilePage({ params }: Props) {
                     </div>
 
                     <div className="flex-1 mt-2">
-                        <div className="inline-block border border-white/20 px-3 py-1 mb-4 text-[10px] font-mono tracking-widest uppercase bg-white/5 backdrop-blur-sm">
-                            CRIADOR XPACE
+                        <div className="inline-flex items-center gap-2 border border-white/20 px-3 py-1 mb-4 text-[10px] font-mono tracking-widest uppercase bg-white/5 backdrop-blur-sm">
+                            {tenant.logo_url && (
+                                <Image src={tenant.logo_url} alt={tenant.name} width={16} height={16} className="rounded-sm object-contain" />
+                            )}
+                            {tenant.logo_url ? "ESCOLA PARCEIRA" : "CRIADOR XPACE"}
                         </div>
                         <h1 className="text-5xl md:text-6xl font-heading uppercase tracking-tight mb-4" style={{ color: brandColor, WebkitTextStroke: '1px white' }}>
                             {tenant.name}
@@ -132,6 +146,34 @@ export default async function ProfessorProfilePage({ params }: Props) {
                         )}
                     </div>
                 </div>
+
+                {/* Subscription CTA Banner */}
+                {activePlan && (
+                    <div
+                        className="mb-10 border border-primary/40 bg-primary/5 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6"
+                        style={{ boxShadow: '0 0 40px rgba(99,36,178,0.12)' }}
+                    >
+                        <div>
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-primary block mb-1">✦ Acesso Completo</span>
+                            <h3 className="text-2xl font-heading uppercase text-white mb-1">{activePlan.name}</h3>
+                            <p className="text-[#888] text-sm">Acesso ilimitado a todos os treinamentos desta escola.</p>
+                        </div>
+                        <div className="flex flex-col items-center md:items-end gap-3 shrink-0">
+                            <div className="text-center md:text-right">
+                                <span className="text-3xl font-display text-white">
+                                    R$ {activePlan.price.toFixed(2).replace('.', ',')}
+                                </span>
+                                <span className="text-xs text-primary font-mono ml-1">/{activePlan.cycle === 'MONTHLY' ? 'mês' : 'ano'}</span>
+                            </div>
+                            <Link
+                                href={`/checkout/subscribe/${activePlan.id}`}
+                                className="bg-primary text-white font-bold px-8 py-3 text-sm uppercase tracking-wider hover:bg-white hover:text-black transition-colors border border-primary flex items-center gap-2 whitespace-nowrap"
+                            >
+                                <Repeat size={14} /> Assinar Todos os Cursos
+                            </Link>
+                        </div>
+                    </div>
+                )}
 
                 {/* Products Showcase */}
                 <div>
@@ -152,7 +194,7 @@ export default async function ProfessorProfilePage({ params }: Props) {
                                     <div className="flex flex-col md:flex-row border-b border-[#222]">
                                         <div className="w-full md:w-[320px] h-[200px] bg-[#111] relative overflow-hidden shrink-0">
                                             {course.thumbnail_url ? (
-                                                <img src={course.thumbnail_url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700" />
+                                                <Image src={course.thumbnail_url} alt="" fill className="object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700" unoptimized />
                                             ) : (
                                                 <div className="absolute inset-0 bg-[url('/images/bg-degrade.png')] bg-cover opacity-30 contrast-125 sepia group-hover:scale-105 transition-transform duration-700"></div>
                                             )}

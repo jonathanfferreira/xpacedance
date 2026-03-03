@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Plus, Filter, MoreVertical, ShieldCheck, Ban, Edit2, PlayCircle, CheckCircle, RefreshCw } from "lucide-react";
+import { Search, Plus, Filter, MoreVertical, ShieldCheck, Ban, Edit2, PlayCircle, CheckCircle, RefreshCw, X, Save, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
@@ -9,19 +9,25 @@ interface School {
     name: string;
     status: 'pending' | 'active' | 'suspended';
     created_at: string;
-    createdAt?: string; // Added createdAt property
     owner: { full_name: string; email: string };
     _courses_count: number;
+}
+
+interface EditForm {
+    name: string;
+    status: School['status'];
 }
 
 export default function MasterSchoolsPage() {
     const [schools, setSchools] = useState<School[]>([]);
     const [loading, setLoading] = useState(true);
+    const [editingSchool, setEditingSchool] = useState<School | null>(null);
+    const [editForm, setEditForm] = useState<EditForm>({ name: '', status: 'active' });
+    const [saving, setSaving] = useState(false);
     const supabase = createClient();
 
     const fetchSchools = async () => {
         setLoading(true);
-        // Supabase query to get tenants + nested owner + count courses
         const { data, error } = await supabase
             .from('tenants')
             .select(`
@@ -31,14 +37,14 @@ export default function MasterSchoolsPage() {
             .order('created_at', { ascending: false });
 
         if (!error && data) {
-            setSchools(data as unknown as School[]); // Corrected typing
+            setSchools(data as unknown as School[]);
         }
         setLoading(false);
     }
 
-    useEffect(() => { fetchSchools() }, []); // desativando regra pois a func é useCallback ou interna
+    useEffect(() => { fetchSchools() }, []);
 
-    const approveSchool = async (tenantId: string) => { // Renamed handleApprove to approveSchool
+    const approveSchool = async (tenantId: string) => {
         if (!confirm("Deseja aprovar esta escola, criar C/C na Asaas e dar permissão de Studio ao Dono?")) return;
 
         try {
@@ -49,12 +55,39 @@ export default function MasterSchoolsPage() {
             });
             const result = await res.json();
             if (!res.ok) throw new Error(result.error);
-            alert("✅ Escola Aprovada Oficialmente! Carteira gerada: " + result.walletId);
+            alert("✅ Escola Aprovada! Carteira gerada: " + result.walletId);
             fetchSchools();
-        } catch (e: any) {
-            alert("Erro: " + e.message);
+        } catch (e: unknown) {
+            alert("Erro: " + (e instanceof Error ? e.message : String(e)));
         }
     }
+
+    const openEdit = (school: School) => {
+        setEditingSchool(school);
+        setEditForm({ name: school.name, status: school.status });
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editingSchool) return;
+        setSaving(true);
+        try {
+            const { error } = await supabase
+                .from('tenants')
+                .update({ name: editForm.name.trim(), status: editForm.status })
+                .eq('id', editingSchool.id);
+            if (error) throw error;
+            setSchools(prev => prev.map(s =>
+                s.id === editingSchool.id
+                    ? { ...s, name: editForm.name.trim(), status: editForm.status }
+                    : s
+            ));
+            setEditingSchool(null);
+        } catch (e: unknown) {
+            alert("Erro ao salvar: " + (e instanceof Error ? e.message : String(e)));
+        } finally {
+            setSaving(false);
+        }
+    };
 
     return (
         <div className="max-w-7xl mx-auto pb-10">
@@ -76,7 +109,6 @@ export default function MasterSchoolsPage() {
                 </div>
             </div>
 
-            {/* Listagem Table UI */}
             <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-sm overflow-hidden">
                 <div className="p-4 border-b border-[#1a1a1a] flex gap-4">
                     <div className="flex-1 relative">
@@ -96,7 +128,7 @@ export default function MasterSchoolsPage() {
                                 <th className="p-4 font-normal">Inquilino (Escola)</th>
                                 <th className="p-4 font-normal">Master Owner</th>
                                 <th className="p-4 font-normal">Cursos</th>
-                                <th className="p-4 font-normal">Mês</th> {/* Added new column */}
+                                <th className="p-4 font-normal">Mês</th>
                                 <th className="p-4 font-normal">Status Asaas</th>
                                 <th className="p-4 font-normal text-right">Controles</th>
                             </tr>
@@ -110,12 +142,9 @@ export default function MasterSchoolsPage() {
                                 schools.map(s => (
                                     <SchoolRow
                                         key={s.id}
-                                        id={s.id}
-                                        name={s.name}
-                                        owner={s.owner?.full_name || s.owner?.email || "N/A"}
-                                        status={s.status}
-                                        createdAt={s.created_at} // Pass created_at to SchoolRow
-                                        onApprove={() => approveSchool(s.id)} // Changed to approveSchool
+                                        school={s}
+                                        onApprove={() => approveSchool(s.id)}
+                                        onEdit={() => openEdit(s)}
                                     />
                                 ))
                             )}
@@ -123,11 +152,67 @@ export default function MasterSchoolsPage() {
                     </table>
                 </div>
             </div>
+
+            {/* Modal de edição */}
+            {editingSchool && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+                    <div className="bg-[#0a0a0a] border border-[#222] rounded-sm w-full max-w-md p-6 space-y-5">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-white font-heading text-lg uppercase tracking-widest">Editar Escola</h2>
+                            <button onClick={() => setEditingSchool(null)} className="text-[#555] hover:text-white transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-xs font-mono uppercase tracking-widest text-[#888] block mb-1">Nome</label>
+                                <input
+                                    type="text"
+                                    value={editForm.name}
+                                    onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
+                                    className="w-full bg-[#111] border border-[#222] focus:border-primary/50 rounded py-2.5 px-3 text-white text-sm outline-none transition-colors"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-mono uppercase tracking-widest text-[#888] block mb-1">Status</label>
+                                <select
+                                    value={editForm.status}
+                                    onChange={e => setEditForm(f => ({ ...f, status: e.target.value as School['status'] }))}
+                                    className="w-full bg-[#111] border border-[#222] rounded py-2.5 px-3 text-white text-sm outline-none cursor-pointer"
+                                >
+                                    <option value="pending">Pendente</option>
+                                    <option value="active">Ativo</option>
+                                    <option value="suspended">Suspenso</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                onClick={() => setEditingSchool(null)}
+                                className="flex-1 px-4 py-2.5 border border-[#333] text-[#888] hover:text-white rounded text-sm font-mono uppercase transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleSaveEdit}
+                                disabled={saving}
+                                className="flex-1 flex items-center justify-center gap-2 bg-white text-black px-4 py-2.5 rounded text-sm font-mono uppercase font-bold transition-colors disabled:opacity-50"
+                            >
+                                {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                                Salvar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
 
-function SchoolRow({ name, id, owner, status, onApprove }: any) {
+function SchoolRow({ school, onApprove, onEdit }: { school: School; onApprove: () => void; onEdit: () => void }) {
+    const { name, id, owner, status } = school;
     return (
         <tr className="hover:bg-[#111] transition-colors group">
             <td className="p-4">
@@ -141,7 +226,7 @@ function SchoolRow({ name, id, owner, status, onApprove }: any) {
                     </div>
                 </div>
             </td>
-            <td className="p-4 text-[#aaa]">{owner}</td>
+            <td className="p-4 text-[#aaa]">{owner?.full_name || owner?.email || "N/A"}</td>
             <td className="p-4 text-[#aaa] flex items-center gap-2 mt-2"><PlayCircle size={14} /> 0</td>
             <td className="p-4 font-display font-medium text-white">R$ 0</td>
             <td className="p-4">
@@ -156,7 +241,7 @@ function SchoolRow({ name, id, owner, status, onApprove }: any) {
                             <CheckCircle size={16} />
                         </button>
                     )}
-                    <button className="p-2 text-[#888] hover:text-white hover:bg-[#222] rounded transition-colors" title="Editar Contrato">
+                    <button onClick={onEdit} className="p-2 text-[#888] hover:text-white hover:bg-[#222] rounded transition-colors" title="Editar Escola">
                         <Edit2 size={16} />
                     </button>
                     <button className="p-2 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 rounded transition-colors" title="Suspender Operação">

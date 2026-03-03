@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { rateLimit, getClientIp } from "@/utils/rate-limit";
+import { validateCsrf } from "@/utils/csrf";
+import { checkoutSchema } from "@/lib/validators";
 
 const ASAAS_API_URL = process.env.ASAAS_API_URL || "https://sandbox.asaas.com/api/v3";
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
@@ -26,17 +28,32 @@ export async function POST(request: Request) {
         );
     }
 
-    console.log("🟢 POST /api/checkout", ASAAS_API_KEY ? "[ASAAS LIVE]" : "[MOCK MODE]");
+    // CSRF validation
+    const csrfError = validateCsrf(request);
+    if (csrfError) {
+        return NextResponse.json({ error: "Requisição inválida." }, { status: 403 });
+    }
+
+    console.log("🟢 POST /api/checkout", ASAAS_API_KEY ? "[ASAAS LIVE]" : "[MOCK MODE]", `IP: ${ip}`);
 
     try {
-        let body;
+        let rawBody: unknown;
         try {
-            body = await request.json();
+            rawBody = await request.json();
         } catch {
             return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
         }
 
-        const { name, email, phone, cpf, password, courseId, paymentMethod, creditCard, installments = 1 } = body;
+        // Zod validation
+        const parseResult = checkoutSchema.safeParse(rawBody);
+        if (!parseResult.success) {
+            return NextResponse.json(
+                { error: "Dados inválidos.", details: parseResult.error.flatten().fieldErrors },
+                { status: 422 }
+            );
+        }
+
+        const { name, email, phone, cpf, password, courseId, paymentMethod, creditCard, installments = 1 } = parseResult.data;
 
         if (!email || !name || !courseId) {
             return NextResponse.json({ error: "Nome, email e courseId são obrigatórios." }, { status: 400 });
@@ -190,20 +207,33 @@ export async function POST(request: Request) {
         const chargeData = await chargeRes.json();
 
         if (!chargeRes.ok) {
-            console.error("Asaas charge error:", chargeData);
+            console.error("Asaas charge error:", { status: chargeRes.status, errors: chargeData.errors });
             throw new Error(chargeData.errors?.[0]?.description || "Erro ao gerar cobrança no Asaas");
         }
 
-        // 7. Save transaction in DB
+        // 7. Save transaction in DB + split audit
         if (userId) {
-            await supabaseAdmin.from('transactions').insert({
+            const { data: savedTx } = await supabaseAdmin.from('transactions').insert({
                 user_id: userId,
                 course_id: courseId,
                 amount: finalValue,
                 status: 'pending',
                 asaas_payment_id: chargeData.id,
                 payment_method: paymentMethod,
-            });
+            }).select('id').single();
+
+            // Split audit trail
+            if (savedTx?.id && professorWalletId) {
+                const platformAmount = Number((finalValue - professorFixedSplit).toFixed(2));
+                await supabaseAdmin.from('split_audit').insert({
+                    transaction_id: savedTx.id,
+                    professor_wallet_id: professorWalletId,
+                    professor_amount: professorFixedSplit,
+                    platform_amount: platformAmount,
+                    total_amount: finalValue,
+                    split_percent: splitPercent,
+                });
+            }
         }
 
         // 8. Return response
@@ -231,7 +261,7 @@ export async function POST(request: Request) {
         });
 
     } catch (error: any) {
-        console.error("🔴 CHECKOUT ERROR:", error);
+        console.error("🔴 CHECKOUT ERROR:", error?.message || "Unknown error");
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

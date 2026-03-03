@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Film, LogOut, UploadCloud, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Film, LogOut, UploadCloud, ChevronRight, BarChart3, CreditCard, GraduationCap, Palette, Globe, Handshake } from 'lucide-react';
 
 export function StudioSidebar() {
     const pathname = usePathname();
@@ -10,6 +10,12 @@ export function StudioSidebar() {
     const links = [
         { href: '/studio', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/studio/cursos', label: 'Cursos & Aulas', icon: Film },
+        { href: '/studio/assinaturas', label: 'Assinaturas', icon: CreditCard },
+        { href: '/studio/alunos', label: 'Alunos', icon: GraduationCap },
+        { href: '/studio/afiliados', label: 'Afiliados', icon: Handshake },
+        { href: '/studio/analytics', label: 'Analytics', icon: BarChart3 },
+        { href: '/studio/configuracoes/aparencia', label: 'Aparência', icon: Palette },
+        { href: '/studio/configuracoes/dominio', label: 'Domínios', icon: Globe },
     ];
 
     return (

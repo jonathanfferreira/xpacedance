@@ -1,6 +1,6 @@
 'use client';
 
-import { Users, Search, Filter, ShieldCheck, UserX, RefreshCw } from 'lucide-react';
+import { Users, Search, ShieldOff, ShieldCheck, UserX, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
@@ -31,11 +31,25 @@ export default function MasterStudentsPage() {
     useEffect(() => { fetchStudents(); }, []);
 
     const handleBan = async (userId: string) => {
-        if (!confirm("Tem certeza que deseja banir este aluno? Ele perderá acesso a todas as aulas.")) return;
-        // Banir = mudar role para 'banned' (ou deletar, conforme regra de negócio)
+        if (!confirm("Tem certeza que deseja BANIR este aluno? Ele perderá acesso permanentemente.")) return;
         const { error } = await supabase.from('users').update({ role: 'banned' }).eq('id', userId);
         if (error) { alert("Erro: " + error.message); return; }
         alert("Aluno banido da plataforma.");
+        fetchStudents();
+    };
+
+    const handleSuspend = async (userId: string) => {
+        if (!confirm("Suspender este aluno? Ele perderá acesso temporário.")) return;
+        const { error } = await supabase.from('users').update({ role: 'suspended' }).eq('id', userId);
+        if (error) { alert("Erro: " + error.message); return; }
+        alert("Aluno suspenso.");
+        fetchStudents();
+    };
+
+    const handleRestore = async (userId: string) => {
+        const { error } = await supabase.from('users').update({ role: 'student' }).eq('id', userId);
+        if (error) { alert("Erro: " + error.message); return; }
+        alert("Acesso restaurado.");
         fetchStudents();
     };
 
@@ -117,13 +131,23 @@ export default function MasterStudentsPage() {
                                         </td>
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                <button className="p-2 text-[#666] hover:text-white hover:bg-[#222] rounded transition-colors" title="Ver Perfil Global">
-                                                    <Users size={16} />
-                                                </button>
-                                                {aluno.role !== 'admin' && (
-                                                    <button onClick={() => handleBan(aluno.id)} className="p-2 text-[#666] hover:text-red-500 hover:bg-red-500/10 rounded transition-colors" title="Banir Aluno (Quebra Termos)">
-                                                        <UserX size={16} />
+                                                {(aluno.role === 'banned' || aluno.role === 'suspended') ? (
+                                                    <button onClick={() => handleRestore(aluno.id)} className="p-2 text-green-500/70 hover:text-green-500 hover:bg-green-500/10 rounded transition-colors" title="Restaurar Acesso">
+                                                        <ShieldCheck size={16} />
                                                     </button>
+                                                ) : (
+                                                    <>
+                                                        {aluno.role !== 'admin' && (
+                                                            <button onClick={() => handleSuspend(aluno.id)} className="p-2 text-[#666] hover:text-yellow-500 hover:bg-yellow-500/10 rounded transition-colors" title="Suspender (temporário)">
+                                                                <ShieldOff size={16} />
+                                                            </button>
+                                                        )}
+                                                        {aluno.role !== 'admin' && (
+                                                            <button onClick={() => handleBan(aluno.id)} className="p-2 text-[#666] hover:text-red-500 hover:bg-red-500/10 rounded transition-colors" title="Banir Aluno (permanente)">
+                                                                <UserX size={16} />
+                                                            </button>
+                                                        )}
+                                                    </>
                                                 )}
                                             </div>
                                         </td>

@@ -2,9 +2,33 @@ import { NextResponse } from 'next/server';
 import webpush from 'web-push';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { validateCsrf } from '@/utils/csrf';
+import { logAuditEvent } from '@/utils/audit';
 
 export async function POST(req: Request) {
     try {
+        // CSRF validation
+        const csrfError = validateCsrf(req);
+        if (csrfError) {
+            return NextResponse.json({ error: 'Requisição inválida.' }, { status: 403 });
+        }
+
+        // Auth guard: verify caller is admin
+        const cookieStore = await cookies();
+        const authSupabase = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            { cookies: { getAll() { return cookieStore.getAll() }, setAll() { } } }
+        );
+        const { data: { user } } = await authSupabase.auth.getUser();
+        if (!user) {
+            return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+        }
+        const role = user.app_metadata?.role || user.user_metadata?.role || 'aluno';
+        if (role !== 'admin') {
+            return NextResponse.json({ error: "Acesso negado. Apenas admin pode enviar push." }, { status: 403 });
+        }
+
         const body = await req.json();
         const { title, text, url } = body;
 
@@ -14,7 +38,7 @@ export async function POST(req: Request) {
             process.env.VAPID_PRIVATE_KEY!
         );
 
-        const cookieStore = await cookies();
+        // Service role client for reading all push subscriptions
         const supabase = createServerClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -46,6 +70,13 @@ export async function POST(req: Request) {
         });
 
         await Promise.allSettled(promises);
+
+        // Audit log
+        await logAuditEvent(user.id, 'push_broadcast_sent', 'push_subscriptions', undefined, {
+            title: title || 'XTAGE',
+            recipientCount: subs.length,
+        });
+
         return NextResponse.json({ success: true, sentCount: subs.length });
     } catch (e: any) {
         console.error('Push Error:', e);

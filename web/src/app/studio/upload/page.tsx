@@ -2,6 +2,7 @@
 
 import { UploadCloud, CheckCircle2, Film, Info, AlertTriangle, Loader2, Plus } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import * as tus from 'tus-js-client';
 
 interface Course { id: string; title: string; }
@@ -174,7 +175,7 @@ export default function StudioUploadPage() {
                                 </div>
                             ) : courses.length === 0 ? (
                                 <div className="text-[#555] text-sm py-2">
-                                    Nenhum curso. <a href="/studio/cursos/novo" className="text-primary hover:text-white">Criar curso</a>
+                                    Nenhum curso. <Link href="/studio/cursos/novo" className="text-primary hover:text-white">Criar curso</Link>
                                 </div>
                             ) : (
                                 <select
@@ -344,9 +345,9 @@ export default function StudioUploadPage() {
                         </ul>
                     </div>
 
-                    <a href="/studio/cursos" className="flex items-center gap-2 text-[#888] hover:text-white text-sm font-mono transition-colors">
+                    <Link href="/studio/cursos" className="flex items-center gap-2 text-[#888] hover:text-white text-sm font-mono transition-colors">
                         <Plus size={14} /> Gerenciar Cursos
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>

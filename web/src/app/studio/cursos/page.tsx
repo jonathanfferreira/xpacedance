@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Plus, Search, Video, Edit2, Trash2, Eye, EyeOff, PlayCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 interface Course {
@@ -150,7 +151,7 @@ function CourseCard({ course, onDelete, onTogglePublish, onEdit }: {
         <div className="bg-[#0a0a0a] border border-[#1a1a1a] hover:border-[#333] transition-colors rounded-sm overflow-hidden group flex flex-col">
             <div className="h-40 relative bg-[#111] border-b border-[#1a1a1a] overflow-hidden">
                 {course.thumbnail_url ? (
-                    <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-700" />
+                    <Image src={course.thumbnail_url} alt={course.title} fill className="object-cover opacity-40 group-hover:scale-105 transition-transform duration-700" unoptimized />
                 ) : (
                     <div className="absolute inset-0 opacity-20 group-hover:scale-105 transition-transform duration-700" style={{ background: 'linear-gradient(135deg, #6324b2, #7000F0)' }}></div>
                 )}

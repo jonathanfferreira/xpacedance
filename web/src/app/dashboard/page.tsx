@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Play } from "lucide-react";
 import { Top10Carousel } from "@/components/layout/top10-carousel";
 import { createServerClient } from "@supabase/ssr";
@@ -142,7 +143,7 @@ export default async function DashboardPage() {
                     <div className="flex flex-col md:flex-row p-6 pl-8 gap-8 items-center relative z-20">
                         <div className="w-full md:w-64 h-36 bg-[#1A1A1A] relative border border-[#333] group-hover:border-primary/40 transition-colors flex shrink-0 items-center justify-center overflow-hidden">
                             {data.latestCourse.thumbnail ? (
-                                <img src={data.latestCourse.thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+                                <Image src={data.latestCourse.thumbnail} alt="" fill className="object-cover opacity-60" unoptimized />
                             ) : (
                                 <div className="absolute inset-0 bg-[url('/images/bg-degrade.png')] bg-cover opacity-20 sepia contrast-150"></div>
                             )}

@@ -43,3 +43,5 @@ pnpm-debug.log*
 # Logs e artefatos de build do Supabase (Apenas se aplicavel)
 supabase/.temp
 supabase/.branch
+
+nul

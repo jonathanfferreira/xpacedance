@@ -1,11 +1,20 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { validateCsrf } from '@/utils/csrf'
+import { logAuditEvent } from '@/utils/audit'
+import { getClientIp } from '@/utils/rate-limit'
 
 // MOCK CONSTANTS FOR ASAAS (For MVP purposes without demanding real CPFs)
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
 
 export async function POST(request: Request) {
+    // CSRF validation
+    const csrfError = validateCsrf(request);
+    if (csrfError) {
+        return NextResponse.json({ error: 'Requisição inválida.' }, { status: 403 });
+    }
+
     try {
         const cookieStore = await cookies()
         const supabase = createServerClient(
@@ -74,6 +83,16 @@ export async function POST(request: Request) {
             .eq('id', tenant.owner_id)
 
         if (updateUserErr) throw updateUserErr
+
+        // Audit log
+        await logAuditEvent(
+            user.id,
+            'school_approved',
+            'tenant',
+            tenantId,
+            { walletId: newWalletId, ownerEmail, tenantName: tenant.name },
+            getClientIp(request)
+        )
 
         return NextResponse.json({
             success: true,

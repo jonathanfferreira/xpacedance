@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { validateCsrf } from '@/utils/csrf'
 
 async function getAuthenticatedUser() {
     const cookieStore = await cookies()
@@ -62,6 +63,9 @@ export async function GET() {
 
 // POST /api/studio/courses — create a new course
 export async function POST(request: Request) {
+    const csrfError = validateCsrf(request)
+    if (csrfError) return NextResponse.json({ error: 'Requisição inválida.' }, { status: 403 })
+
     const { supabase, user } = await getAuthenticatedUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
