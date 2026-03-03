@@ -7,18 +7,15 @@ type Provider = 'google'
 
 export default function SocialLoginButtons() {
     const [loading, setLoading] = useState<Provider | null>(null)
+    const [error, setError] = useState<string | null>(null)
 
     const handleOAuth = async (provider: Provider) => {
         setLoading(provider)
+        setError(null)
         const supabase = createClient()
 
-        // Use env var only - never fallback to window.location.origin to prevent open redirect
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-        if (!siteUrl) {
-            console.error('NEXT_PUBLIC_SITE_URL is not configured.')
-            setLoading(null)
-            return
-        }
+        // Fallback para window.location.origin em dev caso a variável não esteja configurada
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
 
         const { error } = await supabase.auth.signInWithOAuth({
             provider,
@@ -29,6 +26,7 @@ export default function SocialLoginButtons() {
 
         if (error) {
             console.error(`OAuth ${provider} error:`, error.message)
+            setError('Falha ao conectar com Google. Tente novamente.')
             setLoading(null)
         }
     }
@@ -41,6 +39,12 @@ export default function SocialLoginButtons() {
                 <span className="font-sans text-xs text-[#555555] uppercase tracking-widest">ou continue com</span>
                 <div className="h-px flex-1 bg-surface" />
             </div>
+
+            {error && (
+                <div className="text-red-500 text-xs text-center font-sans bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">
+                    {error}
+                </div>
+            )}
 
             {/* Google Button - Official Style */}
             <button
