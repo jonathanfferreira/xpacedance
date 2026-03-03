@@ -36,6 +36,7 @@ export function NotificationBell() {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchNotifications();
 
         // Inscreve no canal realtime da tabela 'notifications' para o usuário logado

@@ -1,0 +1,156 @@
+
+D:\antigravity\xpace-on\web\src\app\(public)\termos\page.tsx
+  38:78  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  38:87  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+D:\antigravity\xpace-on\web\src\app\dashboard\explore\page.tsx
+  82:93   error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  82:101  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+D:\antigravity\xpace-on\web\src\app\dashboard\os\page.tsx
+  95:23  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\antigravity\xpace-on\web\src\app\dashboard\os\page.tsx:95:23
+  93 |     };
+  94 |
+> 95 |     useEffect(() => { loadStats(); }, []);
+     |                       ^^^^^^^^^ Avoid calling setState() directly within an effect
+  96 |
+  97 |     const fmt = (v: number) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  98 |     const maxSale = stats ? Math.max(...stats.monthlySales.map(s => s.total), 1) : 1;  react-hooks/set-state-in-effect
+  95:39  warning  React Hook useEffect has a missing dependency: 'loadStats'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/exhaustive-deps
+
+D:\antigravity\xpace-on\web\src\app\dashboard\os\white-label\page.tsx
+  48:8  warning  React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\antigravity\xpace-on\web\src\app\master\alunos\page.tsx
+  31:23  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\antigravity\xpace-on\web\src\app\master\alunos\page.tsx:31:23
+  29 |     };
+  30 |
+> 31 |     useEffect(() => { fetchStudents(); }, []);
+     |                       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  32 |
+  33 |     const handleBan = async (userId: string) => {
+  34 |         if (!confirm("Tem certeza que deseja BANIR este aluno? Ele perderá acesso permanentemente.")) return;  react-hooks/set-state-in-effect
+  31:43  warning  React Hook useEffect has a missing dependency: 'fetchStudents'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react-hooks/exhaustive-deps
+
+D:\antigravity\xpace-on\web\src\app\master\escolas\page.tsx
+  45:41  warning  React Hook useEffect has a missing dependency: 'fetchSchools'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\antigravity\xpace-on\web\src\app\master\page.tsx
+  65:44  warning  React Hook useEffect has a missing dependency: 'fetchDashboard'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\antigravity\xpace-on\web\src\app\studio\cursos\page.tsx
+  37:23  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\antigravity\xpace-on\web\src\app\studio\cursos\page.tsx:37:23
+  35 |     };
+  36 |
+> 37 |     useEffect(() => { fetchCourses(); }, []);
+     |                       ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  38 |
+  39 |     const handleDelete = async (id: string, title: string) => {
+  40 |         if (!confirm(`Tem certeza que deseja excluir o curso "${title}"? Esta ação é irreversível.`)) return;  react-hooks/set-state-in-effect
+
+D:\antigravity\xpace-on\web\src\app\studio\upload\page.tsx
+  85:17  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+D:\antigravity\xpace-on\web\src\components\community\community-board.tsx
+  82:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\antigravity\xpace-on\web\src\components\community\community-board.tsx:82:9
+  80 |         }
+  81 |         fetchUser()
+> 82 |         fetchComments()
+     |         ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  83 |
+  84 |         // Realtime: on INSERT, fetch only the new comment (not all) and prepend
+  85 |         const channel = supabase.channel(`public:comments:lesson_${lessonId}`)  react-hooks/set-state-in-effect
+
+D:\antigravity\xpace-on\web\src\components\layout\notification-bell.tsx
+  39:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\antigravity\xpace-on\web\src\components\layout\notification-bell.tsx:39:9
+  37 |
+  38 |     useEffect(() => {
+> 39 |         fetchNotifications();
+     |         ^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  40 |
+  41 |         // Inscreve no canal realtime da tabela 'notifications' para o usuário logado
+  42 |         const subscription = supabase  react-hooks/set-state-in-effect
+
+D:\antigravity\xpace-on\web\src\components\pwa\install-banner.tsx
+  22:9    error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\antigravity\xpace-on\web\src\components\pwa\install-banner.tsx:22:9
+  20 |         const userAgent = window.navigator.userAgent.toLowerCase();
+  21 |         const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
+> 22 |         setIsIOS(isIOSDevice);
+     |         ^^^^^^^^ Avoid calling setState() directly within an effect
+  23 |
+  24 |         if (isIOSDevice) {
+  25 |             // No iOS Safari não há evento prompt nativo, exibimos manual após uns segundos  react-hooks/set-state-in-effect
+  84:151  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           react/no-unescaped-entities
+  84:178  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           react/no-unescaped-entities
+
+D:\antigravity\xpace-on\web\src\components\ui\power-on.tsx
+  13:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\antigravity\xpace-on\web\src\components\ui\power-on.tsx:13:13
+  11 |         // Pula a animação se for a mesma sessão pra não irritar quem dá refresh
+  12 |         if (sessionStorage.getItem('xtage-powered')) {
+> 13 |             setHasStarted(true);
+     |             ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |         }
+  15 |     }, []);
+  16 |  react-hooks/set-state-in-effect
+
+D:\antigravity\xpace-on\web\src\utils\marketing\InvoiceEmail.tsx
+  46:13  warning  Do not use `<head>` element. Use `<Head />` from `next/head` instead. See: https://nextjs.org/docs/messages/no-head-element  @next/next/no-head-element
+
+✖ 20 problems (14 errors, 6 warnings)
+

@@ -82,7 +82,7 @@ export default function StudioUploadPage() {
             const upload = new tus.Upload(file, {
                 endpoint: 'https://video.bunnycdn.com/tusupload',
                 retryDelays: [0, 3000, 5000, 10000, 20000],
-                // @ts-ignore
+                // @ts-expect-error "resume" isn't fully typed conditionally in tus yet
                 resume: true, // Auto save to localStorage
                 removeFingerprintOnSuccess: true, // Cleanup localStorage on finish
                 headers: {

@@ -19,6 +19,7 @@ export function PwaInstallBanner() {
         // Detecta iOS
         const userAgent = window.navigator.userAgent.toLowerCase();
         const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsIOS(isIOSDevice);
 
         if (isIOSDevice) {
@@ -81,7 +82,7 @@ export function PwaInstallBanner() {
 
                     {isIOS ? (
                         <p className="text-xs text-[#888] mb-3 leading-relaxed">
-                            Toque no botão <strong className="text-[#aaa]">Compartilhar</strong> do Safari e depois em <strong className="text-white">"Adicionar à Tela de Início"</strong> para jogar o Holo-Deck no seu celular.
+                            Toque no botão <strong className="text-[#aaa]">Compartilhar</strong> do Safari e depois em <strong className="text-white">&quot;Adicionar à Tela de Início&quot;</strong> para jogar o Holo-Deck no seu celular.
                         </p>
                     ) : (
                         <div className="mb-3">

@@ -100,7 +100,7 @@ export async function POST(request: Request) {
             walletId: newWalletId
         })
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
     } catch (e: any) {
         console.error("Master Approve Error:", e)
         return NextResponse.json({ error: e.message || 'Server Exception' }, { status: 500 })

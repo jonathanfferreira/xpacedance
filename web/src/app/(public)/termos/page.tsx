@@ -35,7 +35,7 @@ export default function TermosPage() {
                             <li>Usar os materiais para qualquer finalidade comercial na forma de pirataria;</li>
                             <li>Tentar descompilar ou fazer engenharia reversa de qualquer software contido no site XTAGE;</li>
                             <li>Remover quaisquer direitos autorais ou outras notações de propriedade dos materiais; ou</li>
-                            <li>Transferir os materiais para outra pessoa ou 'espelhar' os materiais em qualquer outro servidor.</li>
+                            <li>Transferir os materiais para outra pessoa ou &apos;espelhar&apos; os materiais em qualquer outro servidor.</li>
                         </ul>
                     </section>
 

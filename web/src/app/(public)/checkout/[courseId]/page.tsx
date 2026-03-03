@@ -141,7 +141,7 @@ export default function CheckoutPage() {
             } else {
                 setSuccessMode(true);
             }
-        } catch (asaasError: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+        } catch (asaasError: any) {  
             setErrorMsg(asaasError.message);
         } finally {
             setIsProcessing(false);

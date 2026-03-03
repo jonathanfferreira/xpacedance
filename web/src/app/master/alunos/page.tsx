@@ -28,6 +28,7 @@ export default function MasterStudentsPage() {
         setLoading(false);
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => { fetchStudents(); }, []);
 
     const handleBan = async (userId: string) => {

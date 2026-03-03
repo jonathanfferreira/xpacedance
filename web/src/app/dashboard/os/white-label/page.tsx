@@ -45,6 +45,7 @@ export default function WhiteLabelPage() {
             }
         }
         load()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []) // supabase é estável, não precisa ser dependency
 
     const handleColorChange = (color: string) => {
@@ -156,7 +157,7 @@ export default function WhiteLabelPage() {
                                 {loadingLogo ? (
                                     <Loader2 size={32} className="text-primary animate-spin mb-2" />
                                 ) : logoUrl ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
+
                                     <img src={logoUrl} alt="Logo atual" className="h-16 object-contain mb-2" />
                                 ) : (
                                     <Upload size={32} className="text-[#444] group-hover:text-primary transition-colors mb-2" />
@@ -239,7 +240,7 @@ export default function WhiteLabelPage() {
                         <div className="h-10 flex items-center px-4 border-b border-[#1a1a1a]" style={{ borderBottomColor: brandColor + '40' }}>
                             <div className="flex items-center gap-2">
                                 {logoUrl ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
+
                                     <img src={logoUrl} alt="logo" className="h-5 w-5 object-contain" />
                                 ) : (
                                     <div className="w-5 h-5 rounded-full" style={{ backgroundColor: brandColor }} />

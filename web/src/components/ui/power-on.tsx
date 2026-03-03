@@ -10,6 +10,7 @@ export function PowerOnPreloader({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // Pula a animação se for a mesma sessão pra não irritar quem dá refresh
         if (sessionStorage.getItem('xtage-powered')) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setHasStarted(true);
         }
     }, []);

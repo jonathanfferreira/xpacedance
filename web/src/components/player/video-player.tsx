@@ -37,7 +37,7 @@ export function VideoPlayer({ videoId, tokenizedUrl }: { videoId?: string; token
                 hls.attachMedia(video);
 
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    console.log("HLS Manifest Parsed - Ready to play Bunny.net Video!");
+                    // Pronto para iniciar Bunny.net Stream
                 });
 
                 // Tratamento de erros de decode ou rede do CDN

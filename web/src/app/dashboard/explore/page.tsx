@@ -79,7 +79,7 @@ export default async function ExplorePage({ searchParams }: ExploreProps) {
                             <Search size={32} />
                         </div>
                         <h3 className="text-2xl font-heading text-white uppercase tracking-tight mb-2">Nada Encontrado</h3>
-                        <p className="text-[#888]">Não encontramos nenhum curso com o termo "{query}". Tente outra palavra-chave.</p>
+                        <p className="text-[#888]">Não encontramos nenhum curso com o termo &quot;{query}&quot;. Tente outra palavra-chave.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

@@ -62,6 +62,7 @@ export default function MasterDashboardPage() {
         setLoading(false);
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => { fetchDashboard(); }, []);
 
     const handleApprove = async (tenantId: string) => {

@@ -79,6 +79,7 @@ export function CommunityBoard({ lessonId }: CommunityBoardProps) {
             }
         }
         fetchUser()
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchComments()
 
         // Realtime: on INSERT, fetch only the new comment (not all) and prepend

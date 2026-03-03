@@ -42,6 +42,7 @@ export default function MasterSchoolsPage() {
         setLoading(false);
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => { fetchSchools() }, []);
 
     const approveSchool = async (tenantId: string) => {

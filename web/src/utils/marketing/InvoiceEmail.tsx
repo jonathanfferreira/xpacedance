@@ -43,6 +43,7 @@ export const InvoiceEmail: React.FC<InvoiceEmailProps> = ({
 
     return (
         <html lang="pt-BR">
+            {/* eslint-disable-next-line @next/next/no-head-element */}
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />

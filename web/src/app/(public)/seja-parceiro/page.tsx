@@ -20,8 +20,6 @@ export default function PartnerOnboardingPage() {
             // Emula o tempo de rede
             await new Promise(r => setTimeout(r, 1500));
 
-            console.log('Lead Parceiro Capturado:', data);
-
             setFormState('success');
         } catch (err) {
             setFormState('error');
