@@ -114,15 +114,37 @@ function SearchInput() {
 
 export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
     const [userName, setUserName] = useState('');
+    const [totalXp, setTotalXp] = useState(0);
+    const [streakDays, setStreakDays] = useState(0);
 
     useEffect(() => {
         const fetchUser = async () => {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
+                // Buscar nome
                 const { data } = await supabase.from('users').select('full_name').eq('id', user.id).single();
-                if (data?.full_name) {
-                    setUserName(data.full_name);
+                if (data?.full_name) setUserName(data.full_name);
+
+                // Buscar XP total
+                const { data: xpData } = await supabase
+                    .from('user_xp_history')
+                    .select('amount')
+                    .eq('user_id', user.id);
+                const xp = (xpData || []).reduce((sum, row) => sum + (row.amount || 0), 0);
+                setTotalXp(xp);
+
+                // Buscar streak (dias consecutivos com XP)
+                const { data: streakData } = await supabase
+                    .from('user_xp_history')
+                    .select('created_at')
+                    .eq('user_id', user.id)
+                    .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+                    .order('created_at', { ascending: false });
+
+                if (streakData && streakData.length > 0) {
+                    const uniqueDays = new Set(streakData.map(r => new Date(r.created_at).toDateString()));
+                    setStreakDays(uniqueDays.size);
                 }
             }
         };
@@ -153,13 +175,13 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
                 {/* Gamification Stats */}
                 <div className="hidden md:flex items-center gap-4">
                     <div className="flex flex-col items-center justify-center px-4 py-1.5 bg-[#0A0A0A] border border-[#222] rounded-sm relative group cursor-pointer hover:border-secondary/30 transition-colors">
-                        <span className="font-display text-lg text-secondary leading-none">1,240</span>
+                        <span className="font-display text-lg text-secondary leading-none">{totalXp.toLocaleString('pt-BR')}</span>
                         <span className="text-[8px] font-mono uppercase tracking-widest text-[#555] group-hover:text-secondary/70 transition-colors">XP Acumulado</span>
                     </div>
 
                     <div className="flex flex-col items-center justify-center px-4 py-1.5 bg-[#0A0A0A] border border-[#222] rounded-sm relative group cursor-pointer hover:border-accent/30 transition-colors">
                         <div className="flex items-center gap-1 opacity-90 group-hover:opacity-100 transition-opacity">
-                            <span className="font-display text-lg text-accent leading-none">04</span>
+                            <span className="font-display text-lg text-accent leading-none">{String(streakDays).padStart(2, '0')}</span>
                         </div>
                         <span className="text-[8px] font-mono uppercase tracking-widest text-[#555] group-hover:text-accent/70 transition-colors">Sequência (Dias)</span>
                     </div>
