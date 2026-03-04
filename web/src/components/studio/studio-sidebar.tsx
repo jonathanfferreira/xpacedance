@@ -34,6 +34,7 @@ export function StudioSidebar({ isOpen, onClose, tenant }: { isOpen?: boolean, o
         { href: '/studio/cursos', label: 'Cursos & Aulas', icon: Film },
         { href: '/studio/loja', label: 'Minha Loja', icon: ShoppingBag },
         { href: '/studio/alunos', label: 'Alunos', icon: GraduationCap },
+        { href: '/studio/analytics', label: 'Analytics', icon: TrendingUp },
         // Novidades
         { href: '/studio/assinaturas', label: 'Planos & Assinaturas', icon: Award },
         { href: '/studio/afiliados', label: 'Gestão de Afiliados', icon: LinkIcon },
@@ -81,7 +82,7 @@ export function StudioSidebar({ isOpen, onClose, tenant }: { isOpen?: boolean, o
                             {tenant?.name || 'Studio'}
                         </h2>
                         <p className="text-[#666] text-[10px] font-mono uppercase tracking-widest mt-1 truncate">
-                            {tenant?.slug ? `xpace.on/${tenant.slug}` : 'Sua Escola'}
+                            {tenant?.slug ? `xtage.app/${tenant.slug}` : 'Sua Escola'}
                         </p>
                     </div>
                 </div>

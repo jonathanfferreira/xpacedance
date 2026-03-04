@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MasterSidebar } from "@/components/master/master-sidebar";
 import { Menu } from 'lucide-react';
 
@@ -10,8 +10,20 @@ export default function MasterLayout({
     children: React.ReactNode;
 }) {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [userName, setUserName] = useState<string | null>(null);
 
-    // Nota RBAC: Restringir isso apenas a JWT custom_claim "role: platform_admin"
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { createClient } = await import('@/utils/supabase/client');
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data } = await supabase.from('users').select('full_name').eq('id', user.id).single();
+                setUserName(data?.full_name || user.email?.split('@')[0] || 'Admin');
+            }
+        };
+        fetchUser();
+    }, []);
     return (
         <div className="flex bg-[#050505] min-h-screen text-[#ededed] font-sans selection:bg-primary/30 selection:text-white">
             <MasterSidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -28,8 +40,8 @@ export default function MasterLayout({
 
                     <div className="flex items-center gap-4">
                         <div className="text-right hidden md:block">
-                            <p className="text-sm font-bold text-white">Jonathan F.</p>
-                            <p className="text-[10px] text-red-500 font-mono uppercase tracking-widest">CEO / Supremo</p>
+                            <p className="text-sm font-bold text-white">{userName || '...'}</p>
+                            <p className="text-[10px] text-red-500 font-mono uppercase tracking-widest">Admin · Master</p>
                         </div>
                         <div className="w-10 h-10 rounded-full border border-red-500/30 bg-black flex items-center justify-center">
                             <span className="text-red-500 font-bold font-heading text-xs">ON</span>

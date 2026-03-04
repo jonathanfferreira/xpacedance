@@ -24,6 +24,7 @@ export function MasterSidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?:
         { href: '/master/financeiro', label: 'Hub Financeiro (Asaas)', icon: DollarSign },
         { href: '/master/alunos', label: 'Alunos Globais', icon: Users },
         { href: '/master/seguranca', label: 'Auditoria & Logs', icon: ShieldAlert },
+        { href: '/master/suporte', label: 'Suporte & Eventos', icon: Settings },
         { href: '/master/config', label: 'Engine da Plataforma', icon: Settings },
     ];
 

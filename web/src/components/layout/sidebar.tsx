@@ -74,7 +74,14 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
                         </span>
                     </button>
 
-                    <button className="w-full flex items-center p-3 rounded bg-transparent hover:bg-[#1a0505] text-[#555] hover:text-[#ff3300] transition-colors relative overflow-hidden group/btn border border-transparent hover:border-[#330a0a]">
+                    <button
+                        onClick={async () => {
+                            const { createClient } = await import('@/utils/supabase/client');
+                            const supabase = createClient();
+                            await supabase.auth.signOut();
+                            window.location.href = '/login';
+                        }}
+                        className="w-full flex items-center p-3 rounded bg-transparent hover:bg-[#1a0505] text-[#555] hover:text-[#ff3300] transition-colors relative overflow-hidden group/btn border border-transparent hover:border-[#330a0a]">
                         <span className="w-5 shrink-0 flex justify-center z-10">
                             <LogOut size={20} />
                         </span>

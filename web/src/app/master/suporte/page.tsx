@@ -10,8 +10,8 @@ async function getSupportData() {
     // Busca os logs de auditoria mais recentes (ações críticas do sistema)
     const [{ data: auditLogs }, { data: recentUsers }, { data: errorUsers }] = await Promise.all([
         supabaseAdmin
-            .from('audit_log')
-            .select('id, action, user_id, created_at, meta')
+            .from('audit_logs')
+            .select('id, action, user_id, created_at, metadata')
             .order('created_at', { ascending: false })
             .limit(30),
 

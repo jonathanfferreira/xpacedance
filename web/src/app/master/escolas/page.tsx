@@ -24,6 +24,8 @@ export default function MasterSchoolsPage() {
     const [editingSchool, setEditingSchool] = useState<School | null>(null);
     const [editForm, setEditForm] = useState<EditForm>({ name: '', status: 'active' });
     const [saving, setSaving] = useState(false);
+    const [search, setSearch] = useState('');
+    const [filterStatus, setFilterStatus] = useState<'all' | School['status']>('all');
     const supabase = createClient();
 
     const fetchSchools = async () => {
@@ -32,12 +34,13 @@ export default function MasterSchoolsPage() {
             .from('tenants')
             .select(`
                 id, name, status, created_at,
-                owner:users!owner_id(full_name, email)
+                owner:users!owner_id(full_name, email),
+                courses(id)
             `)
             .order('created_at', { ascending: false });
 
         if (!error && data) {
-            setSchools(data as unknown as School[]);
+            setSchools(data.map((s: any) => ({ ...s, _courses_count: s.courses?.length || 0 })) as School[]);
         }
         setLoading(false);
     }
@@ -68,6 +71,15 @@ export default function MasterSchoolsPage() {
         setEditForm({ name: school.name, status: school.status });
     };
 
+    const handleSuspend = async (school: School) => {
+        const newStatus = school.status === 'suspended' ? 'active' : 'suspended';
+        const msg = school.status === 'suspended' ? 'Reativar esta escola?' : 'Suspender esta escola?';
+        if (!confirm(msg)) return;
+        const { error } = await supabase.from('tenants').update({ status: newStatus }).eq('id', school.id);
+        if (error) { alert('Erro: ' + error.message); return; }
+        setSchools(prev => prev.map(s => s.id === school.id ? { ...s, status: newStatus } : s));
+    };
+
     const handleSaveEdit = async () => {
         if (!editingSchool) return;
         setSaving(true);
@@ -90,6 +102,22 @@ export default function MasterSchoolsPage() {
         }
     };
 
+    const statusCycle: Array<'all' | School['status']> = ['all', 'active', 'pending', 'suspended'];
+    const nextFilter = () => setFilterStatus(prev => {
+        const idx = statusCycle.indexOf(prev);
+        return statusCycle[(idx + 1) % statusCycle.length];
+    });
+
+    const filtered = schools.filter(s => {
+        const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) ||
+            (s.owner?.full_name || '').toLowerCase().includes(search.toLowerCase()) ||
+            (s.owner?.email || '').toLowerCase().includes(search.toLowerCase());
+        const matchesFilter = filterStatus === 'all' || s.status === filterStatus;
+        return matchesSearch && matchesFilter;
+    });
+
+    const filterLabel: Record<string, string> = { all: 'Todos', active: 'Ativos', pending: 'Pendentes', suspended: 'Suspensos' };
+
     return (
         <div className="max-w-7xl mx-auto pb-10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
@@ -101,10 +129,19 @@ export default function MasterSchoolsPage() {
                     <button onClick={fetchSchools} className="flex items-center gap-2 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] text-[#aaa] px-4 py-2.5 rounded font-mono text-sm uppercase transition-all">
                         <RefreshCw size={18} className={loading ? "animate-spin" : ""} /> Sync
                     </button>
-                    <button className="flex items-center gap-2 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] text-white px-5 py-2.5 rounded font-mono text-sm uppercase tracking-wider font-bold transition-all">
-                        <Filter size={18} /> Filtrar
+                    <button
+                        onClick={nextFilter}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded font-mono text-sm uppercase tracking-wider font-bold transition-all border ${filterStatus !== 'all'
+                            ? 'bg-primary/20 border-primary/50 text-white'
+                            : 'bg-[#111] hover:bg-[#1a1a1a] border-[#222] text-white'
+                            }`}
+                    >
+                        <Filter size={18} /> {filterLabel[filterStatus]}
                     </button>
-                    <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded font-mono text-sm uppercase tracking-wider font-bold transition-all shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+                    <button
+                        onClick={() => alert('Cadastro manual de escola em desenvolvimento. Use o fluxo de parceiros.')}
+                        className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded font-mono text-sm uppercase tracking-wider font-bold transition-all shadow-[0_0_15px_rgba(220,38,38,0.5)]"
+                    >
                         <Plus size={18} /> Cadastrar Escola
                     </button>
                 </div>
@@ -116,7 +153,9 @@ export default function MasterSchoolsPage() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#555]" size={18} />
                         <input
                             type="text"
-                            placeholder="Buscar inquilino por nome ou ID..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="Buscar por nome, dono ou e-mail..."
                             className="w-full bg-[#111] border border-[#222] rounded py-2 pl-10 pr-4 text-white text-sm focus:outline-none focus:border-red-500/50 transition-colors"
                         />
                     </div>
@@ -137,15 +176,16 @@ export default function MasterSchoolsPage() {
                         <tbody className="text-sm font-sans divide-y divide-[#1a1a1a]">
                             {loading ? (
                                 <tr><td colSpan={6} className="p-8 text-center text-[#555]">Carregando rede...</td></tr>
-                            ) : schools.length === 0 ? (
-                                <tr><td colSpan={6} className="p-8 text-center text-[#555]">Nenhum inquilino cadastrado na sua operação local.</td></tr>
+                            ) : filtered.length === 0 ? (
+                                <tr><td colSpan={6} className="p-8 text-center text-[#555]">Nenhum resultado para os filtros atuais.</td></tr>
                             ) : (
-                                schools.map(s => (
+                                filtered.map(s => (
                                     <SchoolRow
                                         key={s.id}
                                         school={s}
                                         onApprove={() => approveSchool(s.id)}
                                         onEdit={() => openEdit(s)}
+                                        onSuspend={() => handleSuspend(s)}
                                     />
                                 ))
                             )}
@@ -212,8 +252,8 @@ export default function MasterSchoolsPage() {
     );
 }
 
-function SchoolRow({ school, onApprove, onEdit }: { school: School; onApprove: () => void; onEdit: () => void }) {
-    const { name, id, owner, status } = school;
+function SchoolRow({ school, onApprove, onEdit, onSuspend }: { school: School; onApprove: () => void; onEdit: () => void; onSuspend: () => void }) {
+    const { name, id, owner, status, _courses_count } = school;
     return (
         <tr className="hover:bg-[#111] transition-colors group">
             <td className="p-4">
@@ -228,7 +268,7 @@ function SchoolRow({ school, onApprove, onEdit }: { school: School; onApprove: (
                 </div>
             </td>
             <td className="p-4 text-[#aaa]">{owner?.full_name || owner?.email || "N/A"}</td>
-            <td className="p-4 text-[#aaa] flex items-center gap-2 mt-2"><PlayCircle size={14} /> 0</td>
+            <td className="p-4 text-[#aaa] flex items-center gap-2 mt-2"><PlayCircle size={14} /> {_courses_count}</td>
             <td className="p-4 font-display font-medium text-white">R$ 0</td>
             <td className="p-4">
                 {status === 'active' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-green-500/10 text-green-500 text-xs font-mono uppercase tracking-widest border border-green-500/20"><ShieldCheck size={14} /> Ativo (Split OK)</span>}
@@ -245,7 +285,7 @@ function SchoolRow({ school, onApprove, onEdit }: { school: School; onApprove: (
                     <button onClick={onEdit} className="p-2 text-[#888] hover:text-white hover:bg-[#222] rounded transition-colors" title="Editar Escola">
                         <Edit2 size={16} />
                     </button>
-                    <button className="p-2 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 rounded transition-colors" title="Suspender Operação">
+                    <button onClick={onSuspend} className="p-2 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 rounded transition-colors" title={status === 'suspended' ? 'Reativar Escola' : 'Suspender Operação'}>
                         <Ban size={16} />
                     </button>
                 </div>

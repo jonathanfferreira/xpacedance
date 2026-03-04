@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"DROP POLICY\" /c/antigravity/xpace-on/supabase/migrations/*.sql)",
+      "Bash(xargs grep -l \"CartRecovery\")",
+      "Bash(find /c/antigravity/xpace-on/web/src -name \"*.tsx\" -type f -exec grep -l \"fetch.*api\" {} ;)"
+    ]
+  }
+}

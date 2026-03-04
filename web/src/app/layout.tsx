@@ -114,8 +114,10 @@ export default function RootLayout({
           }
         `}} />
         <Analytics />
+        {process.env.NEXT_PUBLIC_GTM_ID && (
+          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
+        )}
       </body>
-      <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || 'GTM-TESTE'} />
     </html>
   );
 }

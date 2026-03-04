@@ -101,8 +101,8 @@ export default function PerfilPage() {
     }
 
     const handleDeleteAccount = async () => {
-        setMessage({ text: 'Funcionalidade em implementação. Entre em contato: suporte@xpace.on', type: 'error' })
         setShowDeleteModal(false)
+        setMessage({ text: 'Para excluir sua conta, envie um e-mail para suporte@xtage.app com o assunto "Excluir Conta". Processamos a solicitação em até 48h.', type: 'error' })
     }
 
     return (
@@ -117,8 +117,8 @@ export default function PerfilPage() {
             {/* Messages */}
             {message.text && (
                 <div className={`mb-6 p-4 rounded text-sm font-sans flex items-center gap-2 ${message.type === 'error'
-                        ? 'bg-red-500/10 border border-red-500/20 text-red-400'
-                        : 'bg-green-500/10 border border-green-500/20 text-green-400'
+                    ? 'bg-red-500/10 border border-red-500/20 text-red-400'
+                    : 'bg-green-500/10 border border-green-500/20 text-green-400'
                     }`}>
                     {message.type === 'success' ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}
                     {message.text}
