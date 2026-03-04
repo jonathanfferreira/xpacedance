@@ -9,6 +9,7 @@ export default function NovoCursoPage() {
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
     const [pricingType, setPricingType] = useState('one_time');
+    const [category, setCategory] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -26,7 +27,7 @@ export default function NovoCursoPage() {
         const res = await fetch('/api/studio/courses', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, description, price: priceNum, pricing_type: pricingType }),
+            body: JSON.stringify({ title, description, price: priceNum, pricing_type: pricingType, category: category || null }),
         });
 
         const data = await res.json();
@@ -116,6 +117,32 @@ export default function NovoCursoPage() {
                             <option value="subscription">Assinatura Recorrente</option>
                         </select>
                     </div>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-xs font-mono uppercase tracking-widest text-[#888]">Estilo de Dança</label>
+                    <select
+                        value={category}
+                        onChange={e => setCategory(e.target.value)}
+                        className="w-full bg-[#111] border border-[#222] focus:border-primary/50 rounded py-3 px-4 text-white text-sm outline-none transition-colors cursor-pointer"
+                    >
+                        <option value="">Selecione um estilo...</option>
+                        <option value="hiphop">Hip Hop</option>
+                        <option value="jazz">Jazz Funk</option>
+                        <option value="commercial">Commercial Dance</option>
+                        <option value="dancehall">Dancehall</option>
+                        <option value="heels">Heels</option>
+                        <option value="locking">Locking</option>
+                        <option value="popping">Popping</option>
+                        <option value="kpop">K-Pop</option>
+                        <option value="contemporaneo">Contemporâneo</option>
+                        <option value="ballet">Ballet Clássico</option>
+                        <option value="breakdance">Breakdance</option>
+                        <option value="house">House Dance</option>
+                        <option value="afro">Afrobeat</option>
+                        <option value="salsa">Salsa / Bachata</option>
+                    </select>
+                    <p className="text-[10px] text-[#555] font-mono">Usado nos filtros do catálogo Explorar</p>
                 </div>
 
                 <div className="bg-[#111] border border-[#1a1a1a] rounded p-4 text-xs text-[#555] font-mono">

@@ -25,7 +25,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
     const { data: course, error } = await supabase
         .from('courses')
-        .select('id, title, description, price, pricing_type, thumbnail_url, is_published, created_at')
+        .select('id, title, description, price, pricing_type, thumbnail_url, is_published, category, created_at')
         .eq('id', id)
         .eq('tenant_id', tenant.id)
         .single()
@@ -53,7 +53,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { data: tenant } = await supabase.from('tenants').select('id').eq('owner_id', user.id).single()
     if (!tenant) return NextResponse.json({ error: 'Tenant not found' }, { status: 404 })
 
-    const allowed = ['is_published', 'title', 'description', 'price', 'pricing_type', 'thumbnail_url']
+    const allowed = ['is_published', 'title', 'description', 'price', 'pricing_type', 'thumbnail_url', 'category']
     const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() }
     for (const key of allowed) {
         if (key in body) updateData[key] = body[key]
@@ -64,7 +64,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         .update(updateData)
         .eq('id', id)
         .eq('tenant_id', tenant.id)
-        .select('id, title, is_published, price, pricing_type, description')
+        .select('id, title, is_published, price, pricing_type, description, category')
         .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })

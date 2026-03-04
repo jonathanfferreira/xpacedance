@@ -25,6 +25,7 @@ interface Course {
     pricing_type: string;
     thumbnail_url: string | null;
     is_published: boolean;
+    category: string | null;
 }
 
 export default function CourseEditorPage() {
@@ -40,6 +41,7 @@ export default function CourseEditorPage() {
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
     const [pricingType, setPricingType] = useState('one_time');
+    const [category, setCategory] = useState('');
 
     const [showNewLesson, setShowNewLesson] = useState(false);
     const [newModule, setNewModule] = useState('');
@@ -62,6 +64,7 @@ export default function CourseEditorPage() {
                 setDescription(data.course.description || '');
                 setPrice(String(data.course.price));
                 setPricingType(data.course.pricing_type);
+                setCategory(data.course.category || '');
                 setLessons(data.lessons);
                 const mods = new Set<string>(data.lessons.map((l: Lesson) => l.module_name));
                 setExpandedModules(mods);
@@ -79,7 +82,7 @@ export default function CourseEditorPage() {
         const res = await fetch(`/api/studio/courses/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, description, price: priceNum, pricing_type: pricingType }),
+            body: JSON.stringify({ title, description, price: priceNum, pricing_type: pricingType, category: category || null }),
         });
         const data = await res.json();
         if (!res.ok) { setError(data.error || 'Erro ao salvar.'); setSaving(false); return; }
@@ -175,11 +178,10 @@ export default function CourseEditorPage() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={handleTogglePublish}
-                        className={`flex items-center gap-2 px-4 py-2 rounded font-mono text-xs uppercase tracking-widest transition-colors border ${
-                            course?.is_published
+                        className={`flex items-center gap-2 px-4 py-2 rounded font-mono text-xs uppercase tracking-widest transition-colors border ${course?.is_published
                                 ? 'border-[#333] text-[#888] hover:text-white hover:border-[#555]'
                                 : 'border-primary/40 text-primary hover:border-primary'
-                        }`}
+                            }`}
                     >
                         {course?.is_published ? <><EyeOff size={14} /> Despublicar</> : <><Eye size={14} /> Publicar</>}
                     </button>
@@ -248,6 +250,31 @@ export default function CourseEditorPage() {
                                     <option value="subscription">Assinatura</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-mono uppercase tracking-widest text-[#888]">Estilo de Dança (Filtro do Catálogo)</label>
+                            <select
+                                value={category}
+                                onChange={e => setCategory(e.target.value)}
+                                className="w-full bg-[#111] border border-[#222] rounded py-3 px-4 text-white text-sm outline-none cursor-pointer"
+                            >
+                                <option value="">Selecione um estilo...</option>
+                                <option value="hiphop">Hip Hop</option>
+                                <option value="jazz">Jazz Funk</option>
+                                <option value="commercial">Commercial Dance</option>
+                                <option value="dancehall">Dancehall</option>
+                                <option value="heels">Heels</option>
+                                <option value="locking">Locking</option>
+                                <option value="popping">Popping</option>
+                                <option value="kpop">K-Pop</option>
+                                <option value="contemporaneo">Contemporâneo</option>
+                                <option value="ballet">Ballet Clássico</option>
+                                <option value="breakdance">Breakdance</option>
+                                <option value="house">House Dance</option>
+                                <option value="afro">Afrobeat</option>
+                                <option value="salsa">Salsa / Bachata</option>
+                            </select>
                         </div>
                     </div>
 
@@ -378,11 +405,10 @@ export default function CourseEditorPage() {
                 <div className="space-y-4">
                     <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-sm p-5">
                         <h3 className="text-[#888] font-mono text-xs uppercase tracking-widest mb-3">Status</h3>
-                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded border text-xs font-mono uppercase ${
-                            course?.is_published
+                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded border text-xs font-mono uppercase ${course?.is_published
                                 ? 'text-green-400 border-green-400/30 bg-green-400/10'
                                 : 'text-[#888] border-[#333] bg-[#111]'
-                        }`}>
+                            }`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${course?.is_published ? 'bg-green-400' : 'bg-[#555]'}`} />
                             {course?.is_published ? 'Publicado' : 'Rascunho'}
                         </div>

@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { title, description, price, pricing_type } = body
+    const { title, description, price, pricing_type, category } = body
 
     if (!title || !price) {
         return NextResponse.json({ error: 'title e price são obrigatórios' }, { status: 400 })
@@ -127,6 +127,7 @@ export async function POST(request: Request) {
             description: description?.trim() || null,
             price: Number(price),
             pricing_type: pricing_type || 'one_time',
+            category: category || null,
             is_published: false,
         })
         .select('id, title')
