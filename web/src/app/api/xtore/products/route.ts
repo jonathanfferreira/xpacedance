@@ -63,11 +63,8 @@ export async function POST(request: Request) {
             description: body.description,
             price: body.price,
             stock: body.stock || 0,
-            images: body.images || [],
-            weight_kg: body.weight_kg || 0.3,
-            width_cm: body.width_cm || 20,
-            height_cm: body.height_cm || 10,
-            length_cm: body.length_cm || 20,
+            image_url: body.image_url || null,
+            category: body.category || null,
             is_active: body.is_active !== undefined ? body.is_active : true
         };
 

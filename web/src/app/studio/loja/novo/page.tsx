@@ -1,31 +1,87 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Upload, Package, DollarSign, Weight, Ruler, Save, Loader2, Info } from 'lucide-react'
+import Image from 'next/image'
+import { createClient } from '@/utils/supabase/client'
+import {
+    ArrowLeft, Upload, Package, DollarSign, Weight, Ruler,
+    Save, Loader2, Info, Camera, CheckCircle
+} from 'lucide-react'
+
+const PRODUCT_CATEGORIES = [
+    { value: 'camiseta', label: 'Camisetas' },
+    { value: 'moletom', label: 'Moletons & Hoodies' },
+    { value: 'acessorio', label: 'Acessórios' },
+    { value: 'bone', label: 'Bonés & Chapéus' },
+    { value: 'tenis', label: 'Tênis' },
+    { value: 'meia', label: 'Meias' },
+    { value: 'ecobag', label: 'Ecobags' },
+    { value: 'sticker', label: 'Adesivos & Stickers' },
+    { value: 'poster', label: 'Posters & Prints' },
+    { value: 'digital', label: 'Produto Digital' },
+    { value: 'outro', label: 'Outro' },
+]
 
 export default function NovoProdutoPage() {
     const router = useRouter()
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
+    const supabase = createClient()
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
-    // Form State
+    const [loading, setLoading] = useState(false)
+    const [uploading, setUploading] = useState(false)
+    const [error, setError] = useState('')
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         price: '',
         stock: '1',
+        category: '',
+        image_url: '',
         weight_kg: '0.3',
         width_cm: '20',
         height_cm: '10',
         length_cm: '20',
-        image_url: '' // Simplificado para 1 URL no MVP
     })
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target
         setFormData(prev => ({ ...prev, [name]: value }))
+    }
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        if (file.size > 5 * 1024 * 1024) {
+            setError('A imagem deve ter menos de 5MB.')
+            return
+        }
+
+        setUploading(true)
+        setError('')
+
+        try {
+            const ext = file.name.split('.').pop() || 'png'
+            const path = `products/new-${Date.now()}.${ext}`
+
+            const { error: uploadErr } = await supabase.storage
+                .from('public-assets')
+                .upload(path, file, { upsert: true, contentType: file.type })
+
+            if (uploadErr) throw uploadErr
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('public-assets')
+                .getPublicUrl(path)
+
+            setFormData(prev => ({ ...prev, image_url: publicUrl }))
+        } catch (err: any) {
+            setError(err.message || 'Erro ao enviar imagem.')
+        } finally {
+            setUploading(false)
+        }
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +90,6 @@ export default function NovoProdutoPage() {
         setError('')
 
         try {
-            // Validation
             if (!formData.name || !formData.price) {
                 throw new Error("Nome e Preço são obrigatórios.")
             }
@@ -44,11 +99,12 @@ export default function NovoProdutoPage() {
                 description: formData.description,
                 price: parseFloat(formData.price.replace(',', '.')),
                 stock: parseInt(formData.stock, 10),
+                category: formData.category || null,
+                image_url: formData.image_url || null,
                 weight_kg: parseFloat(formData.weight_kg),
                 width_cm: parseFloat(formData.width_cm),
                 height_cm: parseFloat(formData.height_cm),
                 length_cm: parseFloat(formData.length_cm),
-                images: formData.image_url ? [formData.image_url] : [],
                 is_active: true
             }
 
@@ -64,10 +120,8 @@ export default function NovoProdutoPage() {
                 throw new Error(data.error || "Erro ao salvar produto.")
             }
 
-            // Success! Redireciona de volta p/ listagem
             router.push('/studio/loja')
             router.refresh()
-
         } catch (err: any) {
             setError(err.message || 'Ocorreu um erro desconhecido.')
         } finally {
@@ -84,7 +138,7 @@ export default function NovoProdutoPage() {
                 <h1 className="font-heading text-4xl mb-2 tracking-tight uppercase">
                     Novo <span className="text-transparent bg-clip-text text-gradient-neon">Produto</span>
                 </h1>
-                <p className="text-[#888] font-sans">Cadastre itens de merchandising do seu Studio na XTAGE.</p>
+                <p className="text-[#888] font-sans">Cadastre itens de merchandising do seu Studio na XTORE.</p>
             </div>
 
             {error && (
@@ -95,7 +149,64 @@ export default function NovoProdutoPage() {
 
             <form onSubmit={handleSubmit} className="space-y-8">
 
-                {/* 1. Informações Básicas */}
+                {/* Image Upload */}
+                <div className="bg-[#0A0A0A] border border-[#222] rounded-lg p-6">
+                    <div className="flex items-center gap-2 mb-6 border-b border-[#222] pb-4">
+                        <Camera className="text-primary" size={20} />
+                        <h2 className="font-heading text-xl uppercase text-white">Foto do Produto</h2>
+                    </div>
+
+                    <div className="flex items-start gap-6">
+                        <div
+                            className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-dashed border-[#333] hover:border-primary/50 transition-colors cursor-pointer group shrink-0 bg-[#111]"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            {formData.image_url ? (
+                                <Image src={formData.image_url} alt="Preview" fill className="object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <Camera size={32} className="text-[#444] group-hover:text-primary transition-colors" />
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Upload size={20} className="text-white" />
+                            </div>
+                            {uploading && (
+                                <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                                    <Loader2 size={20} className="text-primary animate-spin" />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex-1">
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={uploading}
+                                className="flex items-center gap-2 bg-[#111] border border-[#333] hover:border-primary/50 text-white px-4 py-2.5 rounded text-sm font-mono transition-colors disabled:opacity-50"
+                            >
+                                {uploading ? (
+                                    <><Loader2 size={14} className="animate-spin" /> Enviando...</>
+                                ) : (
+                                    <><Upload size={14} /> Enviar Foto</>
+                                )}
+                            </button>
+                            <p className="text-[#555] text-[10px] font-mono mt-2">
+                                PNG, JPG ou WebP. Máximo 5MB.
+                            </p>
+                        </div>
+
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            className="hidden"
+                            onChange={handleImageUpload}
+                        />
+                    </div>
+                </div>
+
+                {/* Basic Info */}
                 <div className="bg-[#0A0A0A] border border-[#222] rounded-lg p-6">
                     <div className="flex items-center gap-2 mb-6 border-b border-[#222] pb-4">
                         <Package className="text-primary" size={20} />
@@ -122,32 +233,30 @@ export default function NovoProdutoPage() {
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
-                                placeholder="Detalhes do tecido, estampa, conceito..."
+                                placeholder="Detalhes do tecido, estampa, tamanho, conceito..."
                                 rows={4}
                                 className="w-full bg-[#050505] border border-[#333] rounded px-4 py-3 text-white focus:border-primary outline-none transition-colors resize-none"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-[#aaa] font-sans">URL da Imagem (Provisório)</label>
-                            <div className="flex gap-2">
-                                <span className="inline-flex items-center px-4 rounded border border-[#333] bg-[#111] text-[#666]">
-                                    <Upload size={16} />
-                                </span>
-                                <input
-                                    type="url"
-                                    name="image_url"
-                                    value={formData.image_url}
-                                    onChange={handleChange}
-                                    placeholder="https://suaimagem.com/foto.jpg"
-                                    className="w-full bg-[#050505] border border-[#333] rounded px-4 py-3 text-white focus:border-primary outline-none transition-colors"
-                                />
-                            </div>
+                            <label className="text-sm font-medium text-[#aaa] font-sans">Categoria</label>
+                            <select
+                                name="category"
+                                value={formData.category}
+                                onChange={handleChange}
+                                className="w-full bg-[#050505] border border-[#333] rounded px-4 py-3 text-white focus:border-primary outline-none transition-colors cursor-pointer"
+                            >
+                                <option value="">Selecione uma categoria...</option>
+                                {PRODUCT_CATEGORIES.map(cat => (
+                                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                 </div>
 
-                {/* 2. Preço e Estoque */}
+                {/* Price and Stock */}
                 <div className="bg-[#0A0A0A] border border-[#222] rounded-lg p-6">
                     <div className="flex items-center gap-2 mb-6 border-b border-[#222] pb-4">
                         <DollarSign className="text-secondary" size={20} />
@@ -169,7 +278,7 @@ export default function NovoProdutoPage() {
                                     required
                                 />
                             </div>
-                            <p className="text-[10px] text-[#555] font-sans">Ao vender, a taxa da XTAGE é aplicada sobre este valor via Asaas Split.</p>
+                            <p className="text-[10px] text-[#555] font-sans">Taxa XTAGE é aplicada sobre este valor via Asaas Split.</p>
                         </div>
 
                         <div className="space-y-2">
@@ -186,11 +295,11 @@ export default function NovoProdutoPage() {
                     </div>
                 </div>
 
-                {/* 3. Dados Logísticos (Correios) */}
+                {/* Shipping Dimensions */}
                 <div className="bg-[#0A0A0A] border border-[#222] rounded-lg p-6">
                     <div className="flex items-center gap-2 mb-6 border-b border-[#222] pb-4">
                         <Ruler className="text-blue-400" size={20} />
-                        <h2 className="font-heading text-xl uppercase text-white">Dados de Frete (Obrigatório Correios)</h2>
+                        <h2 className="font-heading text-xl uppercase text-white">Dados de Frete (Correios)</h2>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -198,54 +307,29 @@ export default function NovoProdutoPage() {
                             <label className="text-xs font-medium text-[#aaa] font-sans flex items-center gap-1">
                                 <Weight size={12} /> Peso (kg)
                             </label>
-                            <input
-                                type="number"
-                                step="0.100"
-                                min="0.100"
-                                name="weight_kg"
-                                value={formData.weight_kg}
-                                onChange={handleChange}
-                                className="w-full bg-[#111] border border-[#333] rounded px-3 py-2 text-white focus:border-blue-400 outline-none"
-                            />
+                            <input type="number" step="0.100" min="0.100" name="weight_kg" value={formData.weight_kg} onChange={handleChange}
+                                className="w-full bg-[#111] border border-[#333] rounded px-3 py-2 text-white focus:border-blue-400 outline-none" />
                         </div>
                         <div className="space-y-2">
                             <label className="text-xs font-medium text-[#aaa] font-sans">Largura (cm)</label>
-                            <input
-                                type="number"
-                                name="width_cm"
-                                min="10"
-                                value={formData.width_cm}
-                                onChange={handleChange}
-                                className="w-full bg-[#111] border border-[#333] rounded px-3 py-2 text-white focus:border-blue-400 outline-none"
-                            />
+                            <input type="number" name="width_cm" min="10" value={formData.width_cm} onChange={handleChange}
+                                className="w-full bg-[#111] border border-[#333] rounded px-3 py-2 text-white focus:border-blue-400 outline-none" />
                         </div>
                         <div className="space-y-2">
                             <label className="text-xs font-medium text-[#aaa] font-sans">Altura (cm)</label>
-                            <input
-                                type="number"
-                                name="height_cm"
-                                min="2"
-                                value={formData.height_cm}
-                                onChange={handleChange}
-                                className="w-full bg-[#111] border border-[#333] rounded px-3 py-2 text-white focus:border-blue-400 outline-none"
-                            />
+                            <input type="number" name="height_cm" min="2" value={formData.height_cm} onChange={handleChange}
+                                className="w-full bg-[#111] border border-[#333] rounded px-3 py-2 text-white focus:border-blue-400 outline-none" />
                         </div>
                         <div className="space-y-2">
                             <label className="text-xs font-medium text-[#aaa] font-sans">Comprim. (cm)</label>
-                            <input
-                                type="number"
-                                name="length_cm"
-                                min="15"
-                                value={formData.length_cm}
-                                onChange={handleChange}
-                                className="w-full bg-[#111] border border-[#333] rounded px-3 py-2 text-white focus:border-blue-400 outline-none"
-                            />
+                            <input type="number" name="length_cm" min="15" value={formData.length_cm} onChange={handleChange}
+                                className="w-full bg-[#111] border border-[#333] rounded px-3 py-2 text-white focus:border-blue-400 outline-none" />
                         </div>
                     </div>
-                    <p className="text-xs text-[#555] mt-4 font-sans">Essas medidas são de caixa já embalada e são usadas em tempo-real na API do Melhor Envio no carrinho do cliente.</p>
+                    <p className="text-xs text-[#555] mt-4 font-sans">Medidas da caixa embalada, usadas no cálculo de frete.</p>
                 </div>
 
-                {/* Submit Actions */}
+                {/* Submit */}
                 <div className="flex gap-4 pt-4 border-t border-[#1a1a1a]">
                     <Link
                         href="/studio/loja"

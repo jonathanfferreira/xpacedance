@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { LayoutDashboard, Film, LogOut, UploadCloud, ChevronRight, BarChart3, CreditCard, GraduationCap, Palette, Globe, Handshake } from 'lucide-react';
+import { LayoutDashboard, Film, LogOut, UploadCloud, ChevronRight, BarChart3, CreditCard, GraduationCap, Palette, Globe, Handshake, ShoppingBag } from 'lucide-react';
 
 export function StudioSidebar({ isOpen, onClose, tenant }: { isOpen?: boolean, onClose?: () => void, tenant?: any }) {
     const pathname = usePathname();
@@ -12,6 +12,7 @@ export function StudioSidebar({ isOpen, onClose, tenant }: { isOpen?: boolean, o
         { href: '/studio', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/studio/cursos', label: 'Cursos & Aulas', icon: Film },
         { href: '/studio/assinaturas', label: 'Assinaturas', icon: CreditCard },
+        { href: '/studio/loja', label: 'Minha Loja', icon: ShoppingBag },
         { href: '/studio/alunos', label: 'Alunos', icon: GraduationCap },
         { href: '/studio/afiliados', label: 'Afiliados', icon: Handshake },
         { href: '/studio/analytics', label: 'Analytics', icon: BarChart3 },

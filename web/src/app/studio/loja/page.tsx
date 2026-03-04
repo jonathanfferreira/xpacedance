@@ -140,7 +140,7 @@ export default async function StudioLojaPage() {
                                             }
                                         </td>
                                         <td className="p-4 text-right">
-                                            <button className="text-xs text-[#888] hover:text-white underline">Editar</button>
+                                            <Link href={`/studio/loja/${p.id}`} className="text-xs text-primary hover:text-white underline font-mono uppercase tracking-widest transition-colors">Editar</Link>
                                         </td>
                                     </tr>
                                 ))}
