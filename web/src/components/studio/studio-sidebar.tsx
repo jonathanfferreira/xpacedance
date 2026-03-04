@@ -3,7 +3,28 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { LayoutDashboard, Film, LogOut, UploadCloud, ChevronRight, BarChart3, CreditCard, GraduationCap, Palette, Globe, Handshake, ShoppingBag } from 'lucide-react';
+import {
+    LayoutDashboard,
+    PlaySquare,
+    Users,
+    Settings,
+    UploadCloud,
+    LogOut,
+    Menu,
+    X,
+    TrendingUp, // Analytics
+    Award, // Assinaturas/Planos
+    Link as LinkIcon, // Afiliados
+    ShoppingBag, // Loja
+    ExternalLink,
+    Wallet, // Financeiro
+    Film,
+    CreditCard, // Still needed for the old 'Assinaturas' line if not fully replaced
+    GraduationCap, // Still needed for 'Alunos'
+    Globe, // Still needed for 'Domínios'
+    Landmark, // Para Configurações de Pagamentos
+    ChevronRight // Still needed for the UI
+} from 'lucide-react';
 
 export function StudioSidebar({ isOpen, onClose, tenant }: { isOpen?: boolean, onClose?: () => void, tenant?: any }) {
     const pathname = usePathname();
@@ -11,12 +32,16 @@ export function StudioSidebar({ isOpen, onClose, tenant }: { isOpen?: boolean, o
     const links = [
         { href: '/studio', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/studio/cursos', label: 'Cursos & Aulas', icon: Film },
-        { href: '/studio/assinaturas', label: 'Assinaturas', icon: CreditCard },
         { href: '/studio/loja', label: 'Minha Loja', icon: ShoppingBag },
         { href: '/studio/alunos', label: 'Alunos', icon: GraduationCap },
-        { href: '/studio/afiliados', label: 'Afiliados', icon: Handshake },
-        { href: '/studio/analytics', label: 'Analytics', icon: BarChart3 },
-        { href: '/studio/configuracoes/aparencia', label: 'Aparência', icon: Palette },
+        // Novidades
+        { href: '/studio/assinaturas', label: 'Planos & Assinaturas', icon: Award },
+        { href: '/studio/afiliados', label: 'Gestão de Afiliados', icon: LinkIcon },
+        { href: '/studio/financeiro', label: 'Financeiro', icon: Wallet },
+
+        // Configurações
+        { href: '/studio/configuracoes/aparencia', label: 'Aparência', icon: Settings },
+        { href: '/studio/configuracoes/pagamentos', label: 'Setup Recebíveis', icon: Landmark },
         { href: '/studio/configuracoes/dominio', label: 'Domínios', icon: Globe },
     ];
 

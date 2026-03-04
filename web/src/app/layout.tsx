@@ -82,6 +82,7 @@ export const metadata: Metadata = {
 };
 
 import { Analytics } from "@vercel/analytics/next";
+import { AffiliateTracker } from "@/components/providers/affiliate-tracker";
 
 export default function RootLayout({
   children,
@@ -101,6 +102,7 @@ export default function RootLayout({
           Pular para o conteúdo
         </a>
         <PowerOnPreloader>
+          <AffiliateTracker />
           <main id="main-content">
             {children}
           </main>

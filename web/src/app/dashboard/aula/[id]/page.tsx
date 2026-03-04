@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { VideoPlayer } from "@/components/player/video-player";
 import { LessonSidebar } from "@/components/player/lesson-sidebar";
-import { CommunityBoard } from "@/components/community/community-board";
+import { LessonComments } from "@/components/dashboard/lesson-comments";
 import { LessonActions } from "@/components/player/lesson-actions";
 import { LessonTour } from "@/components/pwa/lesson-tour";
 import { generateBunnyTokenizedUrl } from "@/utils/bunny/token";
@@ -140,7 +140,7 @@ export default async function AulaPage({ params }: { params: Promise<{ id: strin
                     </div>
 
                     <div className="mt-4 border-t border-[#1a1a1a] lesson-step-3">
-                        <CommunityBoard lessonId={lessonId} />
+                        <LessonComments lessonId={lessonId} />
                     </div>
                 </div>
             </div>

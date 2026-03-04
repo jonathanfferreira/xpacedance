@@ -88,8 +88,8 @@ export default async function XtorePage() {
                         <div key={p.id} className="group bg-[#0A0A0A] border border-[#1a1a1a] hover:border-[#333] rounded-lg overflow-hidden transition-all duration-300">
                             {/* Product Image */}
                             <div className="aspect-square bg-[#050505] relative overflow-hidden">
-                                {p.images && p.images[0] ? (
-                                    <Image src={p.images[0]} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                                {p.image_url ? (
+                                    <Image src={p.image_url} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                                 ) : (
                                     <div className="absolute inset-0 flex flex-col items-center justify-center opacity-30 group-hover:opacity-50 transition-opacity">
                                         <ShoppingBag size={48} className="mb-4 text-[#888]" />

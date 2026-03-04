@@ -3,9 +3,11 @@ import { createClient } from "@supabase/supabase-js";
 import { subscriptionCheckoutSchema } from "@/lib/validators";
 import { rateLimit, getClientIp } from "@/utils/rate-limit";
 import { validateCsrf } from "@/utils/csrf";
+import { cookies } from "next/headers";
 
 const ASAAS_API_URL = process.env.ASAAS_API_URL || "https://sandbox.asaas.com/api/v3";
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
+const DEFAULT_SPLIT_PERCENT = Number(process.env.PLATFORM_SPLIT_PERCENT || 10);
 
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,13 +53,22 @@ export async function POST(request: Request) {
         // 1. Busca o plano
         const { data: plan, error: planError } = await supabaseAdmin
             .from("subscription_plans")
-            .select("id, name, price, cycle, tenant_id, is_active")
+            .select("id, name, price, cycle, tenant_id, is_active, tenants:tenants!tenant_id(asaas_wallet_id, split_percent)")
             .eq("id", planId)
             .single();
 
         if (planError || !plan || !plan.is_active) {
             return NextResponse.json({ error: "Plano não encontrado ou inativo." }, { status: 404 });
         }
+
+        const tenant = (plan as any).tenants;
+        const splitPercent = tenant?.split_percent || DEFAULT_SPLIT_PERCENT;
+        const professorWalletId = tenant?.asaas_wallet_id;
+        const coursePrice = plan.price || 0;
+
+        // Tracker de Afiliado
+        const cookieStore = await cookies();
+        const affiliateCode = cookieStore.get("asaas_affiliate_tracker")?.value;
 
         // MOCK MODE
         if (!ASAAS_API_KEY) {
@@ -137,6 +148,31 @@ export async function POST(request: Request) {
             };
         }
 
+        // 5. Build Split
+        const professorFixedSplit = Number((coursePrice * (1 - splitPercent / 100)).toFixed(2));
+
+        let affiliateUserId: string | null = null;
+        let affiliateCommissionValue = 0;
+
+        if (professorWalletId) {
+            subscriptionPayload.split = [
+                { walletId: professorWalletId, fixedValue: professorFixedSplit }
+            ];
+
+            if (affiliateCode) {
+                const { data: affiliate } = await supabaseAdmin
+                    .from('affiliates')
+                    .select('user_id, commission_pct')
+                    .eq('affiliate_code', affiliateCode)
+                    .single();
+
+                if (affiliate) {
+                    affiliateUserId = affiliate.user_id;
+                    affiliateCommissionValue = Number((professorFixedSplit * (affiliate.commission_pct / 100)).toFixed(2));
+                }
+            }
+        }
+
         const subRes = await fetch(`${ASAAS_API_URL}/subscriptions`, {
             method: "POST",
             headers: { access_token: ASAAS_API_KEY, "Content-Type": "application/json" },
@@ -169,6 +205,20 @@ export async function POST(request: Request) {
 
         if (subSaveError) {
             console.error("[SUBSCRIPTION] Erro ao salvar subscription:", subSaveError);
+        }
+
+        if (savedSub?.id && professorWalletId) {
+            const platformAmount = Number((coursePrice - professorFixedSplit).toFixed(2));
+            await supabaseAdmin.from('split_audit').insert({
+                transaction_id: savedSub.id,
+                professor_wallet_id: professorWalletId,
+                professor_amount: professorFixedSplit,
+                platform_amount: platformAmount,
+                total_amount: coursePrice,
+                split_percent: splitPercent,
+                affiliate_user_id: affiliateUserId,
+                affiliate_amount: affiliateCommissionValue
+            });
         }
 
         // 5. Retorna dados de pagamento

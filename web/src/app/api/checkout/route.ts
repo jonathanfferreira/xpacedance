@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { rateLimit, getClientIp } from "@/utils/rate-limit";
 import { validateCsrf } from "@/utils/csrf";
 import { checkoutSchema } from "@/lib/validators";
+import { cookies } from "next/headers";
 
 const ASAAS_API_URL = process.env.ASAAS_API_URL || "https://sandbox.asaas.com/api/v3";
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
@@ -58,6 +59,10 @@ export async function POST(request: Request) {
         if (!email || !name || !courseId) {
             return NextResponse.json({ error: "Nome, email e courseId são obrigatórios." }, { status: 400 });
         }
+
+        // Tracker de Afiliado
+        const cookieStore = await cookies();
+        const affiliateCode = cookieStore.get("asaas_affiliate_tracker")?.value;
 
         // 1. Fetch course real data from DB
         const { data: course, error: courseError } = await supabaseAdmin
@@ -180,6 +185,25 @@ export async function POST(request: Request) {
             ];
         }
 
+        // Recupera Taxas do Afiliado Rastreio (Se Existir)
+        let affiliateUserId: string | null = null;
+        let affiliateCommissionValue = 0;
+
+        if (affiliateCode) {
+            const { data: affiliate } = await supabaseAdmin
+                .from('affiliates')
+                .select('user_id, commission_pct')
+                .eq('affiliate_code', affiliateCode)
+                .single();
+
+            if (affiliate) {
+                affiliateUserId = affiliate.user_id;
+                // A comissão do afiliado sai da fatia PRIMÁRIA base (Descontando taxa da plataforma)
+                // O afiliado ganha o percentual dele em cima do lucro da escola
+                affiliateCommissionValue = Number((professorFixedSplit * (affiliate.commission_pct / 100)).toFixed(2));
+            }
+        }
+
         if (paymentMethod === 'credit' && creditCard) {
             chargePayload.creditCard = creditCard;
             chargePayload.creditCardHolderInfo = {
@@ -232,6 +256,8 @@ export async function POST(request: Request) {
                     platform_amount: platformAmount,
                     total_amount: finalValue,
                     split_percent: splitPercent,
+                    affiliate_user_id: affiliateUserId,
+                    affiliate_amount: affiliateCommissionValue
                 });
             }
         }
