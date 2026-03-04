@@ -85,7 +85,7 @@ export default function PartnerProgramPage() {
                             </div>
 
                             <div className="flex justify-center pt-6">
-                                <Link href="/dashboard/studio" className="bg-white text-black font-bold px-10 py-4 rounded-lg hover:bg-gray-200 transition-colors inline-flex items-center gap-3">
+                                <Link href="/studio" className="bg-white text-black font-bold px-10 py-4 rounded-lg hover:bg-gray-200 transition-colors inline-flex items-center gap-3">
                                     <LayoutDashboard size={20} /> ENTRAR NO CREATOR STUDIO
                                 </Link>
                             </div>
