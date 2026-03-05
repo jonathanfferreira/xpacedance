@@ -31,6 +31,7 @@ export default function ConfigPage() {
     useEffect(() => {
         // Inicializa estado visual (forçado dark theme local no app para não ser quebrado)
         const savedTheme = localStorage.getItem('xpace-theme') || 'dark';
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setTheme(savedTheme);
         if (savedTheme === 'light') {
             document.documentElement.classList.add('theme-light')

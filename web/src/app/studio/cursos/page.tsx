@@ -34,7 +34,6 @@ export default function StudioCoursesPage() {
         setLoading(false);
     };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => { fetchCourses(); }, []);
 
     const handleDelete = async (id: string, title: string) => {

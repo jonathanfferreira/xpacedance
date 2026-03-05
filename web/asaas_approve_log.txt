@@ -1,1 +1,0 @@
-{"id":"55d62b7d-1d9d-40e7-8f66-7cf0ab95e02f","commercialInfo":"APPROVED","bankAccountInfo":"APPROVED","documentation":"APPROVED","general":"APPROVED"}

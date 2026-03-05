@@ -1,2 +1,0 @@
-/* eslint-disable */
-const fetch = require('node-fetch'); fetch('http://localhost:3000/api/webhooks/asaas', { method: 'POST', body: JSON.stringify({ event: 'PAYMENT_OVERDUE', payment: { id: 'test_asaas_123', customerEmail: 'me+xpace@gmail.com', invoiceUrl: 'http://loca.local' } }) }).then(r=>r.json()).then(console.log)

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Settings, Save, Loader2, Landmark, CheckCircle2, AlertCircle, Building2, UserCircle } from "lucide-react";
+import Link from "next/link";
 
 export default function PagamentosSettingsPage() {
     const [loading, setLoading] = useState(true);
@@ -98,9 +99,9 @@ export default function PagamentosSettingsPage() {
                         Você já enviou seus dados fiscais. Uma Subconta ASAAS (<span className="text-white font-mono">{walletId}</span>) está vinculada à sua escola.
                         Todos os pagamentos realizados pelos seus alunos estão fluindo diretamente para você pelo nosso parceiro ASAAS.
                     </p>
-                    <a href="/studio/financeiro" className="px-6 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded font-bold uppercase tracking-wider text-xs transition-colors">
+                    <Link href="/studio/financeiro" className="px-6 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded font-bold uppercase tracking-wider text-xs transition-colors">
                         Acessar Hub Financeiro
-                    </a>
+                    </Link>
                 </div>
             </div>
         );

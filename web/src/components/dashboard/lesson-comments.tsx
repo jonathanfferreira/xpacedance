@@ -46,6 +46,7 @@ export function LessonComments({ lessonId }: { lessonId: string }) {
 
     useEffect(() => {
         loadComments();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [lessonId]);
 
     const handleSubmit = async (e: React.FormEvent) => {

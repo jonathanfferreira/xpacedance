@@ -85,7 +85,6 @@ export function CommunityBoard({ lessonId }: CommunityBoardProps) {
             }
         }
         fetchUser()
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchComments()
 
         // Realtime: on INSERT, fetch only the new comment (not all) and prepend
@@ -175,7 +174,11 @@ export function CommunityBoard({ lessonId }: CommunityBoardProps) {
         // 1. Optimistic Update (UI Local)
         setLikedCommentIds(prev => {
             const next = new Set(prev);
-            isCurrentlyLiked ? next.delete(commentId) : next.add(commentId);
+            if (isCurrentlyLiked) {
+                next.delete(commentId);
+            } else {
+                next.add(commentId);
+            }
             return next;
         });
         setComments(prev => prev.map(c => c.id === commentId ? { ...c, likes: newLikesCount } : c));
@@ -194,7 +197,11 @@ export function CommunityBoard({ lessonId }: CommunityBoardProps) {
             // Revert state if backend fails
             setLikedCommentIds(prev => {
                 const next = new Set(prev);
-                isCurrentlyLiked ? next.add(commentId) : next.delete(commentId);
+                if (isCurrentlyLiked) {
+                    next.add(commentId);
+                } else {
+                    next.delete(commentId);
+                }
                 return next;
             });
             setComments(prev => prev.map(c => c.id === commentId ? { ...c, likes: currentLikes } : c));

@@ -127,7 +127,7 @@ function SearchInput() {
                             ))}
                         </ul>
                     ) : (
-                        <div className="p-4 text-center text-xs text-[#666] font-sans">Nenhum curso encontrado com "{searchQuery}".</div>
+                        <div className="p-4 text-center text-xs text-[#666] font-sans">Nenhum curso encontrado com &quot;{searchQuery}&quot;.</div>
                     )}
                 </div>
             )}

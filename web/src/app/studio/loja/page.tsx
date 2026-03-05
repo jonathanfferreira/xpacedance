@@ -149,7 +149,7 @@ export default async function StudioLojaPage() {
                     </div>
                 ) : (
                     <div className="p-12 text-center text-[#555] font-sans text-sm">
-                        Nenhum produto cadastrado. Clique em "Novo Produto" para iniciar suas vendas.
+                        Nenhum produto cadastrado. Clique em &quot;Novo Produto&quot; para iniciar suas vendas.
                     </div>
                 )}
             </div>

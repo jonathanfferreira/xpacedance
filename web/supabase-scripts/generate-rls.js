@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 
 const data = fs.readFileSync('C:\\\\Users\\\\fferr\\\\.gemini\\\\antigravity\\\\brain\\\\542464e7-a17f-4ace-99ad-dc9cdc5a90f5\\\\.system_generated\\\\steps\\\\1076\\\\output.txt', 'utf8');
