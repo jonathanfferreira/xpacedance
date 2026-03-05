@@ -231,14 +231,14 @@ export default function CheckoutPage() {
 
                                 <div className="flex gap-2 mb-6">
                                     <button onClick={() => setPaymentMethod("credit")}
-                                        className={`flex - 1 py - 4 flex flex - col items - center justify - center gap - 2 border transition - all ${paymentMethod === 'credit' ? 'border-primary bg-primary/5 text-white' : 'border-[#222] bg-[#0a0a0a] text-[#666] hover:border-[#444]'} `}>
+                                        className={`flex-1 py-4 flex flex-col items-center justify-center gap-2 border transition-all ${paymentMethod === 'credit' ? 'border-primary bg-primary/5 text-white' : 'border-[#222] bg-[#0a0a0a] text-[#666] hover:border-[#444]'} `}>
                                         <CreditCard size={24} />
-                                        <span className="text-xs font-mono uppercase tracking-widest">Cartão de Crédito</span>
+                                        <span className="text-xs font-mono uppercase tracking-widest text-center">Cartão de Crédito</span>
                                     </button>
                                     <button onClick={() => setPaymentMethod("pix")}
-                                        className={`flex - 1 py - 4 flex flex - col items - center justify - center gap - 2 border transition - all ${paymentMethod === 'pix' ? 'border-secondary bg-secondary/5 text-white' : 'border-[#222] bg-[#0a0a0a] text-[#666] hover:border-[#444]'} `}>
+                                        className={`flex-1 py-4 flex flex-col items-center justify-center gap-2 border transition-all ${paymentMethod === 'pix' ? 'border-secondary bg-secondary/5 text-white' : 'border-[#222] bg-[#0a0a0a] text-[#666] hover:border-[#444]'} `}>
                                         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M7.16 3.48c-1.37-.92-3.15-.31-3.69 1.14l-1.4 3.73c-.23.61-.13 1.28.28 1.83l3.64 4.88c.68.91 2.05.91 2.73 0l3.64-4.88c.41-.55.51-1.22.28-1.83l-1.4-3.73c-.54-1.45-2.32-2.06-3.69-1.14zm11.23 0c-1.37-.92-3.15-.31-3.69 1.14l-1.4 3.73c-.23.61-.13 1.28.28 1.83l3.64 4.88c.68.91 2.05.91 2.73 0l3.64-4.88c.41-.55.51-1.22.28-1.83l-1.4-3.73c-.54-1.45-2.32-2.06-3.69-1.14zM12 11.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" /></svg>
-                                        <span className="text-xs font-mono uppercase tracking-widest mt-1">PIX Instantâneo</span>
+                                        <span className="text-xs font-mono uppercase tracking-widest mt-1 text-center">PIX Instantâneo</span>
                                     </button>
                                 </div>
 

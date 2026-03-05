@@ -198,16 +198,24 @@ async function handleOneTimePaymentReceived(paymentId: string, customerEmail: st
         console.log(`[ASAAS WEBHOOK] ✅ Enrollment: user=${transaction.user_id} course=${transaction.course_id}`);
 
         // Notify the Tenant Owner about the new sale!
-        const { data: cData } = await supabaseAdmin.from("courses").select("id, title, tenant_id, tenants(owner_id)").eq("id", transaction.course_id).single();
-        if (cData && (cData.tenants as any)?.owner_id) {
-            await supabaseAdmin.rpc("create_notification", {
-                p_user_id: (cData.tenants as any).owner_id,
-                p_title: "Nova Venda Realizada! 🎉",
-                p_message: `Um aluno acaba de se matricular no curso ${cData.title}. Liquidez de R$ ${(netValue || 0).toFixed(2).replace('.', ',')}.`,
-                p_type: "revenue",
-                p_link_url: "/studio/analytics",
-                p_tenant_id: cData.tenant_id
-            });
+        try {
+            const { data: cData } = await supabaseAdmin.from("courses").select("id, title, tenant_id, tenants(owner_id)").eq("id", transaction.course_id).single();
+            if (cData && (cData.tenants as any)?.owner_id) {
+                const notificationResult = await supabaseAdmin.rpc("create_notification", {
+                    p_user_id: (cData.tenants as any).owner_id,
+                    p_title: "Nova Venda Realizada! 🎉",
+                    p_message: `Um aluno acaba de se matricular no curso ${cData.title}. Liquidez de R$ ${(netValue || 0).toFixed(2).replace('.', ',')}.`,
+                    p_type: "revenue",
+                    p_link_url: "/studio/analytics",
+                    p_tenant_id: cData.tenant_id
+                });
+
+                if (notificationResult.error) {
+                    console.error("[ASAAS WEBHOOK] Erro ao criar notificação de venda (não-crítico):", notificationResult.error);
+                }
+            }
+        } catch (notificationErr) {
+            console.error("[ASAAS WEBHOOK] Exceção ao tentar notificar o dono (não-crítico):", notificationErr);
         }
 
         // Welcome email via Resend
