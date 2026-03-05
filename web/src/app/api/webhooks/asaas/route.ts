@@ -7,14 +7,22 @@ const supabaseAdmin = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const WEBHOOK_SECRET = process.env.ASAAS_WEBHOOK_SECRET;
+
 
 export async function POST(request: Request) {
     try {
         // Validate Asaas webhook token
         const token = request.headers.get("asaas-access-token");
-        if (!WEBHOOK_SECRET || token !== WEBHOOK_SECRET) {
-            console.error("[ASAAS WEBHOOK] ⛔ Token inválido ou ausente.");
+
+        const WEBHOOK_SECRET = process.env.ASAAS_WEBHOOK_SECRET;
+
+        if (!WEBHOOK_SECRET) {
+            console.error("[SECURITY CRITICAL] ASAAS_WEBHOOK_SECRET is not set in the environment variables. Rejecting request.");
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        if (token !== WEBHOOK_SECRET) {
+            console.warn("[ASAAS WEBHOOK] ⛔ Token inválido ou ausente.");
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 

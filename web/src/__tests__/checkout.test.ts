@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+vi.mock('next/headers', () => ({
+    cookies: () => ({
+        get: vi.fn(),
+        set: vi.fn(),
+        getAll: vi.fn()
+    })
+}));
+
 // Mock Supabase
 const mockFrom = vi.fn();
 const mockSelect = vi.fn();
