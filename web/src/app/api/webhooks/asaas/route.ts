@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     try {
         // Validate Asaas webhook token
         const token = request.headers.get("asaas-access-token");
-        if (WEBHOOK_SECRET && token !== WEBHOOK_SECRET) {
+        if (!WEBHOOK_SECRET || token !== WEBHOOK_SECRET) {
             console.error("[ASAAS WEBHOOK] ⛔ Token inválido ou ausente.");
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }

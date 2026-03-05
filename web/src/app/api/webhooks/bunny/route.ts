@@ -13,12 +13,10 @@ const supabaseAdmin = createClient(
 export async function POST(request: Request) {
     try {
         // Validate webhook secret token
-        if (BUNNY_WEBHOOK_SECRET) {
-            const authHeader = request.headers.get('authorization') || request.headers.get('x-webhook-secret')
-            if (authHeader !== BUNNY_WEBHOOK_SECRET) {
-                console.warn('[BUNNY WEBHOOK] Token de autenticacao invalido.')
-                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-            }
+        const authHeader = request.headers.get('authorization') || request.headers.get('x-webhook-secret')
+        if (!BUNNY_WEBHOOK_SECRET || authHeader !== BUNNY_WEBHOOK_SECRET) {
+            console.warn('[BUNNY WEBHOOK] Token de autenticacao invalido ou ausente.')
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
         const body = await request.json()
