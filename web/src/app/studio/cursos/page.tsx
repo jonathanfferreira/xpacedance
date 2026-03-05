@@ -34,7 +34,20 @@ export default function StudioCoursesPage() {
         setLoading(false);
     };
 
-    useEffect(() => { fetchCourses(); }, []);
+    useEffect(() => {
+        let mounted = true;
+        const load = async () => {
+            setLoading(true);
+            const res = await fetch('/api/studio/courses');
+            const data = await res.json();
+            if (mounted) {
+                setCourses(data.courses || []);
+                setLoading(false);
+            }
+        };
+        load();
+        return () => { mounted = false; };
+    }, []);
 
     const handleDelete = async (id: string, title: string) => {
         if (!confirm(`Tem certeza que deseja excluir o curso "${title}"? Esta ação é irreversível.`)) return;
