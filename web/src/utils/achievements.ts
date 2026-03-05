@@ -1,5 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
+
+export interface UserMetadata {
+    achievements_claimed?: string[];
+    [key: string]: unknown;
+}
+
 export interface Achievement {
     id: string;
     name: string;
@@ -9,7 +15,7 @@ export interface Achievement {
     xp: number;
 }
 
-export async function getUserAchievements(userId: string, userMetadata: any) {
+export async function getUserAchievements(userId: string, userMetadata: UserMetadata) {
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
