@@ -1,5 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+// Mock Next.js headers/cookies
+vi.mock('next/headers', () => ({
+    cookies: () => ({
+        get: vi.fn().mockReturnValue(undefined), // Defaults to undefined
+        set: vi.fn(),
+        getAll: vi.fn()
+    })
+}));
+
 // Mock Supabase
 const mockFrom = vi.fn();
 const mockSelect = vi.fn();
@@ -61,13 +70,6 @@ vi.mock('@/utils/rate-limit', () => ({
 // Mock CSRF validation: validateCsrf retorna null quando OK, string com erro quando inválido
 vi.mock('@/utils/csrf', () => ({
     validateCsrf: () => null,
-}));
-
-// Mock next/headers for cookies()
-vi.mock('next/headers', () => ({
-    cookies: () => Promise.resolve({
-        get: vi.fn(),
-    }),
 }));
 
 describe('Checkout API - Input Validation', () => {

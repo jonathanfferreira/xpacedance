@@ -92,20 +92,16 @@ export async function POST(request: Request) {
         if (itemsError) throw itemsError;
 
         // 5. Decrement Stock from Products
-        // For production, this should be an RPC transaction to prevent race conditions.
-        for (const item of items) {
-            const { data: currentProduct } = await supabase
-                .from('xtore_products')
-                .select('stock')
-                .eq('id', item.product_id)
-                .single();
+        // Uses RPC to ensure atomicity and prevent race conditions
+        const { error: stockError } = await supabase.rpc('decrement_stock', {
+            p_items: items.map((item: any) => ({
+                product_id: item.product_id,
+                quantity: item.quantity
+            }))
+        });
 
-            if (currentProduct && currentProduct.stock >= item.quantity) {
-                await supabase
-                    .from('xtore_products')
-                    .update({ stock: currentProduct.stock - item.quantity })
-                    .eq('id', item.product_id);
-            }
+        if (stockError) {
+            throw new Error(stockError.message || 'Falha ao atualizar o estoque.');
         }
 
         return NextResponse.json({

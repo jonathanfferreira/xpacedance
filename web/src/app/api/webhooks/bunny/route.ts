@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-const BUNNY_WEBHOOK_SECRET = process.env.BUNNY_WEBHOOK_SECRET
+
 
 // We need the raw Supabase Service Role key to bypass RLS since this is a Server-to-Server webhook
 // This ensures that Bunny doesn't get blocked when trying to update the Lesson's status via NextJS
@@ -14,7 +14,15 @@ export async function POST(request: Request) {
     try {
         // Validate webhook secret token
         const authHeader = request.headers.get('authorization') || request.headers.get('x-webhook-secret')
-        if (!BUNNY_WEBHOOK_SECRET || authHeader !== BUNNY_WEBHOOK_SECRET) {
+
+        const BUNNY_WEBHOOK_SECRET = process.env.BUNNY_WEBHOOK_SECRET
+
+        if (!BUNNY_WEBHOOK_SECRET) {
+            console.error('[SECURITY CRITICAL] BUNNY_WEBHOOK_SECRET is not set in the environment variables. Rejecting request.')
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
+        if (authHeader !== BUNNY_WEBHOOK_SECRET) {
             console.warn('[BUNNY WEBHOOK] Token de autenticacao invalido ou ausente.')
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }

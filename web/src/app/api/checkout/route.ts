@@ -35,6 +35,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Requisição inválida." }, { status: 403 });
     }
 
+    // eslint-disable-next-line no-console
     console.log("🟢 POST /api/checkout", ASAAS_API_KEY ? "[ASAAS LIVE]" : "[MOCK MODE]", `IP: ${ip}`);
 
     try {
@@ -107,29 +108,13 @@ export async function POST(request: Request) {
             userId = newUser.user.id;
         }
 
-        // MOCK MODE
+        // ENFORCE ASAAS API KEY FOR PRODUCTION
         if (!ASAAS_API_KEY) {
-            console.warn("ASAAS_API_KEY ausente. Mock mode ativo.");
-
-            // Save mock transaction
-            if (userId) {
-                await supabaseAdmin.from('transactions').insert({
-                    user_id: userId,
-                    course_id: courseId,
-                    amount: coursePrice,
-                    status: 'mock',
-                    asaas_payment_id: `mock_${Date.now()}`,
-                    payment_method: paymentMethod,
-                });
-            }
-
-            return NextResponse.json({
-                success: true,
-                paymentId: `mock_${Date.now()}`,
-                status: "PENDING",
-                pixQrCodeUrl: paymentMethod === 'pix' ? "https://sandbox.asaas.com/pix/qrcode" : null,
-                pixCopiaECola: paymentMethod === 'pix' ? "00020126580014BR.GOV.BCB.PIX0136..." : null,
-            });
+            console.error("ASAAS_API_KEY ausente. Transação não pode ser processada em ambiente real.");
+            return NextResponse.json(
+                { error: "Erro na configuração de pagamentos da plataforma. Contate o suporte." },
+                { status: 500 }
+            );
         }
 
         // 3. Find or create Asaas Customer
@@ -167,7 +152,7 @@ export async function POST(request: Request) {
         }
         finalValue = Number(finalValue.toFixed(2));
 
-        // 5. Build Split (professor gets 90% of base price, XPACE keeps 10% + interest surplus)
+        // 5. Build Split (professor gets 90% of base price, XTAGE keeps 10% + interest surplus)
         const professorFixedSplit = Number((coursePrice * (1 - splitPercent / 100)).toFixed(2));
 
         const chargePayload: any = {
@@ -178,13 +163,6 @@ export async function POST(request: Request) {
             description: `XTAGE - ${course.title}`,
         };
 
-        // Attach split if professor has Asaas wallet
-        if (professorWalletId) {
-            chargePayload.split = [
-                { walletId: professorWalletId, fixedValue: professorFixedSplit }
-            ];
-        }
-
         // Recupera Taxas do Afiliado Rastreio (Se Existir)
         let affiliateUserId: string | null = null;
         let affiliateCommissionValue = 0;
@@ -192,16 +170,36 @@ export async function POST(request: Request) {
         if (affiliateCode) {
             const { data: affiliate } = await supabaseAdmin
                 .from('affiliates')
-                .select('user_id, commission_pct')
+                .select('user_id, commission_pct, users(asaas_wallet_id)')
                 .eq('affiliate_code', affiliateCode)
                 .single();
 
-            if (affiliate) {
+            if (affiliate && (affiliate.users as any)?.asaas_wallet_id) {
                 affiliateUserId = affiliate.user_id;
                 // A comissão do afiliado sai da fatia PRIMÁRIA base (Descontando taxa da plataforma)
                 // O afiliado ganha o percentual dele em cima do lucro da escola
                 affiliateCommissionValue = Number((professorFixedSplit * (affiliate.commission_pct / 100)).toFixed(2));
+
+                // Reduz do professor a parte do afiliado
+                const professorNetSplit = Number((professorFixedSplit - affiliateCommissionValue).toFixed(2));
+
+                if (professorWalletId) {
+                    chargePayload.split = [
+                        { walletId: professorWalletId, fixedValue: professorNetSplit },
+                        { walletId: (affiliate.users as any).asaas_wallet_id, fixedValue: affiliateCommissionValue }
+                    ];
+                }
+            } else if (professorWalletId) {
+                // Afiliado não tem wallet ou não existe, professor recebe tudo
+                chargePayload.split = [
+                    { walletId: professorWalletId, fixedValue: professorFixedSplit }
+                ];
             }
+        } else if (professorWalletId) {
+            // Sem afiliado, professor recebe tudo
+            chargePayload.split = [
+                { walletId: professorWalletId, fixedValue: professorFixedSplit }
+            ];
         }
 
         if (paymentMethod === 'credit' && creditCard) {

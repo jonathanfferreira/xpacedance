@@ -7,14 +7,22 @@ const supabaseAdmin = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const WEBHOOK_SECRET = process.env.ASAAS_WEBHOOK_SECRET;
+
 
 export async function POST(request: Request) {
     try {
         // Validate Asaas webhook token
         const token = request.headers.get("asaas-access-token");
-        if (!WEBHOOK_SECRET || token !== WEBHOOK_SECRET) {
-            console.error("[ASAAS WEBHOOK] ⛔ Token inválido ou ausente.");
+
+        const WEBHOOK_SECRET = process.env.ASAAS_WEBHOOK_SECRET;
+
+        if (!WEBHOOK_SECRET) {
+            console.error("[SECURITY CRITICAL] ASAAS_WEBHOOK_SECRET is not set in the environment variables. Rejecting request.");
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        if (token !== WEBHOOK_SECRET) {
+            console.warn("[ASAAS WEBHOOK] ⛔ Token inválido ou ausente.");
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -25,9 +33,6 @@ export async function POST(request: Request) {
         const customerEmail = payload.payment?.customerEmail as string | undefined;
         const subscriptionId = payload.payment?.subscription as string | undefined;
 
-        console.log(
-            `[ASAAS WEBHOOK] Evento: ${evento} | Payment: ${paymentId} | Sub: ${subscriptionId || "N/A"} | R$${netValue}`
-        );
 
         if (!paymentId) {
             return NextResponse.json({ error: "No Payment ID provided" }, { status: 400 });
@@ -196,16 +201,24 @@ async function handleOneTimePaymentReceived(paymentId: string, customerEmail: st
         console.log(`[ASAAS WEBHOOK] ✅ Enrollment: user=${transaction.user_id} course=${transaction.course_id}`);
 
         // Notify the Tenant Owner about the new sale!
-        const { data: cData } = await supabaseAdmin.from("courses").select("id, title, tenant_id, tenants(owner_id)").eq("id", transaction.course_id).single();
-        if (cData && (cData.tenants as any)?.owner_id) {
-            await supabaseAdmin.rpc("create_notification", {
-                p_user_id: (cData.tenants as any).owner_id,
-                p_title: "Nova Venda Realizada! 🎉",
-                p_message: `Um aluno acaba de se matricular no curso ${cData.title}. Liquidez de R$ ${(netValue || 0).toFixed(2).replace('.', ',')}.`,
-                p_type: "revenue",
-                p_link_url: "/studio/analytics",
-                p_tenant_id: cData.tenant_id
-            });
+        try {
+            const { data: cData } = await supabaseAdmin.from("courses").select("id, title, tenant_id, tenants(owner_id)").eq("id", transaction.course_id).single();
+            if (cData && (cData.tenants as any)?.owner_id) {
+                const notificationResult = await supabaseAdmin.rpc("create_notification", {
+                    p_user_id: (cData.tenants as any).owner_id,
+                    p_title: "Nova Venda Realizada! 🎉",
+                    p_message: `Um aluno acaba de se matricular no curso ${cData.title}. Liquidez de R$ ${(netValue || 0).toFixed(2).replace('.', ',')}.`,
+                    p_type: "revenue",
+                    p_link_url: "/studio/analytics",
+                    p_tenant_id: cData.tenant_id
+                });
+
+                if (notificationResult.error) {
+                    console.error("[ASAAS WEBHOOK] Erro ao criar notificação de venda (não-crítico):", notificationResult.error);
+                }
+            }
+        } catch (notificationErr) {
+            console.error("[ASAAS WEBHOOK] Exceção ao tentar notificar o dono (não-crítico):", notificationErr);
         }
 
         // Welcome email via Resend

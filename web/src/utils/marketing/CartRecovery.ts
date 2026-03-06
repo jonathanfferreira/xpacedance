@@ -38,6 +38,6 @@ export async function sendCartRecoveryEmail(userEmail: string, userName: string,
 
         console.log(`[RESEND] 📨 E-mail de Recuperação de Carrinho enviado para: ${userEmail}`);
     } catch (error) {
-        console.error(`[RESEND] 🔴 Erro ao enviar e-mail de recuperação:`, error);
+        console.warn('[CartRecovery] Error sending recovery email:', error);
     }
 }

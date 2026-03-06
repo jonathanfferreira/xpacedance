@@ -16,9 +16,68 @@ export async function POST(request: Request) {
         const MELHOR_ENVIO_TOKEN = process.env.MELHOR_ENVIO_TOKEN;
 
         if (MELHOR_ENVIO_TOKEN) {
-            // TODO: Fetch real here using body products metrics
-            // We'll leave it falling through to the mock for now until token is provided by CEO.
-            console.log("Melhor Envio Real calculation placeholder...");
+            try {
+                const url = 'https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate';
+
+                const melhorenvioProducts = products.map((p: any, index: number) => ({
+                    id: p.id || `prod-${index}`,
+                    weight: p.weight_kg || p.weight || 0.3,
+                    width: p.width || 11,
+                    height: p.height || 2,
+                    length: p.length || 16,
+                    insurance_value: p.price || p.insurance_value || 0,
+                    quantity: p.quantity || 1
+                }));
+
+                const payload = {
+                    from: { postal_code: from_postal_code.replace(/\D/g, '') },
+                    to: { postal_code: to_postal_code.replace(/\D/g, '') },
+                    products: melhorenvioProducts
+                };
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${MELHOR_ENVIO_TOKEN}`,
+                        'User-Agent': 'XTAGE Aplicação de E-commerce (suporte@xtage.com.br)'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    if (Array.isArray(data)) {
+                        const validOptions = data.filter((opt: any) => !opt.error);
+
+                        if (validOptions.length > 0) {
+                            const mappedOptions = validOptions.map((opt: any) => ({
+                                id: String(opt.id),
+                                name: opt.name,
+                                price: parseFloat(opt.custom_price || opt.price),
+                                delivery_time: parseInt(opt.custom_delivery_time || opt.delivery_time, 10),
+                                company: opt.company?.name || 'Desconhecida',
+                                logo: opt.company?.picture || ''
+                            }));
+
+                            return NextResponse.json({
+                                status: 'success',
+                                origin: from_postal_code,
+                                destination: to_postal_code,
+                                options: mappedOptions.sort((a, b) => a.price - b.price)
+                            });
+                        }
+                    }
+                } else {
+                    console.error("Melhor Envio API error response:", response.status, await response.text());
+                }
+            } catch (err) {
+                console.error("Melhor Envio fetch error:", err);
+            }
+            // If it fails or returns no valid options, it will fall through to the mock calculation below
+            console.log("Falling back to mock shipping calculation...");
         }
 
         // --- CALCULO MOCKADO PARA MVP ---
@@ -26,13 +85,14 @@ export async function POST(request: Request) {
 
         // Calcula peso e dimensões totais (Apenas para exibir no debug log)
         let totalWeight = 0;
-        products.forEach(p => { totalWeight += (p.weight_kg || 0.3) * (p.quantity || 1) });
+        products.forEach(p => { totalWeight += (p.weight_kg || p.weight || 0.3) * (p.quantity || 1) });
 
         // Simulando um delay de resgate da API Logística:
         await new Promise(r => setTimeout(r, 800));
 
         // Tabela dummy baseada em estados do Brasil vs SP (Assumimos origem em SP como mock)
-        const isDistant = to_postal_code.startsWith('6') || to_postal_code.startsWith('7') || to_postal_code.startsWith('5'); // Norte/NE
+        const cleanToPostal = to_postal_code.replace(/\D/g, '');
+        const isDistant = cleanToPostal.startsWith('6') || cleanToPostal.startsWith('7') || cleanToPostal.startsWith('5'); // Norte/NE
 
         const pacPrice = isDistant ? 45.90 : 25.50;
         const sedexPrice = isDistant ? 89.90 : 38.90;

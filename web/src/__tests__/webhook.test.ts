@@ -211,3 +211,149 @@ describe('Asaas Webhook - Rate Limit Edge Cases', () => {
         expect(response.status).toBe(200);
     });
 });
+
+
+describe('Webhook Security - Fail Closed Authentication', () => {
+
+    describe('Asaas Webhook', () => {
+        it('should fail with 401 if ASAAS_WEBHOOK_SECRET is completely missing in environment', async () => {
+            const originalSecret = process.env.ASAAS_WEBHOOK_SECRET;
+            delete process.env.ASAAS_WEBHOOK_SECRET;
+
+            const { POST } = await import('../app/api/webhooks/asaas/route');
+
+            const request = new Request('http://localhost/api/webhooks/asaas', {
+                method: 'POST',
+                body: JSON.stringify({ event: 'PAYMENT_CONFIRMED', payment: { id: 'pay_123' } }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'asaas-access-token': 'any-token',
+                },
+            });
+
+            const response = await POST(request);
+            process.env.ASAAS_WEBHOOK_SECRET = originalSecret;
+
+            expect(response.status).toBe(401);
+            const data = await response.json();
+            expect(data.error).toBe('Unauthorized');
+        });
+
+        it('should fail with 401 if ASAAS_WEBHOOK_SECRET is present but token does not match', async () => {
+            const originalSecret = process.env.ASAAS_WEBHOOK_SECRET;
+            process.env.ASAAS_WEBHOOK_SECRET = 'my-secret';
+
+            const { POST } = await import('../app/api/webhooks/asaas/route');
+
+            const request = new Request('http://localhost/api/webhooks/asaas', {
+                method: 'POST',
+                body: JSON.stringify({ event: 'PAYMENT_CONFIRMED', payment: { id: 'pay_123' } }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'asaas-access-token': 'wrong-token',
+                },
+            });
+
+            const response = await POST(request);
+            process.env.ASAAS_WEBHOOK_SECRET = originalSecret;
+
+            expect(response.status).toBe(401);
+            const data = await response.json();
+            expect(data.error).toBe('Unauthorized');
+        });
+
+        it('should allow request if token matches ASAAS_WEBHOOK_SECRET', async () => {
+            const originalSecret = process.env.ASAAS_WEBHOOK_SECRET;
+            process.env.ASAAS_WEBHOOK_SECRET = 'my-secret';
+
+            const { POST } = await import('../app/api/webhooks/asaas/route');
+
+            const request = new Request('http://localhost/api/webhooks/asaas', {
+                method: 'POST',
+                body: JSON.stringify({ event: 'UNKNOWN_EVENT_TEST', payment: { id: 'pay_123' } }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'asaas-access-token': 'my-secret',
+                },
+            });
+
+            const response = await POST(request);
+            process.env.ASAAS_WEBHOOK_SECRET = originalSecret;
+
+            expect(response.status).toBe(200);
+            const data = await response.json();
+            expect(data.message).toContain('Ignorado');
+        });
+    });
+
+    describe('Bunny Webhook', () => {
+        it('should fail with 401 if BUNNY_WEBHOOK_SECRET is completely missing in environment', async () => {
+            const originalSecret = process.env.BUNNY_WEBHOOK_SECRET;
+            delete process.env.BUNNY_WEBHOOK_SECRET;
+
+            const { POST } = await import('../app/api/webhooks/bunny/route');
+
+            const request = new Request('http://localhost/api/webhooks/bunny', {
+                method: 'POST',
+                body: JSON.stringify({ VideoGuid: 'vid_123', Status: 3, Length: 120 }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-webhook-secret': 'any-token',
+                },
+            });
+
+            const response = await POST(request);
+            process.env.BUNNY_WEBHOOK_SECRET = originalSecret;
+
+            expect(response.status).toBe(401);
+            const data = await response.json();
+            expect(data.error).toBe('Unauthorized');
+        });
+
+        it('should fail with 401 if BUNNY_WEBHOOK_SECRET is present but token does not match', async () => {
+            const originalSecret = process.env.BUNNY_WEBHOOK_SECRET;
+            process.env.BUNNY_WEBHOOK_SECRET = 'my-bunny-secret';
+
+            const { POST } = await import('../app/api/webhooks/bunny/route');
+
+            const request = new Request('http://localhost/api/webhooks/bunny', {
+                method: 'POST',
+                body: JSON.stringify({ VideoGuid: 'vid_123', Status: 3, Length: 120 }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'authorization': 'wrong-token',
+                },
+            });
+
+            const response = await POST(request);
+            process.env.BUNNY_WEBHOOK_SECRET = originalSecret;
+
+            expect(response.status).toBe(401);
+            const data = await response.json();
+            expect(data.error).toBe('Unauthorized');
+        });
+
+        it('should allow request if token matches BUNNY_WEBHOOK_SECRET', async () => {
+            const originalSecret = process.env.BUNNY_WEBHOOK_SECRET;
+            process.env.BUNNY_WEBHOOK_SECRET = 'my-bunny-secret';
+
+            const { POST } = await import('../app/api/webhooks/bunny/route');
+
+            const request = new Request('http://localhost/api/webhooks/bunny', {
+                method: 'POST',
+                body: JSON.stringify({ VideoGuid: 'vid_123', Status: 3, Length: 120 }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-webhook-secret': 'my-bunny-secret',
+                },
+            });
+
+            const response = await POST(request);
+            process.env.BUNNY_WEBHOOK_SECRET = originalSecret;
+
+            expect(response.status).toBe(200);
+            const data = await response.json();
+            expect(data.received).toBe(true);
+        });
+    });
+});
