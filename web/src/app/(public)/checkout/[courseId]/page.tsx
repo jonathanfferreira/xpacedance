@@ -60,6 +60,14 @@ export default function CheckoutPage() {
     const [cardNumber, setCardNumber] = useState("");
     const [cardExpiry, setCardExpiry] = useState("");
     const [cardCvc, setCardCvc] = useState("");
+    const [cardCep, setCardCep] = useState("");
+    const [cardAddressNumber, setCardAddressNumber] = useState("");
+
+    const formatCep = (value: string) => {
+        const digits = value.replace(/\D/g, '').slice(0, 8);
+        if (digits.length <= 5) return digits;
+        return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+    };
 
     // UI states
     const [isProcessing, setIsProcessing] = useState(false);
@@ -122,6 +130,12 @@ export default function CheckoutPage() {
         : calculateInstallment(coursePrice, installments) * installments;
 
     const handleCheckout = async () => {
+        const cpfDigits = cpf.replace(/\D/g, '');
+        if (!cpfDigits || cpfDigits.length !== 11) {
+            setErrorMsg("CPF obrigatório. Os pagamentos são exclusivos para residentes no Brasil.");
+            return;
+        }
+
         setIsProcessing(true);
         setErrorMsg("");
         try {
@@ -143,6 +157,8 @@ export default function CheckoutPage() {
                     expiryMonth: cardExpiry.split('/')[0],
                     expiryYear: "20" + (cardExpiry.split('/')[1] || ''),
                     ccv: cardCvc,
+                    postalCode: cardCep.replace(/\D/g, ''),
+                    addressNumber: cardAddressNumber,
                 };
             }
 
@@ -226,8 +242,9 @@ export default function CheckoutPage() {
                                     <input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Mín. 6 caracteres" className="w-full bg-[#0a0a0a] border border-[#222] focus:border-primary px-4 py-3 outline-none text-white transition-colors" />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[10px] font-mono text-[#666] uppercase tracking-widest pl-1">CPF</label>
+                                    <label className="text-[10px] font-mono text-[#666] uppercase tracking-widest pl-1">CPF <span className="text-red-500">*</span></label>
                                     <input value={cpf} onChange={e => setCpf(formatCpf(e.target.value))} type="text" inputMode="numeric" placeholder="000.000.000-00" className="w-full bg-[#0a0a0a] border border-[#222] focus:border-primary px-4 py-3 outline-none text-white transition-colors" />
+                                    <p className="text-[10px] text-[#555] font-mono pl-1 pt-0.5">Pagamentos disponíveis para residentes no Brasil.</p>
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-mono text-[#666] uppercase tracking-widest pl-1">Nome Completo</label>
@@ -275,6 +292,16 @@ export default function CheckoutPage() {
                                             <div className="space-y-1">
                                                 <label className="text-[10px] font-mono text-[#666] uppercase tracking-widest pl-1">CVC</label>
                                                 <input value={cardCvc} onChange={e => setCardCvc(e.target.value)} type="text" placeholder="123" className="w-full bg-[#111] border border-[#333] focus:border-primary px-4 py-3 outline-none text-white transition-colors" />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-mono text-[#666] uppercase tracking-widest pl-1">CEP</label>
+                                                <input value={cardCep} onChange={e => setCardCep(formatCep(e.target.value))} type="text" inputMode="numeric" placeholder="00000-000" className="w-full bg-[#111] border border-[#333] focus:border-primary px-4 py-3 outline-none text-white transition-colors" />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-mono text-[#666] uppercase tracking-widest pl-1">Número</label>
+                                                <input value={cardAddressNumber} onChange={e => setCardAddressNumber(e.target.value)} type="text" inputMode="numeric" placeholder="Ex: 123" className="w-full bg-[#111] border border-[#333] focus:border-primary px-4 py-3 outline-none text-white transition-colors" />
                                             </div>
                                         </div>
                                         <div className="space-y-1 mt-4 border-t border-[#222] pt-4">
