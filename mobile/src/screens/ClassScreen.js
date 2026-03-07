@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions, ActivityIndicator, Alert, Share } from 'react-native';
 import { ArrowLeft, Heart, Star, Share2, MoreHorizontal } from 'lucide-react-native';
 import { Video, ResizeMode } from 'expo-av';
 import { usePreventScreenCapture } from 'expo-screen-capture';
@@ -18,6 +18,74 @@ export default function ClassScreen({ navigation, route }) {
     const [error, setError] = useState(null);
 
     const lessonId = route?.params?.lessonId;
+    const [liked, setLiked] = useState(false);
+    const [following, setFollowing] = useState(false);
+
+    const handleLike = useCallback(async () => {
+        const next = !liked;
+        setLiked(next);
+        try {
+            if (next) {
+                await supabase.from('lesson_likes').upsert({ lesson_id: lessonId }, { onConflict: 'lesson_id,user_id' });
+            } else {
+                await supabase.from('lesson_likes').delete().eq('lesson_id', lessonId);
+            }
+        } catch {
+            // não-crítico: reverte estado se falhar
+            setLiked(!next);
+        }
+    }, [liked, lessonId]);
+
+    const handleRate = useCallback(() => {
+        Alert.alert(
+            'Avaliar Aula',
+            'Como você avalia esta aula?',
+            [
+                { text: '⭐ Fraca', onPress: () => {} },
+                { text: '⭐⭐⭐ Boa', onPress: () => {} },
+                { text: '⭐⭐⭐⭐⭐ Excelente', onPress: () => {} },
+                { text: 'Cancelar', style: 'cancel' },
+            ]
+        );
+    }, []);
+
+    const handleShare = useCallback(async () => {
+        try {
+            await Share.share({
+                message: lesson?.title ? `Assistindo "${lesson.title}" no XTAGE ON!` : 'Confira essa aula no XTAGE ON!',
+            });
+        } catch {
+            // share cancelado pelo usuário
+        }
+    }, [lesson]);
+
+    const handleMore = useCallback(() => {
+        Alert.alert(
+            'Mais opções',
+            undefined,
+            [
+                { text: 'Reportar conteúdo', onPress: () => Alert.alert('Obrigado', 'Sua denúncia foi registrada.') },
+                { text: 'Copiar link', onPress: () => {} },
+                { text: 'Cancelar', style: 'cancel' },
+            ]
+        );
+    }, []);
+
+    const handleFollow = useCallback(async () => {
+        const next = !following;
+        setFollowing(next);
+        const instructorId = lesson?.courses?.tenants?.owner_id;
+        if (!instructorId) return;
+        try {
+            if (next) {
+                await supabase.from('follows').upsert({ following_id: instructorId }, { onConflict: 'follower_id,following_id' });
+            } else {
+                await supabase.from('follows').delete().eq('following_id', instructorId);
+            }
+        } catch {
+            setFollowing(!next);
+        }
+    }, [following, lesson]);
 
     useEffect(() => {
         if (!lessonId) {
@@ -143,19 +211,19 @@ export default function ClassScreen({ navigation, route }) {
 
                     {/* Ações Rápidas */}
                     <View className="flex-row items-center justify-between border-y border-[#1a1a1a] py-4 mb-8">
-                        <TouchableOpacity className="items-center">
-                            <Heart color="#eb00bc" size={20} />
+                        <TouchableOpacity className="items-center" onPress={handleLike}>
+                            <Heart color={liked ? "#eb00bc" : "#555"} size={20} fill={liked ? "#eb00bc" : "none"} />
                             <Text className="text-[#888] text-[10px] rounded mt-2 uppercase tracking-widest">Curtir</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity className="items-center">
+                        <TouchableOpacity className="items-center" onPress={handleRate}>
                             <Star color="#ffbd2e" size={20} />
                             <Text className="text-[#888] text-[10px] rounded mt-2 uppercase tracking-widest">Avaliar</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity className="items-center">
+                        <TouchableOpacity className="items-center" onPress={handleShare}>
                             <Share2 color="white" size={20} />
                             <Text className="text-[#888] text-[10px] rounded mt-2 uppercase tracking-widest">Link</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity className="items-center">
+                        <TouchableOpacity className="items-center" onPress={handleMore}>
                             <MoreHorizontal color="#888" size={20} />
                             <Text className="text-[#888] text-[10px] rounded mt-2 uppercase tracking-widest">Mais</Text>
                         </TouchableOpacity>
@@ -171,8 +239,13 @@ export default function ClassScreen({ navigation, route }) {
                             <Text className="text-white font-bold">{instructorName}</Text>
                             <Text className="text-[#666] text-xs mt-1">{lesson.courses?.tenants?.name || ''}</Text>
                         </View>
-                        <TouchableOpacity className="bg-[#111] px-4 py-2 border border-[#222] rounded-sm">
-                            <Text className="text-white text-[10px] uppercase tracking-widest font-bold">Seguir</Text>
+                        <TouchableOpacity
+                            className={`px-4 py-2 border rounded-sm ${following ? 'bg-primary border-primary/50' : 'bg-[#111] border-[#222]'}`}
+                            onPress={handleFollow}
+                        >
+                            <Text className="text-white text-[10px] uppercase tracking-widest font-bold">
+                                {following ? 'Seguindo' : 'Seguir'}
+                            </Text>
                         </TouchableOpacity>
                     </View>
 

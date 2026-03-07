@@ -7,21 +7,37 @@ import { Play, TrendingUp, DollarSign, Video, CheckCircle } from 'lucide-react';
 
 export default function PartnerOnboardingPage() {
     const [formState, setFormState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [errorMsg, setErrorMsg] = useState('');
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setFormState('loading');
 
         const formData = new FormData(e.currentTarget);
-        const data = Object.fromEntries(formData.entries());
 
         try {
-            // Endpoint to be implemented -> POST /api/partners/request
-            // Emula o tempo de rede
-            await new Promise(r => setTimeout(r, 1500));
+            const res = await fetch('/api/partner/apply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    schoolName: formData.get('schoolName'),
+                    instagram: formData.get('instagram'),
+                    whatsapp: formData.get('whatsapp'),
+                    videoUrl: formData.get('videoUrl') || undefined,
+                }),
+            });
+
+            if (res.status === 401) {
+                window.location.href = `/login?redirect=${encodeURIComponent('/seja-parceiro')}`;
+                return;
+            }
+
+            const json = await res.json();
+            if (!res.ok) throw new Error(json.error || 'Erro ao enviar aplicação.');
 
             setFormState('success');
-        } catch (err) {
+        } catch (err: any) {
+            setErrorMsg(err.message || 'Erro inesperado. Tente novamente.');
             setFormState('error');
         }
     }
@@ -120,13 +136,8 @@ export default function PartnerOnboardingPage() {
 
                                     <form onSubmit={handleSubmit} className="space-y-5">
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold text-[#888] uppercase tracking-widest">Nome Completo</label>
-                                            <input required name="name" type="text" className="w-full bg-[#111] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" placeholder="João coreógrafo" />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-[#888] uppercase tracking-widest">E-mail</label>
-                                            <input required name="email" type="email" className="w-full bg-[#111] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" placeholder="seu@email.com" />
+                                            <label className="text-xs font-bold text-[#888] uppercase tracking-widest">Nome da Escola / Estúdio</label>
+                                            <input required name="schoolName" type="text" className="w-full bg-[#111] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" placeholder="Estúdio João Coreógrafo" />
                                         </div>
 
                                         <div className="space-y-2">
@@ -135,14 +146,18 @@ export default function PartnerOnboardingPage() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold text-[#888] uppercase tracking-widest">Tem audiência pronta?</label>
-                                            <select name="audience" className="w-full bg-[#111] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none">
-                                                <option value="iniciante">Estou começando agora</option>
-                                                <option value="medio">Tenho alguns alunos (10-50)</option>
-                                                <option value="grande">Tenho audiência forte (50+)</option>
-                                                <option value="escola">Sou uma Escola/Estúdio Físico</option>
-                                            </select>
+                                            <label className="text-xs font-bold text-[#888] uppercase tracking-widest">WhatsApp</label>
+                                            <input required name="whatsapp" type="tel" className="w-full bg-[#111] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" placeholder="(11) 99999-9999" />
                                         </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-[#888] uppercase tracking-widest">Link de Vídeo (opcional)</label>
+                                            <input name="videoUrl" type="url" className="w-full bg-[#111] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" placeholder="https://youtube.com/..." />
+                                        </div>
+
+                                        {formState === 'error' && (
+                                            <p className="text-red-400 text-sm font-mono">{errorMsg}</p>
+                                        )}
 
                                         <button
                                             disabled={formState === 'loading'}

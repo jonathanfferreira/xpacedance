@@ -58,7 +58,11 @@ export default function ProfileScreen({ navigation }) {
                 <View className="px-6 py-6 border-b border-[#111]">
                     <Text className="text-[#555] font-bold text-xs uppercase tracking-widest mb-4">Sua Conta</Text>
 
-                    <TouchableOpacity activeOpacity={0.7} className="flex-row items-center justify-between bg-[#111] p-4 rounded-t-md border border-[#222] border-b-0">
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        className="flex-row items-center justify-between bg-[#111] p-4 rounded-t-md border border-[#222] border-b-0"
+                        onPress={() => Alert.alert('Ajustes', 'Configurações avançadas em breve.')}
+                    >
                         <View className="flex-row items-center gap-3">
                             <Settings color="#888" size={20} />
                             <Text className="text-white font-bold uppercase tracking-widest">Ajustes</Text>
@@ -66,7 +70,11 @@ export default function ProfileScreen({ navigation }) {
                         <ChevronRight color="#444" size={16} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity activeOpacity={0.7} className="flex-row items-center justify-between bg-[#111] p-4 border-y border-[#222]">
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        className="flex-row items-center justify-between bg-[#111] p-4 border-y border-[#222]"
+                        onPress={() => Alert.alert('Notificações', 'Central de notificações em breve.')}
+                    >
                         <View className="flex-row items-center gap-3">
                             <Bell color="#888" size={20} />
                             <Text className="text-white font-bold uppercase tracking-widest">Notificações</Text>
@@ -74,7 +82,11 @@ export default function ProfileScreen({ navigation }) {
                         <ChevronRight color="#444" size={16} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity activeOpacity={0.7} className="flex-row items-center justify-between bg-[#111] p-4 rounded-b-md border border-[#222] border-t-0">
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        className="flex-row items-center justify-between bg-[#111] p-4 rounded-b-md border border-[#222] border-t-0"
+                        onPress={() => Alert.alert('Pagamentos', 'Histórico de pagamentos em breve.')}
+                    >
                         <View className="flex-row items-center gap-3">
                             <CreditCard color="#888" size={20} />
                             <Text className="text-white font-bold uppercase tracking-widest">Pagamentos Nativos</Text>
