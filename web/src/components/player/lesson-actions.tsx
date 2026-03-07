@@ -66,8 +66,18 @@ export function LessonActions({ lessonId, initialLikes, initialIsLiked }: Lesson
         }
     }
 
-    const handleReport = () => {
-        alert('Reportagem enviada para moderação. Obrigado por manter a comunidade segura!')
+    const handleReport = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+            alert('Você precisa estar logado para reportar.')
+            return
+        }
+        const { error } = await supabase
+            .from('reports')
+            .insert({ lesson_id: lessonId, user_id: user.id, reason: 'reported_by_user' })
+        if (!error) {
+            alert('Reportagem enviada para moderação. Obrigado por manter a comunidade segura!')
+        }
     }
 
     return (

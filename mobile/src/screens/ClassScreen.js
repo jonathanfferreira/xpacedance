@@ -36,18 +36,28 @@ export default function ClassScreen({ navigation, route }) {
         }
     }, [liked, lessonId]);
 
+    const submitRating = useCallback(async (stars) => {
+        try {
+            await supabase
+                .from('lesson_ratings')
+                .upsert({ lesson_id: lessonId, rating: stars }, { onConflict: 'lesson_id,user_id' });
+        } catch {
+            // não-crítico
+        }
+    }, [lessonId]);
+
     const handleRate = useCallback(() => {
         Alert.alert(
             'Avaliar Aula',
             'Como você avalia esta aula?',
             [
-                { text: '⭐ Fraca', onPress: () => {} },
-                { text: '⭐⭐⭐ Boa', onPress: () => {} },
-                { text: '⭐⭐⭐⭐⭐ Excelente', onPress: () => {} },
+                { text: '⭐ Fraca', onPress: () => submitRating(1) },
+                { text: '⭐⭐⭐ Boa', onPress: () => submitRating(3) },
+                { text: '⭐⭐⭐⭐⭐ Excelente', onPress: () => submitRating(5) },
                 { text: 'Cancelar', style: 'cancel' },
             ]
         );
-    }, []);
+    }, [submitRating]);
 
     const handleShare = useCallback(async () => {
         try {
@@ -65,7 +75,7 @@ export default function ClassScreen({ navigation, route }) {
             undefined,
             [
                 { text: 'Reportar conteúdo', onPress: () => Alert.alert('Obrigado', 'Sua denúncia foi registrada.') },
-                { text: 'Copiar link', onPress: () => {} },
+                { text: 'Copiar link', onPress: () => Share.share({ message: `https://xtage.com/aula/${lessonId}` }) },
                 { text: 'Cancelar', style: 'cancel' },
             ]
         );

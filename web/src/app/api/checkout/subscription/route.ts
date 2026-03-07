@@ -66,33 +66,16 @@ export async function POST(request: Request) {
         const professorWalletId = tenant?.asaas_wallet_id;
         const coursePrice = plan.price || 0;
 
+        if (!ASAAS_API_KEY) {
+            return NextResponse.json(
+                { error: "Pagamentos não configurados. Contate o suporte." },
+                { status: 503 }
+            );
+        }
+
         // Tracker de Afiliado
         const cookieStore = await cookies();
         const affiliateCode = cookieStore.get("asaas_affiliate_tracker")?.value;
-
-        // MOCK MODE
-        if (!ASAAS_API_KEY) {
-            const mockSubscription = await supabaseAdmin
-                .from("subscriptions")
-                .insert({
-                    user_id: "00000000-0000-0000-0000-000000000000",
-                    tenant_id: plan.tenant_id,
-                    plan_id: planId,
-                    asaas_subscription_id: `mock_sub_${Date.now()}`,
-                    status: "PENDING",
-                    current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                })
-                .select("id")
-                .single();
-
-            return NextResponse.json({
-                success: true,
-                subscriptionId: mockSubscription.data?.id,
-                status: "PENDING",
-                pixQrCodeUrl: paymentMethod === "pix" ? "https://sandbox.asaas.com/pix/qrcode" : null,
-                pixCopiaECola: paymentMethod === "pix" ? "00020126580014BR.GOV.BCB.PIX0136..." : null,
-            });
-        }
 
         // 2. Busca ou cria Customer no Asaas
         let customerId = "";
