@@ -195,7 +195,7 @@ export default function HomeScreen({ navigation }) {
                             <Text className="text-[#eb00bc] font-bold text-xs ml-1">{streak}</Text>
                         </View>
                     )}
-                    <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
                         <Bell color="#888" size={20} />
                     </TouchableOpacity>
                 </View>

@@ -358,7 +358,7 @@ export function VideoPlayer({ videoId, tokenizedUrl, userEmail, lessonId, initia
 
                     <div className="flex items-center gap-4">
 
-                        {/* Features Especiais de Dança (XPACE Core) */}
+                        {/* Features Especiais de Dança (XTAGE Core) */}
                         <div className="flex items-center gap-2 bg-[#1a1a1a] p-1 border border-[#333] rounded-sm">
                             <button
                                 onClick={toggleMirror}

@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/server';
 export const revalidate = 3600; // Recria sitemap a cada 1h
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://xpace.on';
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://xtage.app';
     const supabase = await createClient();
 
     // Busca todos os cursos publicados

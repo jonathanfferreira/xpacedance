@@ -96,7 +96,7 @@ export default function MasterDashboardPage() {
         <div className="max-w-7xl mx-auto pb-10">
             <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-heading font-bold text-white uppercase tracking-tight mb-2">Suprema Corte XPACE</h1>
+                    <h1 className="text-3xl font-heading font-bold text-white uppercase tracking-tight mb-2">Suprema Corte XTAGE</h1>
                     <p className="text-[#888] font-sans text-sm">Visão global da Plataforma (Todas as Escolas Combinadas). Acesso restrito Nível 5.</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -123,7 +123,7 @@ export default function MasterDashboardPage() {
                     isMoney
                 />
                 <MetricCard
-                    title="Net Revenue XPACE (15%)"
+                    title="Net Revenue XTAGE (15%)"
                     value={loading ? '...' : `R$ ${xpaceRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                     trend="Split automático"
                     icon={<DollarSign />}

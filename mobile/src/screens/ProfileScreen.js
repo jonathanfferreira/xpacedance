@@ -73,7 +73,7 @@ export default function ProfileScreen({ navigation }) {
                     <TouchableOpacity
                         activeOpacity={0.7}
                         className="flex-row items-center justify-between bg-[#111] p-4 border-y border-[#222]"
-                        onPress={() => Alert.alert('Notificações', 'Central de notificações em breve.')}
+                        onPress={() => navigation.navigate('Notifications')}
                     >
                         <View className="flex-row items-center gap-3">
                             <Bell color="#888" size={20} />

@@ -189,8 +189,6 @@ export default async function GenericProfilePage({ params }: { params: Promise<{
 
         if (!profile) notFound();
 
-        const { currentUserId, isFollowing } = await getCurrentUserAndFollow(profile.id);
-
         const joinedDate = new Date(profile.created_at).toLocaleDateString('pt-BR', {
             month: 'long', year: 'numeric'
         });
@@ -240,11 +238,7 @@ export default async function GenericProfilePage({ params }: { params: Promise<{
                                 <Calendar size={12} className="text-[#555]" />
                                 <span className="text-[#555] text-xs font-mono">membro desde {joinedDate}</span>
                             </div>
-                            {currentUserId && (
-                                <div className="mt-4 flex justify-center sm:justify-start">
-                                    <FollowButton targetUserId={profile.id} initialIsFollowing={isFollowing} />
-                                </div>
-                            )}
+
                         </div>
                     </div>
 

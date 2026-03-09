@@ -39,7 +39,7 @@ export function PowerOnPreloader({ children }: { children: React.ReactNode }) {
                 >
                     <Image
                         src="/images/xpace-on-sticker.png"
-                        alt="Power On XPACE"
+                        alt="Power On XTAGE"
                         fill
                         className="object-contain"
                         priority

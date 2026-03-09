@@ -28,10 +28,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const course = await getCourse(courseId);
     if (!course) return { title: 'Curso não encontrado' };
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://xpace.on';
-    const title = `${course.title} — ${course.tenants?.name || 'Xpace On'}`;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://xtage.app';
+    const title = `${course.title} — ${course.tenants?.name || 'XTAGE'}`;
     const description = course.description ||
-        `Aprenda com este curso exclusivo de ${course.tenants?.name || 'Xpace On'}. Acesso imediato, aulas em alta definição.`;
+        `Aprenda com este curso exclusivo de ${course.tenants?.name || 'XTAGE'}. Acesso imediato, aulas em alta definição.`;
 
     return {
         title,
@@ -61,7 +61,7 @@ export default async function PublicCoursePage({ params }: PageProps) {
 
     if (!course) return notFound();
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://xpace.on';
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://xtage.app';
 
     // JSON-LD Schema.org Course
     const jsonLd = {
@@ -71,7 +71,7 @@ export default async function PublicCoursePage({ params }: PageProps) {
         description: course.description || '',
         provider: {
             '@type': 'Organization',
-            name: course.tenants?.name || 'Xpace On',
+            name: course.tenants?.name || 'XTAGE',
             url: siteUrl,
         },
         offers: {

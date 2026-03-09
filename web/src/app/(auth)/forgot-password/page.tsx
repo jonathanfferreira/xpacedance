@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
                 <div className="relative bg-[#0d0d0d]/80 border border-surface rounded-2xl p-8 backdrop-blur-2xl">
                     <div className="mb-8 text-center flex flex-col items-center">
                         <div className="w-48 mb-2">
-                            <Image src="/images/xpace-logo-branca.png" alt="XPACE Logo" width={240} height={80} className="w-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" priority />
+                            <Image src="/images/xpace-logo-branca.png" alt="XTAGE Logo" width={240} height={80} className="w-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" priority />
                         </div>
                         <h1 className="font-heading text-xl uppercase tracking-widest text-[#888888] mb-2">Recuperar <span className="text-white">Acesso</span></h1>
                         <p className="text-[#555] text-xs font-sans">Insira seu e-mail cadastrado para receber o link de redefinição.</p>

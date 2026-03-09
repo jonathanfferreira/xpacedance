@@ -82,7 +82,7 @@ export default async function ExplorePage({ searchParams }: ExploreProps) {
                         <p className="text-[#888] font-sans text-lg max-w-xl">
                             {query
                                 ? `Mostrando resultados para "${query}"`
-                                : "Explore milhares de cursos em nossa rede de criadores XPACE."}
+                                : "Explore milhares de cursos em nossa rede de criadores XTAGE."}
                         </p>
                     </div>
                     <div className="hidden md:flex items-center justify-center p-6 bg-white/5 border border-white/10 rounded-full backdrop-blur-sm">

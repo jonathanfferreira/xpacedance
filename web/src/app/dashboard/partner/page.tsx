@@ -144,7 +144,7 @@ export default function PartnerProgramPage() {
                         <Rocket className="text-red-500" size={32} />
                     </div>
                     <h1 className="text-3xl md:text-5xl font-display font-bold text-white uppercase tracking-wider mb-4">
-                        XPACE <span className="text-red-500">PARTNER</span>
+                        XTAGE <span className="text-red-500">PARTNER</span>
                     </h1>
                     <p className="text-[#888] md:text-lg max-w-2xl font-sans mb-8">
                         Seja dono do seu próprio pedaço na pista. Transforme seus alunos presenciais em globais,
@@ -171,7 +171,7 @@ export default function PartnerProgramPage() {
                 <div className="bg-[#0a0a0a] border border-[#1a1a1a] p-6 rounded-xl hover:border-red-500/30 transition-colors group">
                     <Users className="text-red-500 mb-4 group-hover:scale-110 transition-transform" size={28} />
                     <h3 className="text-white font-bold font-heading uppercase tracking-wide mb-2">Comunidade Global</h3>
-                    <p className="text-[#666] text-sm leading-relaxed">Seu catálogo ficará exposto para toda a rede XPACE, permitindo que dançarinos do mundo inteiro descubram sua didática.</p>
+                    <p className="text-[#666] text-sm leading-relaxed">Seu catálogo ficará exposto para toda a rede XTAGE, permitindo que dançarinos do mundo inteiro descubram sua didática.</p>
                 </div>
             </div>
 

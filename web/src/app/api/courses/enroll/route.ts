@@ -75,7 +75,7 @@ export async function POST(request: Request) {
         .single()
 
     if (enrollErr) {
-        return NextResponse.json({ error: enrollErr.message }, { status: 500 })
+        return NextResponse.json({ error: 'Erro ao realizar matrícula. Tente novamente.' }, { status: 500 })
     }
 
     // Award XP for enrollment (non-critical — log failure but don't block response)

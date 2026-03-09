@@ -252,7 +252,7 @@ export default function StudioFinanceiroPage() {
                                     <div>
                                         <h4 className="text-white text-sm font-bold mb-1">Como Funciona a Receita?</h4>
                                         <p className="text-[#aaa] text-xs leading-relaxed">
-                                            Quando um aluno compra um curso, o dinheiro cai na conta Master da XPACE. Nossa engine (<span className="text-primary font-mono">Split Flow</span>) automaticamente faz a divisão do percentual contratado e envia o dinheiro líquido para esta tela, sua carteira individual (SubAccount).
+                                            Quando um aluno compra um curso, o dinheiro cai na conta Master da XTAGE. Nossa engine (<span className="text-primary font-mono">Split Flow</span>) automaticamente faz a divisão do percentual contratado e envia o dinheiro líquido para esta tela, sua carteira individual (SubAccount).
                                         </p>
                                     </div>
                                 </div>

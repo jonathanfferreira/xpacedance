@@ -1,7 +1,8 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { Copy, Plus, TrendingUp, Users, DollarSign, CheckCircle2, Search } from 'lucide-react';
+import { Plus, TrendingUp, Users, DollarSign, CheckCircle2, Search } from 'lucide-react';
+import { CopyButton } from '@/components/ui/copy-button';
 
 async function getAffiliateData() {
     const cookieStore = await cookies();
@@ -104,7 +105,7 @@ export default async function AffiliatesDashboardPage() {
                     {affiliates.map((aff: any) => {
                         const tenantName = aff.tenants?.name || 'Escola Invisível';
                         const slug = aff.tenants?.slug || 'xpace';
-                        const affiliateLink = `https://${slug}.xpace.on/?ref=${aff.affiliate_code}`;
+                        const affiliateLink = `https://${slug}.xtage.app/?ref=${aff.affiliate_code}`;
                         const metrics = aff.metrics;
 
                         return (
@@ -133,9 +134,7 @@ export default async function AffiliatesDashboardPage() {
                                         <code className="flex-1 text-primary text-xs font-mono px-2 truncate selection:bg-primary/30">
                                             {affiliateLink}
                                         </code>
-                                        <button className="text-[#888] hover:text-white p-2 transition-colors rounded hover:bg-[#111]" title="Copiar Link">
-                                            <Copy size={16} />
-                                        </button>
+                                        <CopyButton text={affiliateLink} />
                                     </div>
                                 </div>
 

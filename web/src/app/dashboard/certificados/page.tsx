@@ -102,7 +102,7 @@ export default async function CertificatesPage() {
                                             className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded"
                                             style={{ color: brandColor, backgroundColor: `${brandColor}15`, border: `1px solid ${brandColor}30` }}
                                         >
-                                            {tenant?.name || 'Xpace On'}
+                                            {tenant?.name || 'XTAGE'}
                                         </span>
                                     </div>
 

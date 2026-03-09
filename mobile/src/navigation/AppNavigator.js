@@ -13,6 +13,7 @@ import ClassScreen from '../screens/ClassScreen';
 import LibraryScreen from '../screens/LibraryScreen';
 import RankingScreen from '../screens/RankingScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -105,6 +106,7 @@ export default function AppNavigator() {
                     <>
                         <Stack.Screen name="MainTabs" component={MainTabs} />
                         <Stack.Screen name="Class" component={ClassScreen} />
+                        <Stack.Screen name="Notifications" component={NotificationsScreen} />
                     </>
                 ) : (
                     <Stack.Screen name="Login" component={LoginScreen} />

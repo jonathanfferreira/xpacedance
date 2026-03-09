@@ -36,7 +36,7 @@ export default function LoginPage() {
     return (
         <div className="flex min-h-screen flex-col items-center justify-center p-4 relative overflow-hidden bg-background">
             <div className="pointer-events-none absolute inset-0 z-0">
-                <Image src="/images/bg-degrade.png" alt="XPACE Background" fill className="object-cover opacity-50 mix-blend-screen" priority />
+                <Image src="/images/bg-degrade.png" alt="XTAGE Background" fill className="object-cover opacity-50 mix-blend-screen" priority />
             </div>
 
             <div className="z-10 w-full max-w-md relative group mt-8">
@@ -47,7 +47,7 @@ export default function LoginPage() {
                         <div className="w-48 mb-2">
                             <Image
                                 src="/images/xpace-logo-branca.png"
-                                alt="XPACE Logo"
+                                alt="XTAGE Logo"
                                 width={240}
                                 height={80}
                                 className="w-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"

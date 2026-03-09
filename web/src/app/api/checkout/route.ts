@@ -35,7 +35,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Requisição inválida." }, { status: 403 });
     }
 
-    console.log("🟢 POST /api/checkout — iniciando", `IP: ${ip}`);
 
     try {
         let rawBody: unknown;
@@ -108,7 +107,7 @@ export async function POST(request: Request) {
             });
             if (signUpError) {
                 console.error("Erro ao criar usuário:", signUpError);
-                return NextResponse.json({ error: "Erro ao criar conta: " + signUpError.message }, { status: 400 });
+                return NextResponse.json({ error: "Erro ao criar conta. Tente novamente ou use outro e-mail." }, { status: 400 });
             }
             userId = newUser.user.id;
         }
