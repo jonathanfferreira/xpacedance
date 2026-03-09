@@ -50,7 +50,7 @@ export async function POST(request: Request) {
                 try {
                     await sendMetaPurchaseCAPI(customerEmail, netValue);
                 } catch (e) {
-                    console.log(`[CAPI] ⚠️ Falha não-crítica ao enviar CAPI`, e);
+                    console.warn(`[CAPI] Falha não-crítica ao enviar CAPI`, e);
                 }
             }
 
@@ -65,7 +65,6 @@ export async function POST(request: Request) {
 
         // =================== OVERDUE EVENTS ===================
         if (evento === "PAYMENT_OVERDUE" || evento === "PAYMENT_DUNNING_RECEIVED") {
-            console.log(`[ASAAS] 🟡 Fatura Vencida: ${paymentId}`);
 
             if (subscriptionId) {
                 await supabaseAdmin
@@ -87,7 +86,7 @@ export async function POST(request: Request) {
                     const backUrl = payload.payment?.invoiceUrl || "https://xtage.app/checkout";
                     await sendCartRecoveryEmail(customerEmail, "Dancer", backUrl);
                 } catch (e) {
-                    console.log("[ASAAS WEBHOOK] ⚠️ Cart recovery email fail (non-critical)", e);
+                    console.warn("[ASAAS WEBHOOK] Cart recovery email fail (non-critical)", e);
                 }
             }
 
@@ -96,7 +95,7 @@ export async function POST(request: Request) {
 
         // =================== REFUND / DELETED ===================
         if (evento === "PAYMENT_DELETED" || evento === "PAYMENT_REFUNDED") {
-            console.log(`[ASAAS] 🔴 Pagamento Cancelado/Reembolsado: ${paymentId}`);
+            console.warn(`[ASAAS] Pagamento Cancelado/Reembolsado: ${paymentId}`);
 
             if (subscriptionId) {
                 await cancelSubscription(subscriptionId, "CANCELED");
@@ -114,7 +113,7 @@ export async function POST(request: Request) {
 
         // =================== CHARGEBACK ===================
         if (evento === "PAYMENT_CHARGEBACK") {
-            console.log(`[ASAAS] ⛔ Chargeback: ${paymentId}`);
+            console.warn(`[ASAAS] Chargeback: ${paymentId}`);
 
             await supabaseAdmin
                 .from("transactions")
@@ -159,7 +158,6 @@ async function handleSubscriptionPaymentReceived(subscriptionId: string, custome
     if (error) {
         console.error("[ASAAS WEBHOOK] Erro ao ativar subscription:", error);
     } else {
-        console.log(`[ASAAS WEBHOOK] ✅ Subscription ATIVA: ${subscriptionId} | expira: ${periodEnd.toISOString()}`);
     }
 
     return NextResponse.json({ message: "Assinatura ativada", subscriptionId });
@@ -203,7 +201,6 @@ async function handleOneTimePaymentReceived(paymentId: string, customerEmail: st
     if (enrollError) {
         console.error("[ASAAS WEBHOOK] Erro ao criar enrollment:", enrollError);
     } else {
-        console.log(`[ASAAS WEBHOOK] ✅ Enrollment: user=${transaction.user_id} course=${transaction.course_id}`);
 
         // Notify the Tenant Owner about the new sale!
         try {
@@ -271,7 +268,6 @@ async function handleOneTimePaymentReceived(paymentId: string, customerEmail: st
                     html: htmlBody,
                 });
 
-                console.log(`[RESEND] ✅ E-mail de acesso enviado para ${customerEmail}`);
             } catch (emailErr) {
                 console.error("[RESEND] Falha não crítica ao enviar email de acesso", emailErr);
             }
@@ -307,7 +303,7 @@ async function revokeEnrollmentByPayment(paymentId: string) {
         .eq("user_id", transaction.user_id)
         .eq("course_id", transaction.course_id);
 
-    console.log(`[ASAAS WEBHOOK] 🔒 Enrollment revogado: user=${transaction.user_id} course=${transaction.course_id}`);
+;
 }
 
 async function sendMetaPurchaseCAPI(email: string | undefined, value: number) {

@@ -36,7 +36,6 @@ export async function POST(request: Request) {
         const { VideoGuid, Status, Length } = body
 
         // Bunny.net Webhook statuses: 3 = Finished, 4 = Error, 5 = Error, 6  = Error
-        console.log(`[BUNNY WEBHOOK] Event trigger Video: ${VideoGuid} | Status Code: ${Status}`);
 
         if (Status === 3) {
             if (VideoGuid) {
@@ -49,7 +48,6 @@ export async function POST(request: Request) {
                     console.error(`[BUNNY WEBHOOK] ⚠️ Falha ao atualizar lesson no DB para VideoID: ${VideoGuid}`, updateErr.message)
                     return NextResponse.json({ error: 'DB update failed' }, { status: 500 })
                 }
-                console.log(`[BUNNY WEBHOOK] ✅ Banco sincronizado para VideoID: ${VideoGuid}.`)
             }
         } else if (Status === 4 || Status === 5 || Status === 6) {
             if (VideoGuid) {

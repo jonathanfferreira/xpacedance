@@ -5,7 +5,8 @@ import { ShoppingBag, Package, Plus, Search, Tag, DollarSign, Box } from 'lucide
 
 export const dynamic = 'force-dynamic';
 
-export default async function StudioLojaPage() {
+export default async function StudioLojaPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+    const { q } = await searchParams;
     const cookieStore = await cookies();
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,12 +41,30 @@ export default async function StudioLojaPage() {
         .eq('tenant_id', tenantProfile.id)
         .order('created_at', { ascending: false });
 
-    // Pending Orders (Sales)
-    const { count: pendingOrders } = await supabase
-        .from('xtore_orders')
-        .select('id', { count: 'exact', head: true })
-        .eq('tenant_id', tenantProfile.id)
-        .eq('status', 'pending');
+    // Pending Orders (Sales) e Receita do Mês
+    const firstOfMonth = new Date();
+    firstOfMonth.setDate(1);
+    firstOfMonth.setHours(0, 0, 0, 0);
+
+    const [{ count: pendingOrders }, { data: monthlyOrders }] = await Promise.all([
+        supabase
+            .from('xtore_orders')
+            .select('id', { count: 'exact', head: true })
+            .eq('tenant_id', tenantProfile.id)
+            .eq('status', 'pending'),
+        supabase
+            .from('xtore_orders')
+            .select('total_amount')
+            .eq('tenant_id', tenantProfile.id)
+            .in('status', ['processing', 'shipped', 'delivered'])
+            .gte('created_at', firstOfMonth.toISOString()),
+    ]);
+
+    const monthlyRevenue = (monthlyOrders || []).reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+
+    const filteredProducts = q
+        ? (products || []).filter(p => p.name.toLowerCase().includes(q.toLowerCase()))
+        : (products || []);
 
     return (
         <div className="max-w-5xl mx-auto pb-20">
@@ -86,7 +105,7 @@ export default async function StudioLojaPage() {
                         <span className="text-xs uppercase tracking-widest font-mono text-[#666]">Receita Bruta (Mês)</span>
                         <DollarSign size={16} className="text-[#888]" />
                     </div>
-                    <span className="text-3xl font-display text-white">R$ 0,00</span>
+                    <span className="text-3xl font-display text-white">R$ {monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                 </div>
             </div>
 
@@ -96,18 +115,19 @@ export default async function StudioLojaPage() {
                     <h2 className="font-heading text-lg text-white uppercase tracking-widest flex items-center gap-2">
                         <Box size={18} className="text-primary" /> Inventário
                     </h2>
-                    <div className="relative">
+                    <form method="GET" className="relative">
                         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#555]" />
                         <input
                             type="text"
+                            name="q"
+                            defaultValue={q || ''}
                             placeholder="Buscar produto..."
                             className="bg-[#050505] border border-[#222] rounded pl-9 pr-3 py-1.5 text-xs text-white outline-none focus:border-primary"
-                            disabled
                         />
-                    </div>
+                    </form>
                 </div>
 
-                {products && products.length > 0 ? (
+                {filteredProducts.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
@@ -120,7 +140,7 @@ export default async function StudioLojaPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {products.map((p) => (
+                                {filteredProducts.map((p) => (
                                     <tr key={p.id} className="border-b border-[#1a1a1a] hover:bg-[#111] transition-colors">
                                         <td className="p-4">
                                             <p className="text-sm font-bold text-white">{p.name}</p>
