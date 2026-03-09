@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight, Play, Zap, Flame, MonitorPlay, Smartphone, Shield, Star } from 'lucide-react';
+import { WaitlistSection } from '@/components/waitlist/waitlist-section';
 
 export default function LandingPage() {
   return (
@@ -242,6 +243,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Pré-Save / Waitlist */}
+      <WaitlistSection />
 
       {/* Modern Footer */}
       <footer className="relative z-10 border-t border-[#111] bg-[#020202] pt-16 pb-8">
