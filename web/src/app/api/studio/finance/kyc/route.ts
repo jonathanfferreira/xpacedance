@@ -94,7 +94,13 @@ export async function POST(request: Request) {
             .update({ asaas_wallet_id: asaasWalletId })
             .eq('id', tenant.id);
 
-        if (errUpdate) console.error('[DB] Erro ao atualizar asaas_wallet_id:', errUpdate);
+        if (errUpdate) {
+            console.error('[DB] Erro ao atualizar asaas_wallet_id:', errUpdate);
+            return NextResponse.json(
+                { error: `Subconta criada no Asaas mas falhou ao salvar no banco. Guarde seu walletId: ${asaasWalletId} e contate o suporte.` },
+                { status: 500 }
+            );
+        }
 
         // 2. Grava log completo na tabela "asaas_wallets" (Se a gente criou na migration)
         const { error: errLog } = await supabase
