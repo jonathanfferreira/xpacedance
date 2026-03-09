@@ -2,8 +2,9 @@ import { Metadata } from 'next';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import Image from 'next/image';
-import { Award, Download, Share2 } from 'lucide-react';
+import { Award } from 'lucide-react';
 import { redirect } from 'next/navigation';
+import { CertificateActions } from '@/components/certificate/certificate-actions';
 
 export const metadata: Metadata = {
     title: 'Certificado de Conclusão | XTAGE',
@@ -27,13 +28,15 @@ export default async function CertificadoPage({ params }: Params) {
         redirect('/login');
     }
 
-    // Buscar dados do curso e do usuário
+    // Buscar dados do curso, usuário e certificado real
     const [
         { data: course },
         { data: userData },
+        { data: cert },
     ] = await Promise.all([
         supabase.from('courses').select('title, tenants(name, logo_url)').eq('id', courseId).single(),
         supabase.from('users').select('full_name').eq('id', user.id).single(),
+        supabase.from('certificates').select('public_slug, issued_at').eq('user_id', user.id).eq('course_id', courseId).maybeSingle(),
     ]);
 
     if (!course) {
@@ -42,7 +45,12 @@ export default async function CertificadoPage({ params }: Params) {
 
     const tenantName = Array.isArray(course.tenants) ? course.tenants[0]?.name : (course.tenants as any)?.name || 'Academia XTAGE Oficial';
     const studentName = userData?.full_name || user.user_metadata?.full_name || 'Estudante XTAGE';
-    const completionDate = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric', day: 'numeric' });
+    const issuedDate = cert?.issued_at
+        ? new Date(cert.issued_at).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric', day: 'numeric' })
+        : new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric', day: 'numeric' });
+    const certIdDisplay = cert?.public_slug
+        ? cert.public_slug.substring(0, 8).toUpperCase()
+        : courseId.split('-')[0].toUpperCase();
 
     return (
         <div className="max-w-5xl mx-auto pb-20 px-4 pt-10 animate-fade-in">
@@ -54,14 +62,7 @@ export default async function CertificadoPage({ params }: Params) {
                     </h1>
                     <p className="text-[#888] font-sans">Seu certificado oficial e criptografado de conclusão na rede XTAGE.</p>
                 </div>
-                <div className="flex gap-4">
-                    <button className="flex items-center gap-2 px-5 py-2.5 bg-black border border-[#333] hover:border-white transition-colors text-white rounded font-bold text-sm">
-                        <Share2 size={16} /> COMPARTILHAR
-                    </button>
-                    <button className="flex items-center gap-2 px-6 py-2.5 bg-white text-black hover:bg-gray-200 transition-colors rounded font-bold text-sm">
-                        <Download size={16} /> SALVAR PDF
-                    </button>
-                </div>
+                <CertificateActions publicSlug={cert?.public_slug ?? null} />
             </div>
 
             {/* Quadro do Certificado */}
@@ -90,8 +91,11 @@ export default async function CertificadoPage({ params }: Params) {
                             <Image src="/images/xpace-logo-branca.png" alt="XPACE" width={140} height={40} className="object-contain" />
                             <span className="text-[8px] font-mono tracking-widest text-[#666] uppercase mt-2">Autenticidade Verificada na Blockchain</span>
                         </div>
-                        <div className="text-right">
-                            <p className="text-[10px] font-mono tracking-widest text-primary uppercase border border-primary/30 px-3 py-1 rounded bg-primary/10">ID: {courseId.split('-')[0].toUpperCase()}</p>
+                        <div className="text-right flex flex-col gap-1">
+                            <p className="text-[10px] font-mono tracking-widest text-primary uppercase border border-primary/30 px-3 py-1 rounded bg-primary/10">ID: {certIdDisplay}</p>
+                            {cert?.public_slug && (
+                                <p className="text-[9px] font-mono text-[#555] uppercase">xpace.on/c/{cert.public_slug.substring(0, 8)}</p>
+                            )}
                         </div>
                     </div>
 
@@ -121,7 +125,7 @@ export default async function CertificadoPage({ params }: Params) {
                         </div>
 
                         <div className="flex flex-col items-center">
-                            <span className="text-sm font-bold font-sans text-white mb-2">{completionDate}</span>
+                            <span className="text-sm font-bold font-sans text-white mb-2">{issuedDate}</span>
                             <div className="w-40 h-[1px] bg-gradient-to-r from-transparent via-[#444] to-transparent"></div>
                             <span className="text-xs text-[#888] mt-2 italic font-serif">Data de Emissão</span>
                         </div>

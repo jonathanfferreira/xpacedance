@@ -31,11 +31,15 @@ export default function DashboardLayout({
     return (
         <div className="flex bg-[#050505] min-h-screen text-[#ededed] font-sans selection:bg-primary/30 selection:text-white">
             {/* Sidebar fixo à esquerda (gaveta no mobile) */}
-            <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
+            <div className="print:hidden">
+                <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
+            </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col md:ml-[80px] w-full transition-all duration-300">
-                <Topbar onMenuClick={() => setSidebarOpen(true)} />
+            <div className="flex-1 flex flex-col md:ml-[80px] print:ml-0 w-full transition-all duration-300">
+                <div className="print:hidden">
+                    <Topbar onMenuClick={() => setSidebarOpen(true)} />
+                </div>
                 <XpaceTour />
                 <PwaInstallBanner />
                 <OnboardingModal />
