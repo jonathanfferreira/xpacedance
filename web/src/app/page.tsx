@@ -7,7 +7,7 @@ import { ArrowRight, Play, Zap, Flame, MonitorPlay, Smartphone, Shield, Star, Us
 import { WaitlistSection } from '@/components/waitlist/waitlist-section';
 import { useEffect, useState } from 'react';
 
-const DANCE_STYLES = ['LOCKING', 'HIP-HOP', 'POPPING', 'BREAKING', 'WAACKING', 'FREESTYLE'];
+const DANCE_STYLES = ['LOCKING', 'BALLET', 'POPPING', 'BREAKING', 'CONTEMPORÂNEO', 'FREESTYLE', 'HIP-HOP', 'JAZZ'];
 
 export default function LandingPage() {
   const [styleIndex, setStyleIndex] = useState(0);
@@ -105,7 +105,7 @@ export default function LandingPage() {
             transition={{ duration: 1, delay: 0.4 }}
             className="max-w-2xl mx-auto text-lg md:text-xl text-[#aaa] font-medium mb-12 tracking-wide"
           >
-            Masterclasses com os maiores nomes da cena. Um ecossistema construído por e para dançarinos reais — com XP, ranking, certificado e comunidade.
+            Masterclasses com os maiores nomes da cena. Qualquer estilo, qualquer nível — um ecossistema construído por e para dançarinos reais.
           </motion.p>
 
           <motion.div
@@ -211,7 +211,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x md:divide-[#1a1a1a]">
           {[
             { value: '29 ABR', label: 'Abertura da plataforma', color: 'text-primary' },
-            { value: '100%', label: 'Foco em dança urbana', color: 'text-secondary' },
+            { value: '100%', label: 'Dedicado à dança', color: 'text-secondary' },
             { value: '100%', label: 'Construído por dançarinos', color: 'text-accent' },
             { value: '∞', label: 'Estilos suportados', color: 'text-yellow-400' },
           ].map((stat, i) => (
@@ -367,7 +367,7 @@ export default function LandingPage() {
                 highlight: true,
               },
               {
-                quote: "Sempre quis uma plataforma brasileira focada em dança urbana de verdade. O XTAGE parece ser exatamente isso.",
+                quote: "Sempre quis uma plataforma brasileira séria, focada em dança de verdade. O XTAGE parece ser exatamente isso.",
                 name: "Rafael T.",
                 role: "Estudante de Popping, MG",
                 stars: 5,
