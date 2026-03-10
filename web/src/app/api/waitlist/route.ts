@@ -32,27 +32,52 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Erro ao salvar. Tente novamente.' }, { status: 500 });
         }
 
-        // Envia e-mail de confirmação e adiciona à Audience via Resend
+        // Resend: adiciona às audiences e envia e-mail de confirmação
         if (process.env.RESEND_API_KEY) {
             try {
                 const { Resend } = await import('resend');
                 const resend = new Resend(process.env.RESEND_API_KEY);
 
-                // Adiciona contato na Audience do Resend
-                const audienceId = process.env.RESEND_AUDIENCE_ID || '8cfa20f6-1adb-4921-9e48-5ee36453543c';
-                await resend.contacts.create({
-                    audienceId,
-                    email: email.toLowerCase().trim(),
-                    firstName: name.trim().split(' ')[0],
-                    lastName: name.trim().split(' ').slice(1).join(' ') || undefined,
-                    unsubscribed: false,
-                });
-
                 const isCreator = type === 'criador';
+                const cleanEmail = email.toLowerCase().trim();
+                const firstName = name.trim().split(' ')[0];
+                const lastName = name.trim().split(' ').slice(1).join(' ') || undefined;
+
+                const contactPayload = {
+                    email: cleanEmail,
+                    firstName,
+                    lastName,
+                    unsubscribed: false,
+                };
+
+                // 1. Audience principal "Público" — todos os leads
+                const mainAudienceId = process.env.RESEND_AUDIENCE_ID || '8cfa20f6-1adb-4921-9e48-5ee36453543c';
+                await resend.contacts.create({ audienceId: mainAudienceId, ...contactPayload });
+
+                // 2. Audience segmentada por tipo (Alunos ou Professores)
+                //    Crie as audiences no Resend e adicione os IDs no Vercel:
+                //    RESEND_AUDIENCE_ALUNOS_ID e RESEND_AUDIENCE_PROFESSORES_ID
+                const typeAudienceId = isCreator
+                    ? process.env.RESEND_AUDIENCE_PROFESSORES_ID
+                    : process.env.RESEND_AUDIENCE_ALUNOS_ID;
+
+                if (typeAudienceId) {
+                    await resend.contacts.create({ audienceId: typeAudienceId, ...contactPayload });
+                }
+
+                // 3. E-mail de confirmação personalizado por tipo
+                const subject = isCreator
+                    ? '🎓 Sua escola no XTAGE está reservada!'
+                    : '🎵 Você está na lista VIP do XTAGE!';
+
                 await resend.emails.send({
                     from: 'XTAGE <contato@xtage.app>',
-                    to: [email],
-                    subject: '🔥 Você está na lista VIP do XTAGE!',
+                    to: [cleanEmail],
+                    subject,
+                    tags: [
+                        { name: 'type', value: isCreator ? 'professor' : 'aluno' },
+                        { name: 'source', value: 'waitlist' },
+                    ],
                     html: `
 <!DOCTYPE html>
 <html>
@@ -62,7 +87,7 @@ export async function POST(request: NextRequest) {
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;overflow:hidden;max-width:600px;width:100%">
         <tr>
-          <td style="background:linear-gradient(135deg,#6324b2,#eb00bc);padding:32px 40px;text-align:center">
+          <td style="background:linear-gradient(135deg,${isCreator ? '#eb00bc,#6324b2' : '#6324b2,#eb00bc'});padding:32px 40px;text-align:center">
             <p style="margin:0 0 8px;color:rgba(255,255,255,0.7);font-size:11px;letter-spacing:4px;text-transform:uppercase;font-family:monospace">XTAGE — PRÉ-LANÇAMENTO</p>
             <h1 style="margin:0;color:#fff;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:2px">Você está dentro! 🔥</h1>
           </td>
@@ -70,12 +95,22 @@ export async function POST(request: NextRequest) {
         <tr>
           <td style="padding:40px">
             <p style="color:#ccc;font-size:16px;line-height:1.6;margin:0 0 24px">Oi, <strong style="color:#fff">${name.trim()}</strong>!</p>
+
+            <!-- Badge do tipo -->
+            <p style="margin:0 0 16px">
+              <span style="display:inline-block;background:${isCreator ? 'rgba(235,0,188,0.15)' : 'rgba(99,36,178,0.15)'};border:1px solid ${isCreator ? 'rgba(235,0,188,0.3)' : 'rgba(99,36,178,0.3)'};border-radius:999px;padding:4px 14px;font-size:11px;font-family:monospace;letter-spacing:3px;text-transform:uppercase;color:${isCreator ? '#eb00bc' : '#9c6fe8'}">
+                ${isCreator ? '🎓 Professor' : '🎵 Aluno'}
+              </span>
+            </p>
+
             <p style="color:#aaa;font-size:15px;line-height:1.6;margin:0 0 24px">
               ${isCreator
-                ? 'Você se cadastrou como <strong style="color:#eb00bc">Professor</strong>. Quando abrirmos as portas, você vai ser um dos primeiros a poder cadastrar sua escola, criar seus cursos e começar a monetizar no XTAGE.'
-                : 'Você se cadastrou como <strong style="color:#6324b2">Aluno</strong>. Quando abrirmos as portas, você vai ter acesso antecipado para explorar os melhores cursos de dança do Brasil.'}
+                ? 'Quando abrirmos as portas, você vai ser um dos primeiros a poder <strong style="color:#eb00bc">cadastrar sua escola</strong>, criar seus cursos e começar a monetizar no XTAGE.'
+                : 'Quando abrirmos as portas, você vai ter acesso antecipado para <strong style="color:#9c6fe8">explorar os melhores cursos de dança</strong> do Brasil.'}
             </p>
-            <table cellpadding="0" cellspacing="0" style="background:#111;border:1px solid #222;border-radius:8px;padding:20px 24px;margin:0 0 32px;width:100%">
+
+            <!-- Data de lançamento -->
+            <table cellpadding="0" cellspacing="0" style="background:#111;border:1px solid #222;border-radius:8px;padding:20px 24px;margin:0 0 24px;width:100%">
               <tr>
                 <td>
                   <p style="margin:0 0 4px;color:#666;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-family:monospace">DATA DE LANÇAMENTO</p>
@@ -84,9 +119,30 @@ export async function POST(request: NextRequest) {
                 </td>
               </tr>
             </table>
+
+            <!-- O que esperar -->
+            <table cellpadding="0" cellspacing="0" style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:8px;padding:20px 24px;margin:0 0 32px;width:100%">
+              <tr><td>
+                <p style="margin:0 0 12px;color:#666;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-family:monospace">O que vem por aí</p>
+                ${isCreator ? `
+                <p style="margin:0 0 8px;color:#aaa;font-size:13px;line-height:1.5">🏫 &nbsp;Sua própria escola de dança online</p>
+                <p style="margin:0 0 8px;color:#aaa;font-size:13px;line-height:1.5">📹 &nbsp;Upload e venda de cursos em vídeo</p>
+                <p style="margin:0 0 8px;color:#aaa;font-size:13px;line-height:1.5">💳 &nbsp;Pagamentos automáticos no Brasil</p>
+                <p style="margin:0;color:#aaa;font-size:13px;line-height:1.5">📊 &nbsp;Dashboard com métricas dos seus alunos</p>
+                ` : `
+                <p style="margin:0 0 8px;color:#aaa;font-size:13px;line-height:1.5">🎓 &nbsp;Cursos com os melhores professores</p>
+                <p style="margin:0 0 8px;color:#aaa;font-size:13px;line-height:1.5">📱 &nbsp;App para assistir onde quiser</p>
+                <p style="margin:0 0 8px;color:#aaa;font-size:13px;line-height:1.5">🏅 &nbsp;Certificados de conclusão</p>
+                <p style="margin:0;color:#aaa;font-size:13px;line-height:1.5">👥 &nbsp;Comunidade exclusiva de dançarinos</p>
+                `}
+              </td></tr>
+            </table>
+
             <p style="color:#666;font-size:13px;line-height:1.6;margin:0 0 32px">
               Guarda esse e-mail. No dia 29 de Abril você será notificado em primeira mão — antes de todo mundo.
+              ${whatsapp ? '<br><br>Como você deixou seu WhatsApp, também vamos te adicionar ao grupo VIP. 🤙' : ''}
             </p>
+
             <table cellpadding="0" cellspacing="0" style="width:100%">
               <tr>
                 <td align="center">
@@ -109,26 +165,29 @@ export async function POST(request: NextRequest) {
                 });
             } catch (emailErr) {
                 // Não-crítico: o lead já foi salvo no banco
-                console.error('[WAITLIST] Falha no Resend (audience/email):', JSON.stringify(emailErr));
+                console.error('[WAITLIST] Falha no Resend:', JSON.stringify(emailErr));
             }
         }
 
-        // Busca contagem total para feedback ao usuário
-        const { count } = await supabaseAdmin
-            .from('waitlist')
-            .select('id', { count: 'exact', head: true });
+        // Contagens para feedback ao usuário
+        const [{ count: total }, { count: alunos }, { count: professores }] = await Promise.all([
+            supabaseAdmin.from('waitlist').select('id', { count: 'exact', head: true }),
+            supabaseAdmin.from('waitlist').select('id', { count: 'exact', head: true }).eq('type', 'aluno'),
+            supabaseAdmin.from('waitlist').select('id', { count: 'exact', head: true }).eq('type', 'criador'),
+        ]);
 
-        return NextResponse.json({ ok: true, count: count || 1 });
+        return NextResponse.json({ ok: true, count: total || 1, alunos: alunos || 0, professores: professores || 0 });
     } catch {
         return NextResponse.json({ error: 'Erro inesperado.' }, { status: 500 });
     }
 }
 
 export async function GET() {
-    // Contagem pública — sem expor dados dos leads
-    const { count } = await supabaseAdmin
-        .from('waitlist')
-        .select('id', { count: 'exact', head: true });
+    const [{ count: total }, { count: alunos }, { count: professores }] = await Promise.all([
+        supabaseAdmin.from('waitlist').select('id', { count: 'exact', head: true }),
+        supabaseAdmin.from('waitlist').select('id', { count: 'exact', head: true }).eq('type', 'aluno'),
+        supabaseAdmin.from('waitlist').select('id', { count: 'exact', head: true }).eq('type', 'criador'),
+    ]);
 
-    return NextResponse.json({ count: count || 0 });
+    return NextResponse.json({ count: total || 0, alunos: alunos || 0, professores: professores || 0 });
 }

@@ -26,6 +26,7 @@ export function WaitlistSection() {
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [errorMsg, setErrorMsg] = useState('');
     const [count, setCount] = useState<number | null>(null);
+    const [countByType, setCountByType] = useState<{ alunos: number; professores: number } | null>(null);
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
     // Countdown para 29/04/2026 — Dia Internacional da Dança
@@ -49,7 +50,10 @@ export function WaitlistSection() {
     useEffect(() => {
         fetch('/api/waitlist')
             .then(r => r.ok ? r.json() : null)
-            .then(data => { if (data?.count) setCount(data.count); })
+            .then(data => {
+                if (data?.count) setCount(data.count);
+                if (data?.alunos !== undefined) setCountByType({ alunos: data.alunos, professores: data.professores });
+            })
             .catch(() => {});
     }, []);
 
@@ -70,6 +74,7 @@ export function WaitlistSection() {
                 return;
             }
             if (data.count) setCount(data.count);
+            if (data.alunos !== undefined) setCountByType({ alunos: data.alunos, professores: data.professores });
             setStatus('success');
         } catch {
             setErrorMsg('Erro de conexão. Tente novamente.');
@@ -183,9 +188,24 @@ export function WaitlistSection() {
                             </div>
 
                             {count !== null && count > 0 && (
-                                <div className="flex items-center gap-2 mt-6 text-[#666] text-sm">
-                                    <Users size={14} />
-                                    <span className="font-mono"><strong className="text-white">{count}</strong> {count === 1 ? 'pessoa já está' : 'pessoas já estão'} na lista</span>
+                                <div className="mt-6 flex flex-col items-center gap-2">
+                                    <div className="flex items-center gap-2 text-[#666] text-sm">
+                                        <Users size={14} />
+                                        <span className="font-mono"><strong className="text-white">{count}</strong> {count === 1 ? 'pessoa já está' : 'pessoas já estão'} na lista</span>
+                                    </div>
+                                    {countByType && (countByType.alunos > 0 || countByType.professores > 0) && (
+                                        <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-widest">
+                                            <span className="flex items-center gap-1.5 text-primary/70">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+                                                {countByType.alunos} {countByType.alunos === 1 ? 'aluno' : 'alunos'}
+                                            </span>
+                                            <span className="text-[#333]">·</span>
+                                            <span className="flex items-center gap-1.5 text-secondary/70">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-secondary/60" />
+                                                {countByType.professores} {countByType.professores === 1 ? 'professor' : 'professores'}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </motion.div>
