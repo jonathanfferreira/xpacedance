@@ -6,9 +6,12 @@ import { timingSafeEqual } from 'crypto'
 
 // We need the raw Supabase Service Role key to bypass RLS since this is a Server-to-Server webhook
 // This ensures that Bunny doesn't get blocked when trying to update the Lesson's status via NextJS
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('[SECURITY CRITICAL] SUPABASE_SERVICE_ROLE_KEY is not set. Refusing to initialize with anon key.');
+}
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY! || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
 export async function POST(request: Request) {

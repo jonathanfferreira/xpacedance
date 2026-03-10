@@ -33,24 +33,22 @@ export function LessonActions({ lessonId, initialLikes, initialIsLiked }: Lesson
             return;
         }
 
-        try {
-            if (newIsLiked) {
-                // Insert and increment
-                await supabase.from('lesson_likes').insert({ lesson_id: lessonId, user_id: user.id });
-                await supabase.rpc('increment_lesson_likes', { l_id: lessonId });
-            } else {
-                // Delete and decrement
-                await supabase.from('lesson_likes').delete().eq('lesson_id', lessonId).eq('user_id', user.id);
-                await supabase.rpc('decrement_lesson_likes', { l_id: lessonId });
-            }
-        } catch (error) {
-            console.error("Erro ao processar curtida:", error);
-            // Revert state if error
+        const revert = () => {
             setIsLiked(!newIsLiked);
             setLikes(prev => !newIsLiked ? prev + 1 : prev - 1);
-        } finally {
-            setIsLiking(false);
+        };
+
+        if (newIsLiked) {
+            const { error: insertErr } = await supabase.from('lesson_likes').insert({ lesson_id: lessonId, user_id: user.id });
+            if (insertErr) { console.error("Erro ao curtir:", insertErr.message); revert(); setIsLiking(false); return; }
+            await supabase.rpc('increment_lesson_likes', { l_id: lessonId });
+        } else {
+            const { error: deleteErr } = await supabase.from('lesson_likes').delete().eq('lesson_id', lessonId).eq('user_id', user.id);
+            if (deleteErr) { console.error("Erro ao remover curtida:", deleteErr.message); revert(); setIsLiking(false); return; }
+            await supabase.rpc('decrement_lesson_likes', { l_id: lessonId });
         }
+
+        setIsLiking(false);
     }
 
     const handleShare = () => {

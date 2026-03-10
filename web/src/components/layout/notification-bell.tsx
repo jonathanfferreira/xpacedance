@@ -68,25 +68,35 @@ export function NotificationBell() {
     }, [supabase]);
 
     const markAsRead = async (id: string) => {
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+        setUnreadCount(prev => Math.max(0, prev - 1));
         try {
-            setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-            setUnreadCount(prev => Math.max(0, prev - 1));
             await fetch('/api/notifications', {
                 method: 'PATCH',
                 body: JSON.stringify({ id }),
             });
-        } catch (err) { }
+        } catch (err) {
+            console.error('Falha ao marcar notificação como lida:', err);
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: false } : n));
+            setUnreadCount(prev => prev + 1);
+        }
     };
 
     const markAllAsRead = async () => {
+        const previous = notifications;
+        const previousCount = unreadCount;
+        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        setUnreadCount(0);
         try {
-            setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-            setUnreadCount(0);
             await fetch('/api/notifications', {
                 method: 'PATCH',
                 body: JSON.stringify({ all: true }),
             });
-        } catch (err) { }
+        } catch (err) {
+            console.error('Falha ao marcar todas notificações como lidas:', err);
+            setNotifications(previous);
+            setUnreadCount(previousCount);
+        }
     };
 
     const timeAgo = (dateStr: string) => {

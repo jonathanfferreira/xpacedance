@@ -328,7 +328,7 @@ export async function POST(request: Request) {
                 const platformAmount = splitFailed
                     ? finalValue  // plataforma ficou com tudo no fallback
                     : Number((finalValue - professorFixedSplit).toFixed(2));
-                await supabaseAdmin.from('split_audit').insert({
+                const { error: auditErr } = await supabaseAdmin.from('split_audit').insert({
                     transaction_id: savedTx.id,
                     professor_wallet_id: professorWalletId,
                     professor_amount: splitFailed ? 0 : professorFixedSplit,
@@ -339,6 +339,9 @@ export async function POST(request: Request) {
                     affiliate_amount: affiliateCommissionValue,
                     split_failed: splitFailed,
                 });
+                if (auditErr) {
+                    console.error('[CHECKOUT] ⚠️ Falha ao registrar split_audit (repasse pode precisar de revisão manual):', auditErr.message, { transaction_id: savedTx.id });
+                }
             }
         }
 
