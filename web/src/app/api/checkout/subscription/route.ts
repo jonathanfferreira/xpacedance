@@ -257,6 +257,7 @@ export async function POST(request: Request) {
     } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : "Erro desconhecido";
         console.error("🔴 SUBSCRIPTION CHECKOUT ERROR:", msg);
-        return NextResponse.json({ error: msg }, { status: 500 });
+        // Não expor mensagens internas ao cliente — apenas logar
+        return NextResponse.json({ error: "Erro ao processar assinatura. Tente novamente ou contate o suporte." }, { status: 500 });
     }
 }

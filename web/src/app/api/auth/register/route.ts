@@ -57,12 +57,22 @@ export async function POST(request: Request) {
         }
 
         // Send verification email via Supabase magic link
-        await supabaseAdmin.auth.admin.generateLink({
+        const { error: linkError } = await supabaseAdmin.auth.admin.generateLink({
             type: "signup",
             email,
             password,
             options: { redirectTo: `${SITE_URL}/auth/callback?next=/dashboard` },
         });
+
+        if (linkError) {
+            console.error("[REGISTER] Falha ao enviar email de verificação:", linkError.message);
+            // Usuário foi criado mas email não foi enviado — retorna aviso ao frontend
+            return NextResponse.json({
+                success: true,
+                userId: data.user.id,
+                warning: "Conta criada, mas não foi possível enviar o e-mail de verificação. Use 'Esqueci minha senha' para acessar.",
+            });
+        }
 
         return NextResponse.json({ success: true, userId: data.user.id });
     } catch (error: any) {

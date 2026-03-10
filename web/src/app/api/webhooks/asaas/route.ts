@@ -146,18 +146,33 @@ async function handleSubscriptionPaymentReceived(subscriptionId: string, custome
     const periodEnd = new Date();
     periodEnd.setDate(periodEnd.getDate() + 30);
 
-    const { error } = await supabaseAdmin
+    const { data: updatedSub, error } = await supabaseAdmin
         .from("subscriptions")
         .update({
             status: "ACTIVE",
             current_period_end: periodEnd.toISOString(),
             updated_at: new Date().toISOString(),
         })
-        .eq("asaas_subscription_id", subscriptionId);
+        .eq("asaas_subscription_id", subscriptionId)
+        .select("user_id, tenant_id, plan_id, subscription_plans(name)")
+        .single();
 
     if (error) {
         console.error("[ASAAS WEBHOOK] Erro ao ativar subscription:", error);
-    } else {
+    } else if (updatedSub?.user_id) {
+        const planName = (updatedSub.subscription_plans as any)?.name || "seu plano";
+        try {
+            await supabaseAdmin.rpc("create_notification", {
+                p_user_id: updatedSub.user_id,
+                p_title: "Assinatura ativa! 🎉",
+                p_message: `Seu pagamento foi confirmado e o acesso ao plano "${planName}" está liberado.`,
+                p_type: "success",
+                p_link_url: "/dashboard",
+                p_tenant_id: updatedSub.tenant_id,
+            });
+        } catch (notifErr) {
+            console.error("[ASAAS WEBHOOK] Falha ao notificar usuário sobre assinatura (não-crítico):", notifErr);
+        }
     }
 
     return NextResponse.json({ message: "Assinatura ativada", subscriptionId });
