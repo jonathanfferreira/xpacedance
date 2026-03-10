@@ -268,6 +268,27 @@ export async function POST(request: Request) {
                 });
                 splitFailed = true;
                 delete chargePayload.split;
+
+                // Notifica o dono do tenant sobre a falha no split
+                try {
+                    const { data: tenantOwner } = await supabaseAdmin
+                        .from('tenants')
+                        .select('owner_id')
+                        .eq('id', course.tenant_id)
+                        .single();
+                    if (tenantOwner?.owner_id) {
+                        await supabaseAdmin.rpc('create_notification', {
+                            p_user_id: tenantOwner.owner_id,
+                            p_title: '⚠️ Repasse automático falhou',
+                            p_message: `Uma venda do curso "${course.title}" foi processada mas o repasse automático falhou. Contate o suporte para receber manualmente o valor de R$ ${professorFixedSplit.toFixed(2).replace('.', ',')}.`,
+                            p_type: 'warning',
+                            p_link_url: '/studio/financeiro',
+                            p_tenant_id: course.tenant_id,
+                        });
+                    }
+                } catch (notifErr) {
+                    console.error('[CHECKOUT] Falha ao notificar sobre split failure (não-crítico):', notifErr);
+                }
                 const retryRes = await fetch(`${ASAAS_API_URL}/payments`, {
                     method: "POST",
                     headers: { "access_token": ASAAS_API_KEY, "Content-Type": "application/json" },

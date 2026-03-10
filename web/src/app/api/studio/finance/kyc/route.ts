@@ -88,6 +88,14 @@ export async function POST(request: Request) {
         const asaasApiKey = data.apiKey;
         const asaasAccountId = data.id;
 
+        if (!asaasWalletId || !asaasAccountId) {
+            console.error('[FINANCE KYC] Asaas retornou campos essenciais ausentes:', { walletId: asaasWalletId, id: asaasAccountId });
+            return NextResponse.json(
+                { error: 'Subconta criada no Asaas mas resposta incompleta (walletId ou id ausente). Contate o suporte com os dados enviados.' },
+                { status: 502 }
+            );
+        }
+
         // 1. Grava no supabase (Tabela Tenants para acesso geral)
         const { error: errUpdate } = await supabase
             .from('tenants')

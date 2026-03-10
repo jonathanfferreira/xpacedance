@@ -82,7 +82,29 @@ export async function POST(request: Request) {
 
         const transferData = await asaasRes.json();
 
-        // Aqui opcionalmente poderíamos salvar a transaction_id na tabela local de histórico de saques.
+        // Salva histórico de saque para auditoria
+        const { data: tenantFull } = await supabase
+            .from('tenants')
+            .select('id')
+            .eq('owner_id', user.id)
+            .single();
+
+        if (tenantFull?.id) {
+            const { error: withdrawLogError } = await supabase
+                .from('withdrawal_history')
+                .insert({
+                    tenant_id: tenantFull.id,
+                    user_id: user.id,
+                    amount: Number(amount),
+                    pix_key: pixKey,
+                    pix_key_type: pixKeyType,
+                    asaas_transfer_id: transferData.id,
+                    status: transferData.status || 'PENDING',
+                });
+            if (withdrawLogError) {
+                console.error('[FINANCE WITHDRAW] Falha ao salvar histórico de saque (não-crítico):', withdrawLogError.message);
+            }
+        }
 
         return NextResponse.json({
             success: true,
