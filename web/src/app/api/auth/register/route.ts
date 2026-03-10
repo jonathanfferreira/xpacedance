@@ -10,6 +10,13 @@ const supabaseAdmin = createClient(
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 
 export async function POST(request: Request) {
+    if (process.env.PRE_LAUNCH === 'true') {
+        return NextResponse.json(
+            { error: 'Cadastros abertos em 29 de Abril. Junte-se à lista de espera em xtage.app!' },
+            { status: 503 }
+        );
+    }
+
     const ip = getClientIp(request);
     const { limited } = await rateLimit(`auth:register:${ip}`, 3);
     if (limited) {

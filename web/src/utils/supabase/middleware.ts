@@ -31,6 +31,14 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
+    // Bloqueia cadastro durante pré-lançamento (remover a env var no dia 29/04)
+    const isPreLaunch = process.env.PRE_LAUNCH === 'true'
+    if (isPreLaunch && request.nextUrl.pathname.startsWith('/register')) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/'
+        return NextResponse.redirect(url)
+    }
+
     // Rotas públicas que não precisam de sessão (Ignorar Arquivos Estáticos/API Interna já blindada pelo Next)
     const isPublicRoute =
         request.nextUrl.pathname.startsWith('/login') ||
