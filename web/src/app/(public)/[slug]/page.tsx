@@ -280,7 +280,7 @@ export default async function GenericProfilePage({ params }: { params: Promise<{
                                                     <Image src={course.thumbnail_url} alt={course.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                                                 ) : (
                                                     <div className="absolute inset-0 flex items-center justify-center">
-                                                        <Image src="/images/xpace-on-branco.png" alt="" width={60} height={18} className="opacity-10" />
+                                                        <Image src="/images/xpace-logo-branca.png" alt="" width={60} height={18} className="opacity-10" />
                                                     </div>
                                                 )}
                                             </div>

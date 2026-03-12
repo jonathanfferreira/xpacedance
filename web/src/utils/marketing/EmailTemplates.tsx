@@ -28,7 +28,7 @@ export const WelcomeEmail = ({
     loginEmail,
     loginPassword,
     brandColor = '#6324b2', // Fallback da Plataforma
-    brandLogo = 'https://xpace.dance/images/logo-light.png',
+    brandLogo = 'https://xpace.dance/images/xpace-logo-branca.png',
 }: WelcomeEmailProps & { brandColor?: string; brandLogo?: string }) => {
     const previewText = `Seu acesso ao XPACE: ${courseName} foi liberado!`;
 

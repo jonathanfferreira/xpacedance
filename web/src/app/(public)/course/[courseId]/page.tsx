@@ -112,7 +112,7 @@ export default async function PublicCoursePage({ params }: PageProps) {
                 <header className="fixed top-0 inset-x-0 z-50 bg-black/60 backdrop-blur-md border-b border-white/5">
                     <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                         <Link href="/" className="relative w-24 h-6 opacity-80 hover:opacity-100 transition-opacity">
-                            <Image src="/images/xpace-on-branco.png" alt="XPACE" fill className="object-contain object-left" />
+                            <Image src="/images/xpace-logo-branca.png" alt="XPACE" fill className="object-contain object-left" />
                         </Link>
                         <Link href="/explore" className="text-xs font-semibold text-[#888] hover:text-white transition-colors uppercase tracking-widest">
                             &larr; Voltar ao Catálogo

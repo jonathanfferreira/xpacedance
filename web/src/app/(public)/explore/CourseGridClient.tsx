@@ -43,7 +43,7 @@ export default function CourseGridClient({ courses }: { courses: any[] }) {
                                 <Image src={course.thumbnail_url} alt={course.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                             ) : (
                                 <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a]">
-                                    <Image src="/images/xpace-on-branco.png" alt="XPACE Cover" width={100} height={30} className="opacity-20" />
+                                    <Image src="/images/xpace-logo-branca.png" alt="XPACE Cover" width={100} height={30} className="opacity-20" />
                                 </div>
                             )}
 

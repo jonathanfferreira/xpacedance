@@ -48,7 +48,7 @@ export default function PartnerOnboardingPage() {
             <header className="fixed top-0 inset-x-0 z-50 bg-black/60 backdrop-blur-md border-b border-white/5">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <Link href="/" className="relative w-32 h-8 block">
-                        <Image src="/images/xpace-on-branco.png" alt="XPACE" fill className="object-contain object-left" />
+                        <Image src="/images/xpace-logo-branca.png" alt="XPACE" fill className="object-contain object-left" />
                     </Link>
                     <div className="flex items-center gap-6">
                         <Link href="/" className="hidden md:block text-sm font-semibold text-[#888] hover:text-white transition-colors uppercase tracking-widest">

@@ -259,7 +259,7 @@ async function handleOneTimePaymentReceived(paymentId: string, customerEmail: st
 
                 const tenant = courseData?.tenants as { name?: string; brand_color?: string; logo_url?: string } | null;
                 const brandColor = tenant?.brand_color || "#6324b2";
-                const brandLogo = tenant?.logo_url || "https://xpace.dance/images/logo-light.png";
+                const brandLogo = tenant?.logo_url || "https://xpace.dance/images/xpace-logo-branca.png";
 
                 const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
                     type: "magiclink",

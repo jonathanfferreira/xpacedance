@@ -39,7 +39,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <div className="relative w-32 h-8">
-              <Image src="/images/xpace-on-branco.png" alt="XPACE" fill className="object-contain object-left" />
+              <Image src="/images/xpace-logo-branca.png" alt="XPACE" fill className="object-contain object-left" />
             </div>
             <Link href="/explore" className="hidden md:block text-sm font-semibold text-white hover:text-primary transition-colors uppercase tracking-widest">
               Explorar Catálogo
@@ -504,7 +504,7 @@ export default function LandingPage() {
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="relative w-32 h-8 mb-5">
-                <Image src="/images/xpace-on-branco.png" alt="XPACE" fill className="object-contain object-left" />
+                <Image src="/images/xpace-logo-branca.png" alt="XPACE" fill className="object-contain object-left" />
               </div>
               <p className="text-[#555] text-sm max-w-sm leading-relaxed mb-6">
                 Elevando a arte e o aprendizado físico para a era digital. A tecnologia não substitui — ela te impulsiona.
