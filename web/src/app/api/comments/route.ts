@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
         // Verifica se o usuário tem acesso ao curso desta aula
         const { data: lesson } = await supabase
             .from('lessons')
-            .select('course_id, courses!course_id(pricing_type, price)')
+            .select('course_id, courses(pricing_type, price)')
             .eq('id', lesson_id)
             .single();
 

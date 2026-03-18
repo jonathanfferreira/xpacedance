@@ -10,7 +10,7 @@ export const checkoutSchema = z.object({
     cpf: z.string().optional(),
     password: z.string().min(8, "Senha deve ter ao menos 8 caracteres").optional(),
     courseId: z.string().uuid("courseId inválido"),
-    paymentMethod: z.enum(["pix", "credit"]),
+    paymentMethod: z.enum(["pix", "credit"]).optional(),
     installments: z.number().int().min(1).max(12).optional().default(1),
     creditCard: z.object({
         holderName: z.string().min(2),
@@ -34,7 +34,7 @@ export const subscriptionCheckoutSchema = z.object({
     phone: z.string().optional(),
     cpf: z.string().optional(),
     planId: z.string().uuid("planId inválido"),
-    paymentMethod: z.enum(["pix", "credit"]),
+    paymentMethod: z.enum(["pix", "credit"]).optional(),
     creditCard: z.object({
         holderName: z.string().min(2),
         number: z.string().min(13).max(19),
