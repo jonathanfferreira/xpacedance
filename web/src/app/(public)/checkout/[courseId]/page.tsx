@@ -39,6 +39,7 @@ export default function CheckoutPage() {
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [cpf, setCpf] = useState("");
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const formatCpf = (value: string) => {
         const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -114,6 +115,7 @@ export default function CheckoutPage() {
             if (user) {
                 setEmail(user.email || '');
                 setName(user.user_metadata?.full_name || '');
+                setIsLoggedIn(true);
             }
         };
         prefill();
@@ -216,10 +218,12 @@ export default function CheckoutPage() {
                                     <label className="text-[10px] font-mono text-[#666] uppercase tracking-widest pl-1">E-mail de Acesso</label>
                                     <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="nome@email.com" className="w-full bg-[#0a0a0a] border border-[#222] focus:border-primary px-4 py-3 outline-none text-white transition-colors" />
                                 </div>
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-mono text-[#666] uppercase tracking-widest pl-1">Senha (Criar Conta)</label>
-                                    <input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Mín. 6 caracteres" className="w-full bg-[#0a0a0a] border border-[#222] focus:border-primary px-4 py-3 outline-none text-white transition-colors" />
-                                </div>
+                                {!isLoggedIn && (
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-mono text-[#666] uppercase tracking-widest pl-1">Senha (Criar Conta)</label>
+                                        <input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Mín. 6 caracteres" className="w-full bg-[#0a0a0a] border border-[#222] focus:border-primary px-4 py-3 outline-none text-white transition-colors" />
+                                    </div>
+                                )}
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-mono text-[#666] uppercase tracking-widest pl-1">CPF <span className="text-red-500">*</span></label>
                                     <input value={cpf} onChange={e => setCpf(formatCpf(e.target.value))} type="text" inputMode="numeric" placeholder="000.000.000-00" className="w-full bg-[#0a0a0a] border border-[#222] focus:border-primary px-4 py-3 outline-none text-white transition-colors" />

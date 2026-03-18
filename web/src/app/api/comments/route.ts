@@ -151,18 +151,29 @@ export async function POST(request: NextRequest) {
             .single();
 
         if (lesson) {
-            const isPaidCourse = (lesson.courses as any)?.pricing_type !== 'free' && Number((lesson.courses as any)?.price) > 0;
-            if (isPaidCourse) {
-                const { data: enrollment } = await supabase
-                    .from('enrollments')
-                    .select('id')
-                    .eq('user_id', user.id)
-                    .eq('course_id', lesson.course_id)
-                    .eq('status', 'active')
-                    .maybeSingle();
+            // Professores, escolas e admins podem sempre comentar
+            const { data: userData } = await supabase
+                .from('users')
+                .select('role')
+                .eq('id', user.id)
+                .single();
 
-                if (!enrollment) {
-                    return NextResponse.json({ error: 'Você precisa estar matriculado no curso para comentar.' }, { status: 403 });
+            const isCreatorOrAdmin = ['professor', 'escola', 'admin'].includes(userData?.role);
+
+            if (!isCreatorOrAdmin) {
+                const isPaidCourse = (lesson.courses as any)?.pricing_type !== 'free' && Number((lesson.courses as any)?.price) > 0;
+                if (isPaidCourse) {
+                    const { data: enrollment } = await supabase
+                        .from('enrollments')
+                        .select('id')
+                        .eq('user_id', user.id)
+                        .eq('course_id', lesson.course_id)
+                        .eq('status', 'active')
+                        .maybeSingle();
+
+                    if (!enrollment) {
+                        return NextResponse.json({ error: 'Você precisa estar matriculado no curso para comentar.' }, { status: 403 });
+                    }
                 }
             }
         }

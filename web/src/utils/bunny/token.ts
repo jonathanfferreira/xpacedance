@@ -9,7 +9,7 @@ import crypto from 'crypto';
  * @param expiresInSeconds Tempo de vida do token (Padrão 6h para masterclasses longas)
  */
 export function generateBunnyTokenizedUrl(videoId: string, userIp: string = "", expiresInSeconds: number = 21600): string {
-    const hostname = process.env.BUNNY_CDN_HOSTNAME || process.env.NEXT_PUBLIC_BUNNY_STREAM_CDN_URL;
+    const hostname = process.env.NEXT_PUBLIC_BUNNY_CDN_HOSTNAME || process.env.BUNNY_CDN_HOSTNAME || process.env.NEXT_PUBLIC_BUNNY_STREAM_CDN_URL;
     const securityKey = process.env.BUNNY_TOKEN_AUTH_KEY || process.env.BUNNY_SECURITY_KEY || process.env.BUNNY_API_KEY; // Em prod, recomendado usar Token Auth Key
 
     if (!hostname || !securityKey) {
