@@ -47,42 +47,43 @@ export async function Top10Carousel() {
     if (lessons.length === 0) return null;
 
     return (
-        <div className="w-full mt-16 mb-8">
+        <div className="w-full mt-16 mb-8 overflow-hidden">
             <div className="flex items-center gap-3 mb-6">
                 <h2 className="font-heading text-2xl tracking-tighter uppercase text-white">Aulas Recentes</h2>
                 <div className="bg-primary/20 border border-primary/50 text-primary text-[10px] uppercase tracking-widest px-2 py-0.5 font-bold">Novo</div>
             </div>
 
-            <div className="flex overflow-x-auto pt-4 pb-12 -mx-6 px-6 lg:-mx-10 lg:px-10 gap-x-8 lg:gap-x-12 no-scrollbar snap-x snap-mandatory">
+            <div className="flex overflow-x-auto pt-4 pb-12 -mx-6 px-6 lg:-mx-10 lg:px-10 gap-x-6 lg:gap-x-10 no-scrollbar snap-x snap-mandatory">
                 {lessons.map((lesson, index) => (
                     <Link
                         href={`/dashboard/aula/${lesson.id}`}
                         key={lesson.id}
-                        className="relative shrink-0 w-[280px] h-[160px] group snap-start block pl-10"
+                        className="relative shrink-0 w-[260px] h-[150px] group snap-start block"
                     >
-                        {/* Luxe Number Design - Ultra Premium Gold/Silver/Bronze */}
+                        {/* Netflix-style Hollow Number */}
+                        {/* 
+                            Z-0 puts the number behind the thumbnail. 
+                            The pointer-events-none ensures you only click the card, not the empty spaces of the number. 
+                        */}
                         <div
-                            className="absolute -left-6 bottom-0 font-display font-black text-[140px] leading-[0.8] tracking-tighter z-30 select-none pointer-events-none drop-shadow-[0_15px_25px_rgba(0,0,0,1)]"
+                            className="absolute -left-4 bottom-[-22px] font-display font-black text-[180px] leading-[0.8] tracking-tighter z-0 select-none pointer-events-none"
+                            style={{
+                                WebkitTextStroke: '6px rgba(255, 255, 255, 0.95)',
+                                color: 'transparent',
+                            }}
                         >
-                            <span className={`text-transparent bg-clip-text bg-gradient-to-b drop-shadow-sm opacity-100 ${
-                                index === 0 ? "from-[#F9E5C9] via-[#D4AF37] to-[#8A6327]" : 
-                                index === 1 ? "from-[#E8E8E8] via-[#A0A5A8] to-[#595D62]" : 
-                                index === 2 ? "from-[#FADCAF] via-[#CD7F32] to-[#6A3805]" : 
-                                "from-[#FFFFFF] via-[#CCCCCC] to-[#555555]"
-                            }`}>
-                                {index + 1}
-                            </span>
+                            {index + 1}
                         </div>
 
                         {/* Thumbnail Box */}
-                        <div className="absolute right-0 top-0 w-[220px] h-[140px] bg-[#0A0A0A] border border-[#222] group-hover:border-primary/60 transition-colors rounded-sm overflow-hidden z-10 flex flex-col justify-end p-4">
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                        <div className="absolute right-0 bottom-0 top-0 w-[180px] sm:w-[200px] bg-[#0A0A0A] border border-[#222]/50 group-hover:border-primary/80 transition-colors shadow-2xl rounded-sm overflow-hidden z-10 flex flex-col justify-end p-4">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
                             <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-primary to-secondary" />
 
                             <div className="relative z-20 flex items-end justify-between">
                                 <div>
-                                    <p className="text-[10px] text-primary font-mono uppercase tracking-widest mb-1">{lesson.course_title}</p>
-                                    <h3 className="text-white font-sans font-bold leading-tight line-clamp-2">{lesson.title}</h3>
+                                    <p className="text-[10px] text-primary/80 font-mono uppercase tracking-widest mb-1 line-clamp-1">{lesson.course_title}</p>
+                                    <h3 className="text-white font-sans font-bold leading-tight text-sm line-clamp-2">{lesson.title}</h3>
                                 </div>
                                 <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shrink-0 ml-2 group-hover:bg-primary group-hover:border-primary transition-all">
                                     <Play size={14} className="text-white ml-0.5" fill="currentColor" />
@@ -91,7 +92,7 @@ export async function Top10Carousel() {
                         </div>
 
                         {/* Badge */}
-                        <div className="absolute right-2 -top-3 z-20 bg-primary text-white font-bold text-[10px] px-2 py-0.5 uppercase tracking-widest">
+                        <div className="absolute right-2 top-2 z-20 bg-primary/90 text-white font-bold text-[9px] px-1.5 py-0.5 rounded-sm uppercase tracking-widest shadow-md">
                             Nova Aula
                         </div>
                     </Link>
