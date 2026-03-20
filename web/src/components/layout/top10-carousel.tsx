@@ -58,19 +58,20 @@ export async function Top10Carousel() {
                     <Link
                         href={`/dashboard/aula/${lesson.id}`}
                         key={lesson.id}
-                        className="relative shrink-0 w-[240px] sm:w-[280px] h-[160px] group snap-start block pl-12 sm:pl-16"
+                        className="relative shrink-0 w-[240px] sm:w-[280px] h-[160px] group snap-start block pl-16 sm:pl-20"
                     >
                         {/* 
-                            Big Number Design behind thumbnail!
-                            Solid, glowing, immense, sitting exactly on the left aligned properly.
+                            Netflix-style Big Number Design!
+                            Outline, 3D structure, sitting exactly behind the thumbnail.
                         */}
                         <div
-                            className={`absolute left-0 -bottom-8 font-display font-black text-[180px] sm:text-[220px] leading-[0.75] tracking-tighter z-0 select-none pointer-events-none drop-shadow-[0_15px_25px_rgba(0,0,0,1)] text-transparent bg-clip-text bg-gradient-to-b opacity-80 ${
-                                index === 0 ? "from-[#F9E5C9] via-[#D4AF37] to-[#8A6327] drop-shadow-[0_0_20px_rgba(212,175,55,0.4)]" : 
+                            className={`absolute -left-2 -bottom-6 font-display font-black text-[180px] sm:text-[220px] leading-[0.8] tracking-tighter z-0 select-none pointer-events-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.8)] text-transparent bg-clip-text bg-gradient-to-b opacity-90 ${
+                                index === 0 ? "from-[#F9E5C9] via-[#D4AF37] to-[#8A6327]" : 
                                 index === 1 ? "from-[#E8E8E8] via-[#A0A5A8] to-[#595D62]" : 
                                 index === 2 ? "from-[#FADCAF] via-[#CD7F32] to-[#6A3805]" : 
-                                "from-[#FFFFFF] via-[#888888] to-[#333333]"
+                                "from-[#555] via-[#222] to-[#111]"
                             }`}
+                            style={{ WebkitTextStroke: '3px rgba(255,255,255,0.15)' }}
                         >
                             {index + 1}
                         </div>
