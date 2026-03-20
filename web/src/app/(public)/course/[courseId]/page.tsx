@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -98,6 +99,35 @@ export default async function PublicCoursePage({ params }: PageProps) {
     const priceFormatted = Number(course.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     const brandColor = course.tenants?.brand_color || '#6324B2';
 
+    // Busca uma aula para ser o trailer (prioriza aula grátis com vídeo)
+    let previewLesson = null;
+    if (course.modules) {
+        for (const m of course.modules as any[]) {
+            if (m.Lessons) {
+                const freeLesson = m.Lessons.find((l: any) => l.is_free && l.video_id);
+                if (freeLesson) {
+                    previewLesson = freeLesson;
+                    break;
+                }
+            }
+        }
+        if (!previewLesson) {
+            for (const m of course.modules as any[]) {
+                if (m.Lessons) {
+                    const anyLesson = m.Lessons.find((l: any) => l.video_id);
+                    if (anyLesson) {
+                        previewLesson = anyLesson;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    const headersList = await headers();
+    const userIp = headersList.get('x-forwarded-for')?.split(',')[0].trim() || "";
+    const tokenizedUrl = previewLesson?.video_id ? generateBunnyTokenizedUrl(previewLesson.video_id, userIp) : undefined;
+
     return (
         <>
             {/* JSON-LD para SEO */}
@@ -187,45 +217,12 @@ export default async function PublicCoursePage({ params }: PageProps) {
                         </div>
 
                         {/* Preview Trailer */}
-                        {(() => {
-                            let previewLesson = null;
-                            if (course.modules) {
-                                for (const m of course.modules as any[]) {
-                                    if (m.Lessons) {
-                                        const freeLesson = m.Lessons.find((l: any) => l.is_free && l.video_id);
-                                        if (freeLesson) {
-                                            previewLesson = freeLesson;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (!previewLesson) {
-                                    for (const m of course.modules as any[]) {
-                                        if (m.Lessons) {
-                                            const anyLesson = m.Lessons.find((l: any) => l.video_id);
-                                            if (anyLesson) {
-                                                previewLesson = anyLesson;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            // Importante: o generateBunnyTokenizedUrl só funciona no Server Side se a função for importada.
-                            // Mas como CourseTrailer é Client Component, e VideoPlayer também, precisamos passar o token pronto do server.
-                            // Porém, generateBunnyTokenizedUrl é um helper do utils. Para evitar imports errados no RSC, deixarei a função aqui.
-                            const tokenizedUrl = previewLesson?.video_id ? generateBunnyTokenizedUrl(previewLesson.video_id) : undefined;
-
-                            return (
-                                <CourseTrailer
-                                    thumbnailUrl={previewLesson?.thumbnail_url || course.thumbnail_url}
-                                    videoId={previewLesson?.video_id}
-                                    tokenizedUrl={tokenizedUrl}
-                                    title={course.title}
-                                />
-                            );
-                        })()}
+                        <CourseTrailer
+                            thumbnailUrl={previewLesson?.thumbnail_url || course.thumbnail_url}
+                            videoId={previewLesson?.video_id}
+                            tokenizedUrl={tokenizedUrl}
+                            title={course.title}
+                        />
                     </div>
                 </section>
 

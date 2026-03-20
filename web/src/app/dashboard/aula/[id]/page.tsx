@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { VideoPlayer } from "@/components/player/video-player";
@@ -54,8 +54,12 @@ export default async function AulaPage({ params }: { params: Promise<{ id: strin
         }
     }
 
-    // Gera o token Server-Side (com validade de 6h e blindado por HMAC SHA256)
-    const secureTokenUrl = lesson.video_id ? generateBunnyTokenizedUrl(lesson.video_id) : undefined;
+    // Captura o IP do usuário para o Token do Bunny (anti-pirataria por IP)
+    const headersList = await headers();
+    const userIp = headersList.get('x-forwarded-for')?.split(',')[0].trim() || "";
+
+    // Gera o token Server-Side (com validade de 6h e blindado por HMAC SHA256 Base64)
+    const secureTokenUrl = lesson.video_id ? generateBunnyTokenizedUrl(lesson.video_id, userIp) : undefined;
 
     // Fetch all lessons of this course + user progress + course title in parallel
     const [{ data: allLessons }, { data: userProgress }, { data: courseData }, { data: userLike }, { data: watchData }] = await Promise.all([

@@ -9,7 +9,7 @@ import crypto from 'crypto';
  * @param expiresInSeconds Tempo de vida do token (Padrão 6h para masterclasses longas)
  */
 export function generateBunnyTokenizedUrl(videoId: string, userIp: string = "", expiresInSeconds: number = 21600): string {
-    // Fallback de hostname tirado do print do BunnyCDN do usuário para garantir que funcione mesmo sem ENV
+    // Fallback de hostname tirado do print do BunnyCDN do usuário
     const hostname = process.env.NEXT_PUBLIC_BUNNY_CDN_HOSTNAME || process.env.BUNNY_CDN_HOSTNAME || process.env.NEXT_PUBLIC_BUNNY_STREAM_CDN_URL || 'vz-98a0e7c0-529.b-cdn.net';
     const securityKey = process.env.BUNNY_TOKEN_AUTH_KEY || process.env.BUNNY_SECURITY_KEY || process.env.BUNNY_API_KEY; 
 
@@ -21,12 +21,19 @@ export function generateBunnyTokenizedUrl(videoId: string, userIp: string = "", 
     }
 
     const expirationTime = Math.round(Date.now() / 1000) + expiresInSeconds;
+    
+    // Para HLS, assinamos a PASTA do vídeo (token_path) para que o player acesse os fragmentos .ts
+    const tokenPath = `/${videoId}/`;
+    
+    // A assinatura do Bunny CDN Avançada = Base64(SHA256(securityKey + path + expirationTime + userIp))
+    const hashableBase = `${securityKey}${tokenPath}${expirationTime}${userIp}`;
+    
+    const hash = crypto.createHash('sha256').update(hashableBase).digest('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
 
-    // A assinatura do Bunny Stream = SHA256(securityKey + videoId + expirationTime + userIp)
-    const hashableBase = `${securityKey}${videoId}${expirationTime}${userIp}`;
-    const hash = crypto.createHash('sha256').update(hashableBase).digest('hex');
-
-    // Retorna URL protegida - Bunny Stream Token Auth usa "?token=X&expires=Y" na query string!
-    const tokenizedUrl = `https://${cleanHostname}/${videoId}/playlist.m3u8?token=${hash}&expires=${expirationTime}`;
+    // Retorna URL protegida - Importante incluir token_path para HLS funcionar
+    const tokenizedUrl = `https://${cleanHostname}${tokenPath}playlist.m3u8?token=${hash}&expires=${expirationTime}&token_path=${tokenPath}`;
     return tokenizedUrl;
 }
