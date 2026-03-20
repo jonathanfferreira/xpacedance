@@ -33,7 +33,12 @@ export function generateBunnyTokenizedUrl(videoId: string, userIp: string = "", 
         .replace(/\//g, '_')
         .replace(/=/g, '');
 
-    // Retorna URL protegida - Importante incluir token_path para HLS funcionar
-    const tokenizedUrl = `https://${cleanHostname}${tokenPath}playlist.m3u8?token=${hash}&expires=${expirationTime}&token_path=${tokenPath}`;
+    // Codifica o token_path para uso na URL (precisa ser URL encoded)
+    const encodedTokenPath = encodeURIComponent(tokenPath);
+
+    // Retorna URL protegida usando o formato de CAMINHO (Path-based)
+    // Esse formato é superior para HLS pois é herdado automaticamente pelos arquivos .ts (segmentos)
+    const tokenizedUrl = `https://${cleanHostname}/bcdn_token=${hash}&expires=${expirationTime}&token_path=${encodedTokenPath}${tokenPath}playlist.m3u8`;
+    
     return tokenizedUrl;
 }
