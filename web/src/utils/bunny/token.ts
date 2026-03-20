@@ -25,8 +25,8 @@ export function generateBunnyTokenizedUrl(videoId: string, userIp: string = "", 
     // Para HLS, assinamos a PASTA do vídeo (token_path) para que o player acesse os fragmentos .ts
     const tokenPath = `/${videoId}/`;
     
-    // A assinatura do Bunny CDN Avançada = Base64(SHA256(securityKey + path + expirationTime + userIp))
-    const hashableBase = `${securityKey}${tokenPath}${expirationTime}${userIp}`;
+    // A assinatura do Bunny CDN Avançada = Base64(SHA256(securityKey + path + expirationTime))
+    const hashableBase = `${securityKey}${tokenPath}${expirationTime}`;
     
     const hash = crypto.createHash('sha256').update(hashableBase).digest('base64')
         .replace(/\+/g, '-')
