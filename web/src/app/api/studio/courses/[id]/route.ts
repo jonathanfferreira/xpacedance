@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { revalidatePath } from 'next/cache'
 
 async function getSupabaseAndUser() {
     const cookieStore = await cookies()
@@ -68,6 +69,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    
+    // Força a tela inicial a regerar o HTML (cache que dura 1h)
+    revalidatePath('/', 'layout')
+
     return NextResponse.json({ course })
 }
 
@@ -88,5 +93,9 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
         .eq('tenant_id', tenant.id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    
+    // Purga o cache do Carrossel Top 10 e Listagens
+    revalidatePath('/', 'layout')
+
     return NextResponse.json({ success: true })
 }
