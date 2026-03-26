@@ -85,5 +85,14 @@ export const NotificationTriggers = {
             message: `Você recebeu uma comissão de R$ ${amount.toFixed(2)} através do seu link de parceiro.`,
             type: 'revenue',
             linkUrl: '/dashboard/afiliados'
-        })
+        }),
+
+    refundProcessed: (userId: string, courseId: string | null) =>
+        createNotification({
+            userId,
+            title: 'Reembolso Processado',
+            message: 'Seu reembolso foi processado com sucesso e o acesso ao curso foi encerrado. O valor retorna em até 10 dias úteis.',
+            type: 'warning',
+            linkUrl: courseId ? `/dashboard/cursos` : '/dashboard'
+        }),
 };

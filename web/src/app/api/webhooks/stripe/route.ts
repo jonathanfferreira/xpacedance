@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
+import { NotificationTriggers } from "@/utils/notifications";
 
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -110,6 +111,67 @@ export async function POST(req: Request) {
                     .from("subscriptions")
                     .update({ status: "CANCELLED" })
                     .eq("stripe_subscription_id", subscription.id);
+                break;
+            }
+
+            case "charge.refunded": {
+                const charge = event.data.object as any;
+                const paymentIntentId = charge.payment_intent;
+
+                if (!paymentIntentId) {
+                    console.warn('⚠️ charge.refunded sem payment_intent, ignorando.');
+                    break;
+                }
+
+                // 1. Buscar a transação correspondente
+                const { data: tx, error: txFetchError } = await supabaseAdmin
+                    .from('transactions')
+                    .select('id, user_id, course_id')
+                    .eq('stripe_payment_intent_id', paymentIntentId)
+                    .maybeSingle();
+
+                if (txFetchError || !tx) {
+                    console.error('❌ Transação não encontrada para reembolso:', paymentIntentId);
+                    break;
+                }
+
+                // 2. Atualizar transação como reembolsada
+                await supabaseAdmin
+                    .from('transactions')
+                    .update({
+                        status: 'refunded',
+                        refunded_at: new Date().toISOString(),
+                        stripe_refund_id: charge.refunds?.data?.[0]?.id || null,
+                    })
+                    .eq('id', tx.id);
+
+                // 3. Revogar acesso ao curso imediatamente
+                if (tx.course_id) {
+                    await supabaseAdmin
+                        .from('enrollments')
+                        .update({ status: 'cancelled' })
+                        .eq('user_id', tx.user_id)
+                        .eq('course_id', tx.course_id);
+
+                    console.log(`✅ Acesso revogado: user=${tx.user_id} curso=${tx.course_id}`);
+                }
+
+                // 4. Notificar o aluno sobre o reembolso
+                try {
+                    await NotificationTriggers.refundProcessed(tx.user_id, tx.course_id);
+                } catch (notifErr) {
+                    console.error('[NOTIFICATIONS] Falha ao notificar reembolso:', notifErr);
+                }
+
+                console.log(`✅ Reembolso processado: PI=${paymentIntentId}`);
+                break;
+            }
+
+            case "charge.dispute.created": {
+                // Registro de chargeback para análise manual
+                const dispute = event.data.object as any;
+                console.warn(`⚠️ CHARGEBACK recebido: disputeId=${dispute.id}, chargeId=${dispute.charge}, motivo=${dispute.reason}`);
+                // TODO: Notificar admin via email/Crisp
                 break;
             }
 

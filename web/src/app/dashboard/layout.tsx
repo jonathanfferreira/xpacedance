@@ -6,6 +6,7 @@ import { Topbar } from "@/components/layout/topbar";
 import { XpaceTour } from "@/components/pwa/xpace-tour";
 import { OnboardingModal } from "@/components/dashboard/onboarding-modal";
 import { UsernameSetupModal } from "@/components/ui/username-setup-modal";
+import { CrispChat } from "@/components/support/crisp-chat";
 
 export default function DashboardLayout({
     children,
@@ -15,6 +16,7 @@ export default function DashboardLayout({
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [needsUsername, setNeedsUsername] = useState(false);
     const [isTeacher, setIsTeacher] = useState(false);
+    const [crispUser, setCrispUser] = useState<{ id: string; email?: string; full_name?: string; role?: string; username?: string } | undefined>();
 
     useEffect(() => {
         const init = async () => {
@@ -23,8 +25,17 @@ export default function DashboardLayout({
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            const { data: userData } = await supabase.from('users').select('username').eq('id', user.id).single();
+            const { data: userData } = await supabase.from('users').select('username, role').eq('id', user.id).single();
             if (!userData?.username) setNeedsUsername(true);
+
+            // Dados para o Crisp (suporte contextual)
+            setCrispUser({
+                id: user.id,
+                email: user.email,
+                full_name: user.user_metadata?.full_name,
+                role: userData?.role,
+                username: userData?.username,
+            });
 
             const { data: tenant } = await supabase
                 .from('tenants')
@@ -51,6 +62,7 @@ export default function DashboardLayout({
                 </div>
                 <XpaceTour />
                 <OnboardingModal />
+                <CrispChat user={crispUser} />
                 {needsUsername && (
                     <UsernameSetupModal onComplete={() => setNeedsUsername(false)} />
                 )}
