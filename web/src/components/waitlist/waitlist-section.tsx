@@ -84,6 +84,13 @@ export function WaitlistSection() {
 
     const pad = (n: number) => String(n).padStart(2, '0');
 
+    const isProfessor = type === 'criador';
+    const accentBorder = isProfessor ? 'border-[#ff0080]/30' : 'border-primary/30';
+    const accentGlow = isProfessor ? 'bg-[#ff0080]/10' : 'bg-primary/10';
+    const accentText = isProfessor ? 'text-[#ff0080]' : 'text-primary';
+    const accentFocusBorder = isProfessor ? 'focus:border-[#ff0080]/50' : 'focus:border-primary/50';
+    const accentBtnBg = isProfessor ? 'bg-[#ff0080]/20' : 'bg-primary/20';
+
     return (
         <section id="pre-save" className="relative z-10 pt-16 pb-32 overflow-hidden bg-[#020202]">
             
@@ -132,14 +139,14 @@ export function WaitlistSection() {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         onSubmit={handleSubmit}
-                                        className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 sm:p-8 space-y-5 shadow-2xl relative overflow-hidden"
+                                        className={`bg-[#0a0a0a]/80 backdrop-blur-xl border rounded-2xl p-6 sm:p-8 space-y-5 shadow-2xl relative overflow-hidden transition-colors duration-300 ${accentBorder}`}
                                     >
-                                        <div className="absolute -top-10 -right-10 w-48 h-48 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
+                                        <div className={`absolute -top-10 -right-10 w-48 h-48 blur-[80px] rounded-full pointer-events-none transition-colors duration-300 ${accentGlow}`} />
 
                                         {/* Informador de lista */}
                                         {count !== null && count > 0 && (
                                             <div className="flex flex-col items-center gap-1.5 mb-2 relative z-10 w-full text-center">
-                                                <div className="flex items-center justify-center gap-2 text-primary/80 text-xs font-bold uppercase tracking-widest">
+                                                <div className={`flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest transition-colors duration-300 ${accentText}`}>
                                                     <Users size={12} />
                                                     <span className="font-mono">{count} Pessoas na Fila</span>
                                                 </div>
@@ -158,7 +165,7 @@ export function WaitlistSection() {
                                             <button
                                                 type="button"
                                                 onClick={() => setType('criador')}
-                                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-xs font-bold uppercase tracking-widest transition-all ${type === 'criador' ? 'bg-white/10 text-white shadow-lg' : 'text-[#666] hover:text-white'}`}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-xs font-bold uppercase tracking-widest transition-all ${type === 'criador' ? 'bg-[#ff0080] text-white shadow-lg' : 'text-[#666] hover:text-white'}`}
                                             >
                                                 <GraduationCap size={14} /> Sou Professor
                                             </button>
@@ -172,7 +179,7 @@ export function WaitlistSection() {
                                                     value={name}
                                                     onChange={e => setName(e.target.value)}
                                                     placeholder="Seu nome"
-                                                    className="w-full bg-[#111] border border-[#222] focus:border-primary/50 focus:bg-[#151515] rounded-lg px-4 py-3.5 text-white text-sm outline-none transition-colors placeholder:text-[#444]"
+                                                    className={`w-full bg-[#111] border border-[#222] focus:bg-[#151515] rounded-lg px-4 py-3.5 text-white text-sm outline-none transition-colors placeholder:text-[#444] ${accentFocusBorder}`}
                                                 />
                                             </div>
                                             <div>
@@ -182,7 +189,7 @@ export function WaitlistSection() {
                                                     value={email}
                                                     onChange={e => setEmail(e.target.value)}
                                                     placeholder="seu@email.com"
-                                                    className="w-full bg-[#111] border border-[#222] focus:border-primary/50 focus:bg-[#151515] rounded-lg px-4 py-3.5 text-white text-sm outline-none transition-colors placeholder:text-[#444]"
+                                                    className={`w-full bg-[#111] border border-[#222] focus:bg-[#151515] rounded-lg px-4 py-3.5 text-white text-sm outline-none transition-colors placeholder:text-[#444] ${accentFocusBorder}`}
                                                 />
                                             </div>
                                         </div>
@@ -193,7 +200,7 @@ export function WaitlistSection() {
                                                 value={whatsapp}
                                                 onChange={e => setWhatsapp(e.target.value)}
                                                 placeholder="WhatsApp (opcional)"
-                                                className="w-full bg-[#111] border border-[#222] focus:border-primary/50 focus:bg-[#151515] rounded-lg px-4 py-3.5 text-white text-sm outline-none transition-colors placeholder:text-[#444]"
+                                                className={`w-full bg-[#111] border border-[#222] focus:bg-[#151515] rounded-lg px-4 py-3.5 text-white text-sm outline-none transition-colors placeholder:text-[#444] ${accentFocusBorder}`}
                                             />
                                         </div>
 
@@ -213,7 +220,7 @@ export function WaitlistSection() {
                                                     <>Entrar na Fila Oficial <ArrowRight size={16} /></>
                                                 )}
                                             </span>
-                                            <div className="absolute inset-0 bg-primary scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 ease-out z-0 opacity-20" />
+                                            <div className={`absolute inset-0 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 ease-out z-0 opacity-30 ${accentBtnBg}`} />
                                         </button>
                                         
                                         <p className="text-center text-[#444] text-[10px] font-mono uppercase tracking-widest relative z-10">
