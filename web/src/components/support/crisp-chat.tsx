@@ -34,6 +34,9 @@ export function CrispChat({ user }: CrispChatProps) {
         window.$crisp = [];
         window.CRISP_WEBSITE_ID = websiteId;
 
+        // Força idioma Português Brasileiro
+        window.$crisp.push(['config', 'locale', ['pt']]);
+
         // Injeta dados do usuário para contexto do atendimento
         if (user) {
             if (user.email) window.$crisp.push(['set', 'user:email', [user.email]]);

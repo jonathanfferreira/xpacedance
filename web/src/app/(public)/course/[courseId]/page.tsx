@@ -20,6 +20,8 @@ async function getCourse(courseId: string) {
         .from('courses')
         .select('*, tenants(name, logo_url, brand_color, banner_url), modules: course_modules(id, title, Lessons: lessons(id))')
         .eq('id', courseId)
+        .eq('is_published', true)
+        .eq('course_status', 'active') // Bloqueia cursos de professores desativados
         .single();
     if (error) return null;
     return data;
