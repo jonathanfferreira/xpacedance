@@ -68,7 +68,7 @@ export default function SaveTheDatePage() {
           transition={{ duration: 1, delay: 0.7 }}
           className="text-white/50 text-sm md:text-base font-medium tracking-widest uppercase max-w-md mx-auto mb-16"
         >
-          A plataforma premium de dança. <br/>
+          Um novo jeito de dançar. <br/>
           Fique atento às nossas redes oficiais.
         </motion.p>
 
