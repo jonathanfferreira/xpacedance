@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Instagram } from "lucide-react";
 
 // 8 palavras cuidadosamente escolhidas para contar a história do app
-const HIDDEN_WORDS = ["XPACE", "DANCE", "RANKING", "STUDIO", "CONQUISTAS", "FREESTYLE", "CYPHER", "RITMO"];
+const HIDDEN_WORDS = ["STREAMING", "HOME", "VIDEO", "PLATAFORMA", "CONFORTO", "TELA", "RANKING", "ESTUDIO"];
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const DIRS: [number, number][] = [[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]];
 const MAX_HINTS = 5;
