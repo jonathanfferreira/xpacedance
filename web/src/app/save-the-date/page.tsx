@@ -1,64 +1,51 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Instagram } from 'lucide-react';
-import { MatrixRain } from '@/components/ui/matrix-rain';
+import { WordSearchGame } from '@/components/ui/word-search-game';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'XPACE DANCE | UMA NOVA ERA SE APROXIMA',
-  description: 'O sistema está despertando. Fique atento às nossas redes oficiais.',
+  title: 'XPACE DANCE | DECIFRE AS PISTAS',
+  description: 'Algo novo está chegando. Encontre as pistas escondidas.',
 };
 
 export default function SaveTheDatePage() {
   return (
-    <div className="relative min-h-screen bg-black flex flex-col items-center justify-center font-sans overflow-hidden text-white selection:bg-primary/30">
-      {/* Background Matrix Rain */}
-      <MatrixRain fade={false} />
+    <div className="relative min-h-screen bg-[#020202] overflow-hidden select-none">
 
-      {/* Radial Gradient to ensure text is readable over the matrix code */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.9)_100%)] pointer-events-none z-0" />
+      {/* Jogo ocupa toda a tela */}
+      <div className="absolute inset-0">
+        <WordSearchGame />
+      </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-3xl w-full">
-        {/* Logo */}
-        <div className="mb-16 md:mb-24">
-          <Image 
-            src="/images/xpace-logo-branca.png" 
-            alt="XPACE DANCE" 
-            width={200} 
-            height={50} 
-            className="object-contain"
-            priority
-          />
-        </div>
-
-        {/* Status Badge */}
-        <div className="inline-flex items-center gap-2 border border-[#333] rounded-full px-5 py-2 mb-8 bg-black/50 backdrop-blur-md">
-          <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-          <span className="text-xs font-mono uppercase tracking-widest text-[#bbb]">
-            O sistema está despertando
+      {/* UI Overlay — Logo + badge */}
+      <div className="relative z-10 flex flex-col items-center pt-10 px-4 pointer-events-none">
+        <Image
+          src="/images/xpace-logo-branca.png"
+          alt="XPACE DANCE"
+          width={160}
+          height={40}
+          className="object-contain mb-5"
+          priority
+        />
+        <div className="inline-flex items-center gap-2 border border-white/10 rounded-full px-5 py-2 bg-black/70 backdrop-blur-md">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#eb00bc] animate-pulse" />
+          <span className="text-[9px] font-mono uppercase tracking-[0.3em] text-white/50">
+            Decifre as pistas
           </span>
         </div>
+      </div>
 
-        {/* Title */}
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold uppercase tracking-tight text-white mb-6">
-          UM NOVO JEITO DE DANÇAR<span className="text-primary animate-pulse">_</span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="text-lg md:text-xl text-[#888] font-mono max-w-xl mx-auto mb-16 leading-relaxed">
-          FIQUE ATENTO ÀS NOSSAS REDES OFICIAIS.
-        </p>
-
-        {/* CTA Button */}
+      {/* CTA Instagram — fixo no rodapé */}
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20" style={{ bottom: '60px' }}>
         <a
-          href="https://www.instagram.com/xpacedance" 
+          href="https://www.instagram.com/xpacedance"
           target="_blank"
           rel="noopener noreferrer"
-          className="group relative inline-flex items-center gap-3 bg-white text-black font-bold px-8 py-4 rounded-full uppercase tracking-widest hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all duration-300"
+          className="inline-flex items-center gap-2 bg-white/5 text-white/50 border border-white/10 font-mono px-5 py-2.5 rounded-full uppercase tracking-widest hover:bg-white/10 hover:text-white/80 transition-all text-[9px]"
         >
-          <Instagram size={20} />
-          <span>Acompanhar no Instagram</span>
+          <Instagram size={12} />
+          @xpacedance
         </a>
       </div>
     </div>
