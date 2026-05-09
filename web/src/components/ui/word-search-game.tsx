@@ -5,9 +5,7 @@ import { Instagram } from "lucide-react";
 
 const HIDDEN_WORDS = ["STREAMING", "HOME", "VIDEO", "PLATAFORMA", "CONFORTO", "TELA", "RANKING", "ESTUDIO"];
 const DIRS: [number, number][] = [[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]];
-// Grade de dimensões fixas — garante que TODOS os dispositivos vejam a mesma grade completa
-const FIXED_COLS = 20;
-const FIXED_ROWS = 26;
+const STATUS_BAR_PX = 64; // altura da barra de status inferior (px)
 const MAX_HINTS = 5;
 
 // LCG — seed fixo garante grade IDÊNTICA para todos os usuários
@@ -19,7 +17,8 @@ const SEED = 42069; // seed fixo
 
 interface PlacedWord { word: string; cells: [number, number][]; }
 
-function buildGrid(cols: number, rows: number) {
+function buildGrid(cols: number, rows: number, safeRows: number) {
+  // safeRows: linhas disponíveis para colocar palavras (exclui área da barra de UI)
   const rng = makePRNG(SEED);
   const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const grid: string[][] = Array.from({ length: rows }, () =>
@@ -32,13 +31,15 @@ function buildGrid(cols: number, rows: number) {
     let ok = false;
     for (let t = 0; t < 600 && !ok; t++) {
       const [dr, dc] = DIRS[Math.floor(rng() * DIRS.length)];
-      const r0 = Math.floor(rng() * rows);
+      // Restringe r0 à zona segura (fora da área da barra inferior)
+      const r0 = Math.floor(rng() * safeRows);
       const c0 = Math.floor(rng() * cols);
       const cells: [number, number][] = [];
       let fits = true;
       for (let i = 0; i < word.length; i++) {
         const r = r0 + dr * i, c = c0 + dc * i;
-        if (r < 0 || r >= rows || c < 0 || c >= cols) { fits = false; break; }
+        // Também valida que a palavra inteira fica na zona segura
+        if (r < 0 || r >= safeRows || c < 0 || c >= cols) { fits = false; break; }
         if (occ.has(`${r},${c}`) && grid[r][c] !== word[i]) { fits = false; break; }
         cells.push([r, c]);
       }
@@ -221,20 +222,17 @@ export function WordSearchGame() {
 
     const setup = () => {
       const w = window.innerWidth, h = window.innerHeight;
-      // cellSize adapta ao dispositivo para a grade INTEIRA caber na tela
-      const cellByW = Math.floor(w / FIXED_COLS);
-      const cellByH = Math.floor(h / FIXED_ROWS);
-      const cellSize = Math.max(10, Math.min(42, Math.min(cellByW, cellByH)));
-      const cols = FIXED_COLS;
-      const rows = FIXED_ROWS;
-      // Canvas ocupa exatamente a área da grade (pode ser menor que a tela)
-      const canvasW = cellSize * cols;
-      const canvasH = cellSize * rows;
-      canvas.width = canvasW * dpr; canvas.height = canvasH * dpr;
-      canvas.style.width = `${canvasW}px`; canvas.style.height = `${canvasH}px`;
+      const isMobile = w < 768;
+      const cellSize = isMobile ? 28 : 22;
+      const cols = Math.floor(w / cellSize);
+      const rows = Math.floor(h / cellSize);
+      // Zona segura: exclui as linhas cobertas pela barra de UI inferior
+      const safeRows = Math.max(4, rows - Math.ceil(STATUS_BAR_PX / cellSize) - 1);
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
       const ctx = canvas.getContext("2d")!;
       ctx.resetTransform(); ctx.scale(dpr, dpr);
-      const { grid, placed, appCells } = buildGrid(cols, rows);
+      const { grid, placed, appCells } = buildGrid(cols, rows, safeRows);
       stateRef.current = {
         grid, placed, appCells, appRevealStep: 0,
         foundCells: new Set(), hintCell: null,
@@ -340,8 +338,8 @@ export function WordSearchGame() {
   }
 
   return (
-    <div className="relative">
-      <canvas ref={canvasRef} style={{ touchAction: "none", userSelect: "none", display: "block" }} />
+    <div className="relative w-full h-full">
+      <canvas ref={canvasRef} className="absolute inset-0" style={{ touchAction: "none", userSelect: "none" }} />
 
       {lastFound && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">

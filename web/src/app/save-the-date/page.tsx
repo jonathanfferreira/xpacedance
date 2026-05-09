@@ -20,8 +20,8 @@ export default function SaveTheDatePage() {
         }}
       />
 
-      {/* Jogo centralizado */}
-      <div className="relative z-10 flex items-center justify-center w-full h-full">
+      {/* Jogo ocupa toda a tela */}
+      <div className="absolute inset-0">
         <WordSearchGame />
       </div>
 
