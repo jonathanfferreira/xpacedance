@@ -4,15 +4,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight, Play, Zap, Flame, MonitorPlay, Smartphone, Shield, Star } from 'lucide-react';
-import { MatrixRain } from '@/components/ui/matrix-rain';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-black text-[#ededed] font-sans overflow-x-hidden selection:bg-primary/30 selection:text-white">
 
-      {/* Background Ambient Glows & Matrix Rain */}
+      {/* Background Ambient Glows */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <MatrixRain />
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[150px] rounded-full mix-blend-screen opacity-50 animate-pulse-slow"></div>
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-secondary/10 blur-[180px] rounded-full mix-blend-screen opacity-40"></div>
       </div>

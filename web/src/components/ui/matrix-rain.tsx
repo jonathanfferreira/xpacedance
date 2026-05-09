@@ -8,7 +8,11 @@ const WORDS = [
   "CYBERPUNK", "BRUTALISM", "STREAMING"
 ];
 
-export function MatrixRain() {
+interface MatrixRainProps {
+  fade?: boolean;
+}
+
+export function MatrixRain({ fade = true }: MatrixRainProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -121,10 +125,10 @@ export function MatrixRain() {
       <canvas
         ref={canvasRef}
         className="w-full h-full opacity-40"
-        style={{
+        style={fade ? {
           maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 100%)",
           WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 100%)",
-        }}
+        } : {}}
       />
     </div>
   );
