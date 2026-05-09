@@ -8,6 +8,14 @@ const DIRS: [number, number][] = [[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1]
 const STATUS_BAR_PX = 64; // altura da barra de status inferior (px)
 const MAX_HINTS = 5;
 
+const STATUS_MSGS = [
+  "SCANNING FOR PATTERNS...",
+  "DECIPHERING CODEBASE...",
+  "ANALYZING SEQUENCES...",
+  "PATTERN RECOGNITION ACTIVE...",
+  "SEARCHING ENCRYPTED DATA...",
+];
+
 // LCG — seed fixo garante grade IDÊNTICA para todos os usuários
 function makePRNG(seed: number) {
   let s = seed >>> 0;
@@ -92,6 +100,13 @@ export function WordSearchGame() {
   const [lastFound, setLastFound] = useState<string | null>(null);
   const [gameWon, setGameWon] = useState(false);
   const [appReveal, setAppReveal] = useState(0); // drive react re-render para sincronizar
+  const [statusIdx, setStatusIdx] = useState(0);
+
+  // Rotaciona mensagem de status
+  useEffect(() => {
+    const id = setInterval(() => setStatusIdx(i => (i + 1) % STATUS_MSGS.length), 3500);
+    return () => clearInterval(id);
+  }, []);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -297,28 +312,34 @@ export function WordSearchGame() {
   if (gameWon) {
     return (
       <div className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-8 overflow-auto">
-        <div className="max-w-lg w-full font-mono text-left">
-          <p className="text-[#eb00bc] text-xs mb-2 animate-pulse">{">"} DECODING COMPLETE_</p>
-          <p className="text-[#eb00bc]/60 text-xs mb-6">{">"} A palavra que você estava procurando era: <span className="text-white font-bold">APP</span></p>
-          <div className="border border-[#eb00bc]/30 p-6 mb-8 space-y-3">
-            <p className="text-white/40 text-xs">{">"} SYSTEM UNLOCKED</p>
-            <div className="h-px bg-[#eb00bc]/20 my-3" />
-            <p className="text-[#eb00bc] text-xs tracking-widest uppercase">{">"} XPACE DANCE</p>
-            <p className="text-white font-display text-2xl md:text-3xl leading-tight mt-2">
-              A primeira plataforma de streaming e gamificação para dançarinos urbanos.
-            </p>
-            <div className="h-px bg-[#eb00bc]/20 my-3" />
-            <p className="text-white/50 text-xs">{">"} Streaming. Ranking. Studio. Evolução.</p>
-            <p className="text-white/50 text-xs">{">"} Em breve.</p>
+        <div className="max-w-lg w-full font-mono text-left animate-in fade-in zoom-in duration-700">
+          <p className="text-[#eb00bc] text-[10px] mb-2 animate-pulse tracking-[0.4em]">{">"} DECODING COMPLETE_</p>
+          <p className="text-white/30 text-[9px] mb-8 uppercase tracking-widest">{">"} A palavra central era: <span className="text-white">APP</span></p>
+          
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#eb00bc]/20 to-transparent blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+            <div className="relative border border-white/10 bg-black/40 backdrop-blur-sm p-8 mb-8 space-y-4">
+              <p className="text-white/20 text-[8px] tracking-[0.3em] uppercase">{">"} PROJECT_XPACE_MANIFEST</p>
+              <div className="h-px bg-white/5 w-12" />
+              <p className="text-[#eb00bc] font-display text-4xl md:text-5xl leading-none tracking-tighter uppercase">XPACE DANCE</p>
+              <p className="text-white font-display text-xl md:text-2xl leading-tight text-balance">
+                A primeira plataforma de streaming e gamificação para a cultura urbana.
+              </p>
+              <div className="space-y-1 pt-4">
+                <p className="text-white/40 text-[9px] uppercase tracking-widest">{">"} Streaming. Ranking. Studio.</p>
+                <p className="text-white/40 text-[9px] uppercase tracking-widest">{">"} Transformando movimento em evolução.</p>
+              </div>
+            </div>
           </div>
+
           <a
             href="https://www.instagram.com/xpacedance"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-3 bg-[#eb00bc] text-black font-bold py-4 uppercase tracking-widest text-sm hover:bg-white transition-colors font-display"
+            className="w-full flex items-center justify-center gap-3 bg-white text-black font-bold py-5 uppercase tracking-[0.2em] text-xs hover:bg-[#eb00bc] transition-all duration-300 font-display shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(235,0,188,0.3)]"
           >
-            <Instagram size={18} />
-            Acompanhar no Instagram
+            <Instagram size={16} />
+            Acompanhar Lançamento
           </a>
         </div>
       </div>
@@ -341,6 +362,16 @@ export function WordSearchGame() {
     <div className="relative w-full h-full">
       <canvas ref={canvasRef} className="absolute inset-0" style={{ touchAction: "none", userSelect: "none" }} />
 
+      {/* Terminal Status - Top Left */}
+      <div className="absolute top-16 left-4 z-20 pointer-events-none sm:top-20">
+        <div className="flex items-center gap-2">
+          <div className="w-1 h-1 bg-[#eb00bc] animate-pulse" />
+          <p className="text-[8px] font-mono text-white/40 uppercase tracking-[0.2em] animate-in fade-in duration-1000">
+            {STATUS_MSGS[statusIdx]}
+          </p>
+        </div>
+      </div>
+
       {lastFound && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
           <div className="bg-black border border-[#eb00bc] px-8 py-5 text-center shadow-[0_0_60px_rgba(235,0,188,0.3)]">
@@ -353,9 +384,17 @@ export function WordSearchGame() {
       {/* Status bar inferior */}
       <div className="absolute bottom-0 left-0 right-0 z-20 bg-black/80 backdrop-blur-md border-t border-white/5 px-4 py-3 flex items-center justify-between gap-4">
         <div className="flex flex-col gap-1 min-w-0">
-          <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest">
-            {foundWords.length}/{HIDDEN_WORDS.length} decifradas
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest">
+              {foundWords.length}/{HIDDEN_WORDS.length} decifradas
+            </p>
+            <div className="h-1 w-20 bg-white/5 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-[#eb00bc] transition-all duration-500" 
+                style={{ width: `${(foundWords.length / HIDDEN_WORDS.length) * 100}%` }}
+              />
+            </div>
+          </div>
           {foundWords.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {foundWords.map(w => (
@@ -367,9 +406,9 @@ export function WordSearchGame() {
         <button
           onClick={handleHint}
           disabled={hintsLeft <= 0}
-          className="shrink-0 flex flex-col items-center text-[9px] font-mono text-white/40 hover:text-[#eb00bc] border border-white/10 hover:border-[#eb00bc]/40 px-3 py-2 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+          className="shrink-0 flex flex-col items-center text-[9px] font-mono text-white/40 hover:text-[#eb00bc] border border-white/10 hover:border-[#eb00bc]/40 px-3 py-2 transition-all disabled:opacity-20 disabled:cursor-not-allowed group"
         >
-          <span className="uppercase tracking-widest">dica</span>
+          <span className="uppercase tracking-widest group-hover:scale-105 transition-transform">dica</span>
           <span className="text-[#eb00bc] mt-0.5">{hintsLeft}/{MAX_HINTS}</span>
         </button>
       </div>
