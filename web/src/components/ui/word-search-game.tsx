@@ -5,6 +5,9 @@ import { Instagram } from "lucide-react";
 
 const HIDDEN_WORDS = ["STREAMING", "HOME", "VIDEO", "PLATAFORMA", "CONFORTO", "TELA", "RANKING", "ESTUDIO"];
 const DIRS: [number, number][] = [[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]];
+// Grade de dimensões fixas — garante que TODOS os dispositivos vejam a mesma grade completa
+const FIXED_COLS = 20;
+const FIXED_ROWS = 26;
 const MAX_HINTS = 5;
 
 // LCG — seed fixo garante grade IDÊNTICA para todos os usuários
@@ -218,14 +221,19 @@ export function WordSearchGame() {
 
     const setup = () => {
       const w = window.innerWidth, h = window.innerHeight;
-      const isMobile = w < 768;
-      const cellSize = isMobile ? 32 : 26;
-      canvas.width = w * dpr; canvas.height = h * dpr;
-      canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
+      // cellSize adapta ao dispositivo para a grade INTEIRA caber na tela
+      const cellByW = Math.floor(w / FIXED_COLS);
+      const cellByH = Math.floor(h / FIXED_ROWS);
+      const cellSize = Math.max(10, Math.min(42, Math.min(cellByW, cellByH)));
+      const cols = FIXED_COLS;
+      const rows = FIXED_ROWS;
+      // Canvas ocupa exatamente a área da grade (pode ser menor que a tela)
+      const canvasW = cellSize * cols;
+      const canvasH = cellSize * rows;
+      canvas.width = canvasW * dpr; canvas.height = canvasH * dpr;
+      canvas.style.width = `${canvasW}px`; canvas.style.height = `${canvasH}px`;
       const ctx = canvas.getContext("2d")!;
       ctx.resetTransform(); ctx.scale(dpr, dpr);
-      const cols = Math.floor(w / cellSize);
-      const rows = Math.floor(h / cellSize);
       const { grid, placed, appCells } = buildGrid(cols, rows);
       stateRef.current = {
         grid, placed, appCells, appRevealStep: 0,
@@ -332,8 +340,8 @@ export function WordSearchGame() {
   }
 
   return (
-    <div className="relative w-full h-full">
-      <canvas ref={canvasRef} className="absolute inset-0" style={{ touchAction: "none", userSelect: "none" }} />
+    <div className="relative">
+      <canvas ref={canvasRef} style={{ touchAction: "none", userSelect: "none", display: "block" }} />
 
       {lastFound && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">

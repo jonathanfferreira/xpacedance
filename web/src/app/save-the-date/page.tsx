@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function SaveTheDatePage() {
   return (
-    <div className="fixed inset-0 bg-[#020202] overflow-hidden" style={{ userSelect: 'none' }}>
+    <div className="fixed inset-0 bg-[#020202] overflow-hidden flex items-center justify-center" style={{ userSelect: 'none' }}>
 
-      {/* Scanlines — estética terminal/dev */}
+      {/* Scanlines */}
       <div
         className="pointer-events-none fixed inset-0 z-30 opacity-[0.025]"
         style={{
@@ -20,13 +20,13 @@ export default function SaveTheDatePage() {
         }}
       />
 
-      {/* Jogo ocupa toda a tela */}
-      <div className="absolute inset-0">
+      {/* Jogo centralizado */}
+      <div className="relative z-10 flex items-center justify-center w-full h-full">
         <WordSearchGame />
       </div>
 
-      {/* Header: Logo + status terminal */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 pt-4 pb-2 pointer-events-none">
+      {/* Header */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center px-4 pt-4 pb-2 pointer-events-none">
         <div className="flex flex-col gap-1">
           <Image
             src="/images/xpace-logo-branca.png"
@@ -40,9 +40,7 @@ export default function SaveTheDatePage() {
             ENCRYPTED_HUNT v1.0
           </p>
         </div>
-        {/* O botão do Instagram fica no componente (canto sup. direito) */}
       </div>
-
     </div>
   );
 }
