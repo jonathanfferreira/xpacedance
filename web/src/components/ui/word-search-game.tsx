@@ -223,7 +223,7 @@ export function WordSearchGame() {
     const setup = () => {
       const w = window.innerWidth, h = window.innerHeight;
       const isMobile = w < 768;
-      const cellSize = isMobile ? 28 : 22;
+      const cellSize = isMobile ? 38 : 30;
       const cols = Math.floor(w / cellSize);
       const rows = Math.floor(h / cellSize);
       // Zona segura: exclui as linhas cobertas pela barra de UI inferior
