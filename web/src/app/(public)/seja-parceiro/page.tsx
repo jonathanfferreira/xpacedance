@@ -32,7 +32,7 @@ export default function PartnerOnboardingPage() {
             <header className="fixed top-0 inset-x-0 z-50 bg-black/60 backdrop-blur-md border-b border-white/5">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <Link href="/" className="relative w-32 h-8 block">
-                        <Image src="/images/xpace-on-branco.png" alt="XTAGE" fill className="object-contain object-left" />
+                        <Image src="/images/xpace-on-branco.png" alt="XPACE DANCE" fill className="object-contain object-left" />
                     </Link>
                     <div className="flex items-center gap-6">
                         <Link href="/" className="hidden md:block text-sm font-semibold text-[#888] hover:text-white transition-colors uppercase tracking-widest">
@@ -58,7 +58,7 @@ export default function PartnerOnboardingPage() {
                         </h1>
 
                         <p className="text-lg text-[#888] font-light max-w-xl mb-10 leading-relaxed">
-                            Junte-se à XTAGE e monetize seu conhecimento. Hospedagem 4K, checkout transparente de alta conversão, split automático de pagamentos e uma experiência de streaming premium para seus alunos.
+                            Junte-se à XPACE DANCE e monetize seu conhecimento. Hospedagem 4K, checkout transparente de alta conversão, split automático de pagamentos e uma experiência de streaming premium para seus alunos.
                         </p>
 
                         <ul className="space-y-4 mb-12">
@@ -100,7 +100,7 @@ export default function PartnerOnboardingPage() {
                                         <div className="bg-[#111] border border-[#222] p-4 rounded flex items-start gap-4">
                                             <div className="bg-[#1a1a1a] rounded text-[#888] w-6 h-6 flex items-center justify-center shrink-0 font-mono text-xs">2</div>
                                             <div>
-                                                <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-1">Acesso ao XTAGE OS</h4>
+                                                <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-1">Acesso ao XPACE DANCE OS</h4>
                                                 <p className="text-[#666] text-xs">Seu dashboard de professor será desbloqueado com todas as ferramentas de creator.</p>
                                             </div>
                                         </div>
@@ -131,7 +131,7 @@ export default function PartnerOnboardingPage() {
 
                                         <div className="space-y-2">
                                             <label className="text-xs font-bold text-[#888] uppercase tracking-widest">Instagram / Portfólio</label>
-                                            <input required name="instagram" type="text" className="w-full bg-[#111] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" placeholder="@xtageapp" />
+                                            <input required name="instagram" type="text" className="w-full bg-[#111] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" placeholder="@xpacedance" />
                                         </div>
 
                                         <div className="space-y-2">
@@ -165,7 +165,7 @@ export default function PartnerOnboardingPage() {
                     <FeatureCard
                         icon={<Video />}
                         title="Hospedagem Premium"
-                        desc="Esqueça plataformas genéricas. Entregue seu conteúdo em 4K, sem travamentos, com o player de dança imersivo do XTAGE."
+                        desc="Esqueça plataformas genéricas. Entregue seu conteúdo em 4K, sem travamentos, com o player de dança imersivo do XPACE DANCE."
                     />
                     <FeatureCard
                         icon={<DollarSign />}

@@ -10,14 +10,14 @@ export async function sendCartRecoveryEmail(userEmail: string, userName: string,
 
     try {
         await resend.emails.send({
-            from: 'XTAGE <suporte@xtage.app>',
+            from: 'XPACE DANCE <suporte@xtage.app>',
             to: [userEmail],
-            subject: '⚠️ Seu treino na XTAGE ficou pausado na tela de pagamento!',
+            subject: '⚠️ Seu treino na XPACE DANCE ficou pausado na tela de pagamento!',
             html: `
                 <div style="background-color: #050505; color: #ffffff; font-family: sans-serif; padding: 40px; text-align: center; border-top: 5px solid #eb00bc;">
                     <h1 style="color: #eb00bc; text-transform: uppercase; font-size: 28px;">OPA, ${userName || 'DANCER'}!</h1>
                     <p style="color: #888888; font-size: 16px; line-height: 1.6; max-width: 500px; margin: 0 auto 30px;">
-                        Percebemos que você iniciou o seu plano na <strong style="color:#fff;">XTAGE</strong>, mas o pagamento não foi concluído.
+                        Percebemos que você iniciou o seu plano na <strong style="color:#fff;">XPACE DANCE</strong>, mas o pagamento não foi concluído.
                     </p>
                     
                     <div style="background-color: #111111; padding: 20px; border: 1px solid #333333; border-radius: 8px; max-width: 400px; margin: 0 auto 30px;">
@@ -30,7 +30,7 @@ export async function sendCartRecoveryEmail(userEmail: string, userName: string,
                     </a>
 
                     <p style="margin-top: 40px; font-size: 12px; color: #444444; font-family: monospace;">
-                        XTAGE ENTERTAINMENT LTDA - SISTEMA AUTOMATIZADO
+                        XPACE DANCE ENTERTAINMENT LTDA - SISTEMA AUTOMATIZADO
                     </p>
                 </div>
             `

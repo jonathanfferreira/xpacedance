@@ -278,7 +278,7 @@ export default function NovoProdutoPage() {
                                     required
                                 />
                             </div>
-                            <p className="text-[10px] text-[#555] font-sans">Taxa XTAGE é aplicada sobre este valor via Asaas Split.</p>
+                            <p className="text-[10px] text-[#555] font-sans">Taxa XPACE DANCE é aplicada sobre este valor via Asaas Split.</p>
                         </div>
 
                         <div className="space-y-2">

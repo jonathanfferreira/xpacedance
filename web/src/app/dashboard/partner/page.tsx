@@ -81,7 +81,7 @@ export default function PartnerProgramPage() {
                                     <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center text-xs">2</div>
                                     Suba seu Material
                                 </h3>
-                                <p className="text-[#888] text-sm">O XTAGE OS fornece encriptação automática (DRM). Basta subir seus arquivos de aula e a plataforma gera a Landing Page do curso e rastreia o XP dos seus alunos automaticamente.</p>
+                                <p className="text-[#888] text-sm">O XPACE DANCE OS fornece encriptação automática (DRM). Basta subir seus arquivos de aula e a plataforma gera a Landing Page do curso e rastreia o XP dos seus alunos automaticamente.</p>
                             </div>
 
                             <div className="flex justify-center pt-6">

@@ -6,7 +6,7 @@ import { Award, Download, Share2 } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
-    title: 'Certificado de Conclusão | XTAGE',
+    title: 'Certificado de Conclusão | XPACE DANCE',
 };
 
 interface Params {
@@ -40,8 +40,8 @@ export default async function CertificadoPage({ params }: Params) {
         redirect('/dashboard/cursos');
     }
 
-    const tenantName = Array.isArray(course.tenants) ? course.tenants[0]?.name : (course.tenants as any)?.name || 'Academia XTAGE Oficial';
-    const studentName = userData?.full_name || user.user_metadata?.full_name || 'Estudante XTAGE';
+    const tenantName = Array.isArray(course.tenants) ? course.tenants[0]?.name : (course.tenants as any)?.name || 'Academia XPACE DANCE Oficial';
+    const studentName = userData?.full_name || user.user_metadata?.full_name || 'Estudante XPACE DANCE';
     const completionDate = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric', day: 'numeric' });
 
     return (
@@ -52,7 +52,7 @@ export default async function CertificadoPage({ params }: Params) {
                         <Award className="text-primary w-10 h-10" />
                         <span className="text-transparent bg-clip-text text-gradient-neon">Mural de Honra</span>
                     </h1>
-                    <p className="text-[#888] font-sans">Seu certificado oficial e criptografado de conclusão na rede XTAGE.</p>
+                    <p className="text-[#888] font-sans">Seu certificado oficial e criptografado de conclusão na rede XPACE DANCE.</p>
                 </div>
                 <div className="flex gap-4">
                     <button className="flex items-center gap-2 px-5 py-2.5 bg-black border border-[#333] hover:border-white transition-colors text-white rounded font-bold text-sm">

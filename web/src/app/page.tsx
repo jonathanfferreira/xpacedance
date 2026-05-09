@@ -4,13 +4,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight, Play, Zap, Flame, MonitorPlay, Smartphone, Shield, Star } from 'lucide-react';
+import { MatrixRain } from '@/components/ui/matrix-rain';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-black text-[#ededed] font-sans overflow-x-hidden selection:bg-primary/30 selection:text-white">
 
-      {/* Background Ambient Glows */}
+      {/* Background Ambient Glows & Matrix Rain */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <MatrixRain />
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[150px] rounded-full mix-blend-screen opacity-50 animate-pulse-slow"></div>
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-secondary/10 blur-[180px] rounded-full mix-blend-screen opacity-40"></div>
       </div>
@@ -25,7 +27,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <div className="relative w-32 h-8">
-              <Image src="/images/xpace-on-branco.png" alt="XTAGE" fill className="object-contain object-left" />
+              <Image src="/images/xpace-on-branco.png" alt="XPACE DANCE" fill className="object-contain object-left" />
             </div>
             <Link href="/explore" className="hidden md:block text-sm font-semibold text-white hover:text-primary transition-colors uppercase tracking-widest">
               Explorar Catálogo
@@ -141,7 +143,7 @@ export default function LandingPage() {
             className="text-center mb-16"
           >
             <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-4 uppercase tracking-tight">Evolução em <span className="text-secondary">Ultra Definição</span></h2>
-            <p className="text-[#888] font-light max-w-2xl mx-auto">Muito mais que um player. O XTAGE foi desenhado com inteligência e ferramentas gamificadas para garantir seu desenvolvimento real como bailarino.</p>
+            <p className="text-[#888] font-light max-w-2xl mx-auto">Muito mais que um player. O XPACE DANCE foi desenhado com inteligência e ferramentas gamificadas para garantir seu desenvolvimento real como bailarino.</p>
           </motion.div>
 
           <motion.div
@@ -186,7 +188,7 @@ export default function LandingPage() {
               <FeatureCard
                 icon={<Star size={32} className="text-yellow-500" />}
                 title="Conquistas"
-                desc="Desbloqueie badges, participe de desafios e exiba seu nível no seu perfil XTAGE para a comunidade."
+                desc="Desbloqueie badges, participe de desafios e exiba seu nível no seu perfil XPACE DANCE para a comunidade."
               />
             </motion.div>
             <motion.div variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.5 }}>
@@ -230,14 +232,14 @@ export default function LandingPage() {
             />
             <PricingModelCard
               title="Assinatura VIP"
-              desc="Assine sua escola favorita ou o passe global XTAGE e acesse catálogos completos."
+              desc="Assine sua escola favorita ou o passe global XPACE DANCE e acesse catálogos completos."
               features={["Cobrança mensal ou anual", "Acesso a múltiplos cursos ao mesmo tempo", "Cancele a qualquer momento", "Benefícios extras exclusivos do curador"]}
               highlighted
             />
             <PricingModelCard
               title="Para Escolas (OS)"
               desc="Traga sua escola real para o aplicativo e tenha o controle da sua tecnologia."
-              features={["Ter seu próprio white-label na plataforma", "Painel XTAGE OS de gestão", "Adicione múltiplos professores à escola", "Gateway de pagamentos Split"]}
+              features={["Ter seu próprio white-label na plataforma", "Painel XPACE DANCE OS de gestão", "Adicione múltiplos professores à escola", "Gateway de pagamentos Split"]}
             />
           </div>
         </div>
@@ -249,7 +251,7 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
             <div>
               <div className="relative w-32 h-8 mb-4">
-                <Image src="/images/xpace-on-branco.png" alt="XTAGE" fill className="object-contain object-left" />
+                <Image src="/images/xpace-on-branco.png" alt="XPACE DANCE" fill className="object-contain object-left" />
               </div>
               <p className="text-[#666] text-sm max-w-sm">Elevando a arte e o aprendizado físico para a era digital. A tecnologia não substitui, ela te impulsiona.</p>
             </div>
@@ -269,7 +271,7 @@ export default function LandingPage() {
           </div>
 
           <div className="border-t border-[#111] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <span className="text-[#444] text-xs font-mono uppercase">© 2026 XTAGE. Todos os direitos reservados.</span>
+            <span className="text-[#444] text-xs font-mono uppercase">© 2026 XPACE DANCE. Todos os direitos reservados.</span>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
               <span className="text-green-500 text-xs font-mono uppercase tracking-widest">Sistemas Operacionais Normais</span>

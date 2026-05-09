@@ -47,7 +47,7 @@ export default function MasterConfigPage() {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-mono text-[#888] uppercase mb-1">Taxa de Split Padrão (XTAGE)</label>
+                            <label className="block text-xs font-mono text-[#888] uppercase mb-1">Taxa de Split Padrão (XPACE DANCE)</label>
                             <input type="number" defaultValue="15" className="w-full bg-[#111] border border-[#222] rounded p-3 text-white font-mono text-sm focus:outline-none focus:border-red-500/50 transition-colors" />
                             <p className="text-[#555] text-xs mt-1">Essa taxa (%) é deduzida de todas as vendas das Escolas automaticamente no Gateway.</p>
                         </div>

@@ -49,7 +49,7 @@ export async function POST(req: Request) {
         if (error || !subs) throw new Error("Erro ao buscar subscriptions: " + error?.message);
 
         const payload = JSON.stringify({
-            title: title || 'XTAGE',
+            title: title || 'XPACE DANCE',
             body: text || 'Temos uma novidade para você!',
             url: url || '/'
         });
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
 
         // Audit log
         await logAuditEvent(user.id, 'push_broadcast_sent', 'push_subscriptions', undefined, {
-            title: title || 'XTAGE',
+            title: title || 'XPACE DANCE',
             recipientCount: subs.length,
         });
 

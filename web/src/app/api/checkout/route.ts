@@ -151,7 +151,7 @@ export async function POST(request: Request) {
         }
         finalValue = Number(finalValue.toFixed(2));
 
-        // 5. Build Split (professor gets 90% of base price, XTAGE keeps 10% + interest surplus)
+        // 5. Build Split (professor gets 90% of base price, XPACE DANCE keeps 10% + interest surplus)
         const professorFixedSplit = Number((coursePrice * (1 - splitPercent / 100)).toFixed(2));
 
         const chargePayload: any = {
@@ -159,7 +159,7 @@ export async function POST(request: Request) {
             billingType: paymentMethod === 'pix' ? 'PIX' : 'CREDIT_CARD',
             value: finalValue,
             dueDate: new Date().toISOString().split("T")[0],
-            description: `XTAGE - ${course.title}`,
+            description: `XPACE DANCE - ${course.title}`,
         };
 
         // Recupera Taxas do Afiliado Rastreio (Se Existir)

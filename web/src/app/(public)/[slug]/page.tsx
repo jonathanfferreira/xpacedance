@@ -130,24 +130,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     if (decodedSlug.startsWith('@')) {
         const username = decodedSlug.replace(/^@/, '');
         const profile = await getStudentProfile(username);
-        if (!profile) return { title: 'Perfil não encontrado | XTAGE' };
+        if (!profile) return { title: 'Perfil não encontrado | XPACE DANCE' };
 
         return {
-            title: `@${profile.username} | XTAGE`,
-            description: profile.bio || `Conheça o perfil de ${profile.full_name} na XTAGE — plataforma de dança urbana.`,
+            title: `@${profile.username} | XPACE DANCE`,
+            description: profile.bio || `Conheça o perfil de ${profile.full_name} na XPACE DANCE — plataforma de dança urbana.`,
             openGraph: {
-                title: `@${profile.username} | XTAGE`,
-                description: profile.bio || `${profile.full_name} está evoluindo na XTAGE.`,
+                title: `@${profile.username} | XPACE DANCE`,
+                description: profile.bio || `${profile.full_name} está evoluindo na XPACE DANCE.`,
                 images: profile.avatar_url ? [{ url: profile.avatar_url }] : [],
             },
         };
     } else {
         const data = await getTenantProfile(decodedSlug);
-        if (!data) return { title: 'Escola não encontrada | XTAGE' };
+        if (!data) return { title: 'Escola não encontrada | XPACE DANCE' };
 
         return {
-            title: `${data.tenant.name} | XTAGE`,
-            description: data.tenant.bio || `Conheça os treinamentos de ${data.tenant.name} na XTAGE.`,
+            title: `${data.tenant.name} | XPACE DANCE`,
+            description: data.tenant.bio || `Conheça os treinamentos de ${data.tenant.name} na XPACE DANCE.`,
         };
     }
 }
@@ -174,7 +174,7 @@ export default async function GenericProfilePage({ params }: { params: Promise<{
                 <header className="border-b border-[#111] bg-[#080808]/80 backdrop-blur-md sticky top-0 z-10">
                     <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
                         <Link href="/explore" className="flex items-center gap-2">
-                            <Image src="/images/xpace-logo-branca.png" alt="XTAGE" width={80} height={22} className="object-contain" />
+                            <Image src="/images/xpace-logo-branca.png" alt="XPACE DANCE" width={80} height={22} className="object-contain" />
                         </Link>
                         <Link
                             href="/login"

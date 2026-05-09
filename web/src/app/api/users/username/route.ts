@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
 );
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/;
-const RESERVED = ['admin', 'master', 'studio', 'dashboard', 'explore', 'login', 'register', 'api', 'xtage', 'suporte', 'help', 'about', 'terms', 'privacidade'];
+const RESERVED = ['admin', 'master', 'studio', 'dashboard', 'explore', 'login', 'register', 'api', 'xpace dance', 'suporte', 'help', 'about', 'terms', 'privacidade'];
 
 // GET /api/users/username?username=tonmoraes → { available: boolean, message?: string }
 export async function GET(request: Request) {

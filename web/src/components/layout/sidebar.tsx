@@ -64,7 +64,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
                 {/* Footer Actions */}
                 <div className="p-3 border-t border-[#151515] flex flex-col gap-2">
                     <button
-                        onClick={() => { localStorage.removeItem('xtage-pwa-dismissed'); window.location.reload(); }}
+                        onClick={() => { localStorage.removeItem('xpace-pwa-dismissed'); window.location.reload(); }}
                         className="w-full flex items-center p-3 rounded bg-transparent hover:bg-primary/10 text-primary transition-colors relative overflow-hidden group/btn border border-transparent hover:border-primary/30"
                     >
                         <span className="w-5 shrink-0 flex justify-center z-10">

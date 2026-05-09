@@ -137,7 +137,7 @@ export function CommunityBoard({ lessonId }: CommunityBoardProps) {
 
         // 1. Validate if there are links (security)
         if (URL_REGEX.test(contentToSend)) {
-            alert('🚨 O envio de links externos não é permitido na comunidade XTAGE.')
+            alert('🚨 O envio de links externos não é permitido na comunidade XPACE DANCE.')
             return;
         }
 

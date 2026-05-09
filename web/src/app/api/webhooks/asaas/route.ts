@@ -255,9 +255,9 @@ async function handleOneTimePaymentReceived(paymentId: string, customerEmail: st
                 });
 
                 await resend.emails.send({
-                    from: `${tenant?.name || "XTAGE"} <contato@xtage.app>`,
+                    from: `${tenant?.name || "XPACE DANCE"} <contato@xtage.app>`,
                     to: [customerEmail],
-                    subject: `✅ Acesso Liberado: ${courseData?.title || "XTAGE"}`,
+                    subject: `✅ Acesso Liberado: ${courseData?.title || "XPACE DANCE"}`,
                     html: htmlBody,
                 });
 

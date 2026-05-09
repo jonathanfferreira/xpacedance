@@ -22,7 +22,7 @@ export default function TermosPage() {
                     <section>
                         <h2 className="text-2xl font-bold text-white mb-4">1. Aceitação dos Termos</h2>
                         <p className="mb-4">
-                            Ao acessar e utilizar a plataforma XTAGE, você concorda em cumprir estes termos de serviço
+                            Ao acessar e utilizar a plataforma XPACE DANCE, você concorda em cumprir estes termos de serviço
                             e todas as leis e regulamentos aplicáveis. Se você não concordar com algum destes termos, está proibido de
                             usar ou acessar este site.
                         </p>
@@ -33,7 +33,7 @@ export default function TermosPage() {
                         <ul className="list-disc pl-5 space-y-3">
                             <li>Modificar ou copiar os materiais de vídeo (aulas, cursos);</li>
                             <li>Usar os materiais para qualquer finalidade comercial na forma de pirataria;</li>
-                            <li>Tentar descompilar ou fazer engenharia reversa de qualquer software contido no site XTAGE;</li>
+                            <li>Tentar descompilar ou fazer engenharia reversa de qualquer software contido no site XPACE DANCE;</li>
                             <li>Remover quaisquer direitos autorais ou outras notações de propriedade dos materiais; ou</li>
                             <li>Transferir os materiais para outra pessoa ou &apos;espelhar&apos; os materiais em qualquer outro servidor.</li>
                         </ul>

@@ -109,7 +109,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                                 <Image src={tenant.logo_url} alt="" width={24} height={24} className="rounded-full" />
                             )}
                             <span className="text-xs font-mono uppercase tracking-widest" style={{ color: brandColor }}>
-                                {tenant?.name || 'XTAGE'}
+                                {tenant?.name || 'XPACE DANCE'}
                             </span>
                         </div>
                         <h1 className="text-2xl md:text-4xl font-display font-bold uppercase tracking-tight text-white mb-2">
@@ -252,7 +252,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
                                 </div>
                             )}
                             <div>
-                                <p className="text-white text-sm font-sans font-bold">{tenant?.name || 'XTAGE'}</p>
+                                <p className="text-white text-sm font-sans font-bold">{tenant?.name || 'XPACE DANCE'}</p>
                                 <p className="text-[10px] font-mono text-[#555] uppercase tracking-widest">Escola Parceira</p>
                             </div>
                         </div>

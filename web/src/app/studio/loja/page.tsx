@@ -28,7 +28,7 @@ export default async function StudioLojaPage() {
             <div className="max-w-4xl mx-auto py-20 text-center">
                 <ShoppingBag size={48} className="mx-auto text-[#333] mb-6" />
                 <h1 className="text-xl font-heading text-white uppercase tracking-widest mb-2">Configure sua Escola Primeiro</h1>
-                <p className="text-[#888] font-sans">A XTORE só pode ser ativada por perfis homologados no XTAGE OS.</p>
+                <p className="text-[#888] font-sans">A XTORE só pode ser ativada por perfis homologados no XPACE DANCE OS.</p>
             </div>
         );
     }

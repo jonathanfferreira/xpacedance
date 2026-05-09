@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'XTAGE | Evolução da Dança',
-        short_name: 'XTAGE',
+        name: 'XPACE DANCE | Evolução da Dança',
+        short_name: 'XPACE DANCE',
         description: 'Aprenda com os maiores coreógrafos e mestres da dança urbana.',
         start_url: '/dashboard',
         display: 'standalone',

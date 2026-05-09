@@ -22,7 +22,7 @@ export default function PrivacidadePage() {
                     <section>
                         <h2 className="text-2xl font-bold text-white mb-4">1. Coleta de Dados</h2>
                         <p className="mb-4">
-                            Em nossa plataforma XTAGE, coletamos apenas os dados essenciais para o funcionamento
+                            Em nossa plataforma XPACE DANCE, coletamos apenas os dados essenciais para o funcionamento
                             dos serviços de educação e streaming. Isso inclui: e-mail de registro, nome de perfil e
                             histórico de visualização (para progresso e XP).
                         </p>
@@ -40,7 +40,7 @@ export default function PrivacidadePage() {
                         <h2 className="text-2xl font-bold text-white mb-4">3. Pagamentos Seguros</h2>
                         <p className="mb-4">
                             Todo processamento financeiro é realizado pela Instituição Financeira homologada pelo BACEN (Asaas).
-                            O XTAGE não armazena números de cartão de crédito brutos em nosso banco de dados.
+                            O XPACE DANCE não armazena números de cartão de crédito brutos em nosso banco de dados.
                         </p>
                     </section>
 

@@ -397,7 +397,7 @@ export default function EditProductPage() {
                         <p>• Use fotos de alta qualidade</p>
                         <p>• Descreva materiais e tamanhos</p>
                         <p>• Mantenha o estoque atualizado</p>
-                        <p>• Taxa XTAGE sobre vendas via Split</p>
+                        <p>• Taxa XPACE DANCE sobre vendas via Split</p>
                     </div>
                 </div>
             </div>

@@ -8,7 +8,7 @@ export function XpaceTour() {
 
     useEffect(() => {
         // Dispara o tour apenas na primeira vez do usuário, com um pequeno delay
-        const tourCompleted = localStorage.getItem('xtage-tour-completed');
+        const tourCompleted = localStorage.getItem('xpace-tour-completed');
         if (!tourCompleted) {
             const timer = setTimeout(() => {
                 setRun(true);
@@ -23,8 +23,8 @@ export function XpaceTour() {
             placement: 'center',
             content: (
                 <div className="text-left font-sans">
-                    <h2 className="text-xl font-heading font-bold text-primary uppercase mb-2">Bem-vindo à XTAGE</h2>
-                    <p className="text-sm text-[#ddd]">Esta é a Central de Inteligência de Dança da XTAGE. Vamos fazer um tour de 30 segundos pela sua nova nave para que você não perca tempo.</p>
+                    <h2 className="text-xl font-heading font-bold text-primary uppercase mb-2">Bem-vindo à XPACE DANCE</h2>
+                    <p className="text-sm text-[#ddd]">Esta é a Central de Inteligência de Dança da XPACE DANCE. Vamos fazer um tour de 30 segundos pela sua nova nave para que você não perca tempo.</p>
                 </div>
             ),
             disableBeacon: true,
@@ -66,7 +66,7 @@ export function XpaceTour() {
         if (finishedStatuses.includes(status)) {
             // Marca o tour como concluído
             setRun(false);
-            localStorage.setItem('xtage-tour-completed', 'true');
+            localStorage.setItem('xpace-tour-completed', 'true');
         }
     };
 

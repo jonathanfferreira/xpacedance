@@ -110,7 +110,7 @@ export async function POST(request: Request) {
             .from('tenants')
             .insert({
                 owner_id: user.id,
-                name: dbUser?.role === 'admin' ? 'XTAGE Admin' : 'Minha Escola',
+                name: dbUser?.role === 'admin' ? 'XPACE DANCE Admin' : 'Minha Escola',
                 slug,
             })
             .select('id, slug')

@@ -107,7 +107,7 @@ export default async function XtorePage() {
                             {/* Product Info */}
                             <div className="p-5">
                                 <h3 className="text-lg font-bold text-white mb-1 truncate">{p.name}</h3>
-                                <p className="text-xs text-[#666] mb-4 truncate">{p.description || "Produto exclusivo da XTAGE."}</p>
+                                <p className="text-xs text-[#666] mb-4 truncate">{p.description || "Produto exclusivo da XPACE DANCE."}</p>
 
                                 <div className="flex items-center justify-between mt-auto">
                                     <div>

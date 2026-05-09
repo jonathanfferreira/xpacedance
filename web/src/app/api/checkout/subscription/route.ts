@@ -130,7 +130,7 @@ export async function POST(request: Request) {
             value: plan.price,
             nextDueDate: nextDueDateStr,
             cycle: plan.cycle,
-            description: `XTAGE - ${plan.name}`,
+            description: `XPACE DANCE - ${plan.name}`,
         };
 
         if (paymentMethod === "credit" && creditCard) {

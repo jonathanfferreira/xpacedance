@@ -171,7 +171,7 @@ export default function CheckoutPage() {
         <div className="min-h-screen bg-[#050505] text-[#ededed] font-sans selection:bg-primary/30">
             <nav className="h-16 border-b border-[#1a1a1a] flex items-center justify-center bg-black/50 backdrop-blur-md sticky top-0 z-50">
                 <Lock size={16} className="text-[#666] mr-2" />
-                <span className="text-xs font-mono uppercase tracking-widest text-[#888]">Checkout Seguro XTAGE</span>
+                <span className="text-xs font-mono uppercase tracking-widest text-[#888]">Checkout Seguro XPACE DANCE</span>
             </nav>
 
             <div className="max-w-6xl mx-auto px-6 py-12 lg:py-20 flex flex-col lg:flex-row gap-12 lg:gap-24 relative">
@@ -306,7 +306,7 @@ export default function CheckoutPage() {
                                         <CheckCircle2 size={32} />
                                     </div>
                                     <h3 className="text-white font-sans font-bold text-xl mb-2">Acesso Liberado!</h3>
-                                    <p className="text-[#888] text-sm max-w-sm mb-6">Pagamento processado. Bem-vindo ao XTAGE.</p>
+                                    <p className="text-[#888] text-sm max-w-sm mb-6">Pagamento processado. Bem-vindo ao XPACE DANCE.</p>
                                     <Link href="/dashboard" className="bg-primary text-white font-bold py-3 px-8 text-sm uppercase tracking-widest hover:bg-primary/80 transition-colors inline-block w-full max-w-xs">
                                         Acessar Dashboard
                                     </Link>
