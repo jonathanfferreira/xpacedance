@@ -51,7 +51,7 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
 
       for (let i = 0; i < drops.length; i++) {
         let text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-        ctx.fillStyle = "#0F0"; // Classic Green
+        ctx.fillStyle = "rgba(255, 255, 255, 0.5)"; // White for normal rain
 
         const activeWordIndex = wordDrops.findIndex(w => w.x === i);
         if (activeWordIndex !== -1) {
@@ -59,20 +59,20 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
           if (activeWord.index < activeWord.word.length) {
             text = activeWord.word[activeWord.index];
             activeWord.index++;
-            ctx.fillStyle = "#FFF"; // Highlight word in white
+            ctx.fillStyle = "#eb00bc"; // Pink for words (dicas)
             
             // Glow effect
             ctx.shadowBlur = 8;
-            ctx.shadowColor = "#FFF";
+            ctx.shadowColor = "#eb00bc";
           } else {
             wordDrops.splice(activeWordIndex, 1);
             ctx.shadowBlur = 0;
           }
         } else {
             ctx.shadowBlur = 0;
-            // Efeito visual clássico: a cabeça da trilha de código costuma ser branca
+            // Efeito visual clássico: a cabeça da trilha
             if (Math.random() > 0.95) {
-                ctx.fillStyle = "#FFF";
+                ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
             }
         }
 

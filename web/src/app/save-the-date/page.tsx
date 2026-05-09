@@ -41,19 +41,18 @@ export default function SaveTheDatePage() {
         </div>
 
         {/* Title */}
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold uppercase tracking-tight text-white mb-6">
-          DECODIFICANDO<span className="text-primary animate-pulse">_</span>
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold uppercase tracking-tight text-white mb-6">
+          UM NOVO JEITO DE DANÇAR<span className="text-primary animate-pulse">_</span>
         </h1>
 
         {/* Subtitle */}
         <p className="text-lg md:text-xl text-[#888] font-mono max-w-xl mx-auto mb-16 leading-relaxed">
-          UM NOVO JEITO DE DANÇAR ESTÁ SENDO COMPILADO. <br className="hidden md:block" />
           FIQUE ATENTO ÀS NOSSAS REDES OFICIAIS.
         </p>
 
         {/* CTA Button */}
         <a
-          href="https://instagram.com/xtage.app" 
+          href="https://www.instagram.com/xpacedance" 
           target="_blank"
           rel="noopener noreferrer"
           className="group relative inline-flex items-center gap-3 bg-white text-black font-bold px-8 py-4 rounded-full uppercase tracking-widest hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all duration-300"
