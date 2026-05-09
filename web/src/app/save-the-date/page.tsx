@@ -1,94 +1,67 @@
-"use client";
-
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { Instagram } from 'lucide-react';
+import { MatrixRain } from '@/components/ui/matrix-rain';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'XPACE DANCE | UMA NOVA ERA SE APROXIMA',
+  description: 'O sistema está despertando. Fique atento às nossas redes oficiais.',
+};
 
 export default function SaveTheDatePage() {
   return (
-    <div className="min-h-screen bg-[#020202] text-[#ededed] font-sans flex flex-col items-center justify-center relative overflow-hidden selection:bg-primary/30 selection:text-white">
+    <div className="relative min-h-screen bg-black flex flex-col items-center justify-center font-sans overflow-hidden text-white selection:bg-primary/30">
+      {/* Background Matrix Rain */}
+      <MatrixRain fade={false} />
 
-      {/* Background Ambient Glows */}
-      <div className="fixed inset-0 z-0 pointer-events-none flex justify-center items-center overflow-hidden">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.6, scale: 1 }}
-          transition={{ duration: 3, repeat: Infinity, repeatType: 'reverse' }}
-          className="absolute w-[600px] h-[600px] bg-primary/20 blur-[150px] rounded-full mix-blend-screen" 
-        />
-        <div className="absolute w-[800px] h-[800px] bg-secondary/10 blur-[180px] rounded-full mix-blend-screen opacity-50" />
-      </div>
-      
-      {/* Noise Texture Layer */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.03] mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+      {/* Radial Gradient to ensure text is readable over the matrix code */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.9)_100%)] pointer-events-none z-0" />
 
-      <main className="relative z-10 flex flex-col items-center justify-center p-6 text-center w-full max-w-2xl mx-auto">
-        
+      {/* Main Content */}
+      <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-3xl w-full">
         {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="relative w-48 h-12 mb-16"
-        >
+        <div className="mb-16 md:mb-24">
           <Image 
             src="/images/xpace-logo-branca.png" 
-            alt="XPACE" 
-            fill 
-            className="object-contain" 
-            priority 
+            alt="XPACE DANCE" 
+            width={200} 
+            height={50} 
+            className="object-contain"
+            priority
           />
-        </motion.div>
+        </div>
 
-        {/* Tag */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3 }}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md"
-        >
-          <span className="w-2 h-2 rounded-full bg-[#eb00bc] animate-pulse" />
-          <span className="text-[10px] md:text-xs font-mono text-white/70 uppercase tracking-[0.2em]">Uma Nova Era se Aproxima</span>
-        </motion.div>
+        {/* Status Badge */}
+        <div className="inline-flex items-center gap-2 border border-[#333] rounded-full px-5 py-2 mb-8 bg-black/50 backdrop-blur-md">
+          <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+          <span className="text-xs font-mono uppercase tracking-widest text-[#bbb]">
+            O sistema está despertando
+          </span>
+        </div>
 
-        {/* Headline */}
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="font-display text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight uppercase"
-        >
-          Save <br className="md:hidden" />The Date
-        </motion.h1>
+        {/* Title */}
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold uppercase tracking-tight text-white mb-6">
+          DECODIFICANDO<span className="text-primary animate-pulse">_</span>
+        </h1>
 
         {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.7 }}
-          className="text-white/50 text-sm md:text-base font-medium tracking-widest uppercase max-w-md mx-auto mb-16"
-        >
-          Um novo jeito de dançar. <br/>
-          Fique atento às nossas redes oficiais.
-        </motion.p>
+        <p className="text-lg md:text-xl text-[#888] font-mono max-w-xl mx-auto mb-16 leading-relaxed">
+          UM NOVO JEITO DE DANÇAR ESTÁ SENDO COMPILADO. <br className="hidden md:block" />
+          FIQUE ATENTO ÀS NOSSAS REDES OFICIAIS.
+        </p>
 
-        {/* CTA */}
-        <motion.a
-          href="https://instagram.com/xpacedance"
+        {/* CTA Button */}
+        <a
+          href="https://instagram.com/xtage.app" 
           target="_blank"
           rel="noopener noreferrer"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.9 }}
-          className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-black rounded-full overflow-hidden transition-transform hover:scale-105 active:scale-95"
+          className="group relative inline-flex items-center gap-3 bg-white text-black font-bold px-8 py-4 rounded-full uppercase tracking-widest hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all duration-300"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          <Instagram size={20} className="relative z-10" />
-          <span className="relative z-10 font-bold uppercase tracking-wider text-sm">Acompanhar no Instagram</span>
-        </motion.a>
-
-      </main>
-
+          <Instagram size={20} />
+          <span>Acompanhar no Instagram</span>
+        </a>
+      </div>
     </div>
   );
 }
