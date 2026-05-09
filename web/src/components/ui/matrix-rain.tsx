@@ -2,36 +2,34 @@
 
 import { useEffect, useRef } from "react";
 
+// Dicas do app — aparecem em destaque rosa
 const WORDS = [
-  "XPACE",
-  "DANCE",
-  "HIP HOP",
-  "FREESTYLE",
-  "BREAKING",
-  "POPPING",
-  "LOCKING",
-  "WAACKING",
-  "URBAN",
-  "EVOLUÇÃO",
-  "DESAFIO",
-  "CONQUISTAS",
-  "RANKING",
-  "XP",
-  "BATALHA",
-  "STREAMING",
-  "AULAS",
-  "TREINO",
-  "PROFESSOR",
-  "STUDIO",
-  "CYPHER",
-  "COMUNIDADE",
-  "RITMO",
-  "CULTURA",
-  "PASSOS",
+  "XPACE", "DANCE", "HIP HOP", "FREESTYLE", "BREAKING",
+  "POPPING", "LOCKING", "WAACKING", "URBAN", "EVOLUÇÃO",
+  "DESAFIO", "CONQUISTAS", "RANKING", "XP", "BATALHA",
+  "STREAMING", "AULAS", "TREINO", "STUDIO", "CYPHER",
+  "COMUNIDADE", "RITMO", "CULTURA", "PASSOS",
 ];
+
+// Sem katakana — caracteres originais com feel de "dados urbanos"
+const SYMBOLS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789↑↓→←×+/|\\-_><≠∞◆◇●○";
 
 interface MatrixRainProps {
   fade?: boolean;
+}
+
+interface Drop {
+  y: number;           // posição y atual (em unidades de fontSize)
+  speed: number;       // velocidade base da coluna
+  pauseFor: number;    // frames que ainda ficará pausada (para exibir a palavra)
+}
+
+interface WordDrop {
+  word: string;
+  charIndex: number;   // próximo char da palavra a revelar
+  x: number;           // coluna
+  displayFor: number;  // frames restantes para palavra ficar na tela após completa
+  done: boolean;       // palavra já foi totalmente revelada
 }
 
 export function MatrixRain({ fade = true }: MatrixRainProps) {
@@ -40,129 +38,131 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     // Suporte a telas de alta densidade (Retina, mobile)
     const dpr = window.devicePixelRatio || 1;
-    const isMobile = window.innerWidth < 768;
-
     let cssWidth = window.innerWidth;
     let cssHeight = window.innerHeight;
+    const isMobile = cssWidth < 768;
 
-    // Define o tamanho real do canvas em pixels físicos
-    canvas.width = cssWidth * dpr;
-    canvas.height = cssHeight * dpr;
+    const resize = () => {
+      cssWidth = window.innerWidth;
+      cssHeight = window.innerHeight;
+      canvas.width = cssWidth * dpr;
+      canvas.height = cssHeight * dpr;
+      ctx.scale(dpr, dpr);
+    };
+    resize();
 
-    // Escala o contexto para que 1 unidade = 1 CSS pixel
-    ctx.scale(dpr, dpr);
+    // Fonte maior no mobile
+    const fontSize = isMobile ? 20 : 16;
+    const wordFontSize = isMobile ? 24 : 20; // palavras ligeiramente maiores
 
-    const katakana = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ";
-    const latin = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const nums = "0123456789";
-    const alphabet = katakana + latin + nums;
-
-    // Fonte maior no mobile para facilitar leitura
-    const fontSize = isMobile ? 22 : 18;
     let columns = Math.floor(cssWidth / fontSize);
+    let drops: Drop[] = Array.from({ length: columns }, () => ({
+      y: Math.random() * -150,
+      speed: 0.5 + Math.random() * 0.5, // velocidade suave e variada entre colunas
+      pauseFor: 0,
+    }));
 
-    let drops: number[] = [];
-    let wordDrops: { word: string; index: number; x: number }[] = [];
-
-    for (let x = 0; x < columns; x++) {
-      drops[x] = Math.random() * -120;
-    }
-
+    let wordDrops: WordDrop[] = [];
     let tick = 0;
 
     const draw = () => {
       tick++;
 
-      // Rastro mais lento e persistente
-      ctx.fillStyle = "rgba(0, 0, 0, 0.045)";
+      // Rastro lento — aumentar este valor torna o rastro mais curto
+      ctx.fillStyle = "rgba(0, 0, 0, 0.055)";
       ctx.fillRect(0, 0, cssWidth, cssHeight);
 
-      ctx.font = `bold ${fontSize}px monospace`;
-
       for (let i = 0; i < drops.length; i++) {
-        // Velocidade reduzida: avança apenas a cada 2 ticks
+        const drop = drops[i];
+
+        // Se a coluna está pausada, aguardar antes de continuar
+        if (drop.pauseFor > 0) {
+          drop.pauseFor--;
+          continue;
+        }
+
+        // Avança apenas a cada 2 ticks para velocidade cadenciada
         if (tick % 2 !== 0) continue;
 
-        let text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-        ctx.shadowBlur = 0;
+        const wordDropIndex = wordDrops.findIndex(w => w.x === i);
 
-        // No mobile, branco mais opaco para garantir contraste
-        ctx.fillStyle = isMobile
-          ? "rgba(255, 255, 255, 0.85)"
-          : "rgba(255, 255, 255, 0.65)";
+        if (wordDropIndex !== -1) {
+          const wd = wordDrops[wordDropIndex];
 
-        const activeWordIndex = wordDrops.findIndex(w => w.x === i);
-        if (activeWordIndex !== -1) {
-          const activeWord = wordDrops[activeWordIndex];
-          if (activeWord.index < activeWord.word.length) {
-            text = activeWord.word[activeWord.index];
-            activeWord.index++;
+          if (!wd.done && wd.charIndex < wd.word.length) {
+            // Revela próxima letra da palavra
+            const char = wd.word[wd.charIndex];
+            wd.charIndex++;
+
+            ctx.font = `bold ${wordFontSize}px monospace`;
             ctx.fillStyle = "#eb00bc";
-            // Glow mais forte no mobile
-            ctx.shadowBlur = isMobile ? 20 : 14;
+            ctx.shadowBlur = 18;
             ctx.shadowColor = "#eb00bc";
-          } else {
-            wordDrops.splice(activeWordIndex, 1);
+            ctx.fillText(char, i * fontSize, drop.y * fontSize);
             ctx.shadowBlur = 0;
+
+            // Pausa a coluna por alguns frames para dar tempo de ler
+            drop.pauseFor = isMobile ? 8 : 6;
+          } else if (!wd.done) {
+            // Palavra completa — congela por um tempo
+            wd.done = true;
+            wd.displayFor = isMobile ? 60 : 45;
+          } else {
+            wd.displayFor--;
+            if (wd.displayFor <= 0) {
+              wordDrops.splice(wordDropIndex, 1);
+            }
+            // Não avança a coluna enquanto a palavra está parada
+            continue;
           }
         } else {
+          // Chuva normal: caracteres sutis brancos
+          const char = SYMBOLS.charAt(Math.floor(Math.random() * SYMBOLS.length));
+          const opacity = 0.2 + Math.random() * 0.35;
+          ctx.font = `${fontSize}px monospace`;
+          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
           ctx.shadowBlur = 0;
-          // Cabeça da trilha: brilhante
-          if (Math.random() > 0.92) {
-            ctx.fillStyle = "rgba(255, 255, 255, 1)";
-            ctx.shadowBlur = isMobile ? 6 : 4;
-            ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
-          }
+          ctx.fillText(char, i * fontSize, drop.y * fontSize);
         }
 
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        // Avança a gota
+        drop.y += drop.speed;
 
-        // Reset da coluna
-        if (drops[i] * fontSize > cssHeight && Math.random() > 0.97) {
-          drops[i] = 0;
+        // Reset ao sair da tela
+        if (drop.y * fontSize > cssHeight + fontSize) {
+          drop.y = Math.random() * -50;
 
-          // Injetar palavra secreta com boa probabilidade
-          if (Math.random() > 0.65) {
-            const randomWord = WORDS[Math.floor(Math.random() * WORDS.length)];
-            if (!wordDrops.some(w => w.x === i)) {
-              wordDrops.push({ word: randomWord, index: 0, x: i });
-            }
+          // Injeta palavra secreta com boa probabilidade
+          if (Math.random() > 0.6 && !wordDrops.some(w => w.x === i)) {
+            const word = WORDS[Math.floor(Math.random() * WORDS.length)];
+            wordDrops.push({ word, charIndex: 0, x: i, displayFor: 0, done: false });
           }
         }
-        drops[i]++;
       }
     };
 
     const intervalId = setInterval(draw, 50);
 
     const handleResize = () => {
-      const newDpr = window.devicePixelRatio || 1;
-      const newIsMobile = window.innerWidth < 768;
-      cssWidth = window.innerWidth;
-      cssHeight = window.innerHeight;
-
-      canvas.width = cssWidth * newDpr;
-      canvas.height = cssHeight * newDpr;
-      ctx.scale(newDpr, newDpr);
-
-      const newFontSize = newIsMobile ? 22 : 18;
-      const newColumns = Math.floor(cssWidth / newFontSize);
-      const newDrops: number[] = [];
-      for (let x = 0; x < newColumns; x++) {
-        newDrops[x] = drops[x] ?? Math.random() * -120;
-      }
+      resize();
+      const newColumns = Math.floor(cssWidth / fontSize);
+      const newDrops: Drop[] = Array.from({ length: newColumns }, (_, x) => (
+        drops[x] ?? {
+          y: Math.random() * -150,
+          speed: 0.5 + Math.random() * 0.5,
+          pauseFor: 0,
+        }
+      ));
       drops = newDrops;
       columns = newColumns;
     };
 
     window.addEventListener("resize", handleResize);
-
     return () => {
       clearInterval(intervalId);
       window.removeEventListener("resize", handleResize);
@@ -173,7 +173,7 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
       <canvas
         ref={canvasRef}
-        className="w-full h-full opacity-80"
+        className="w-full h-full"
         style={fade ? {
           maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 100%)",
           WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 100%)",
