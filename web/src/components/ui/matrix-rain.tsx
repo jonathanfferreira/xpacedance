@@ -2,34 +2,72 @@
 
 import { useEffect, useRef } from "react";
 
-// Dicas do app — aparecem em destaque rosa
+// Palavras escondidas na grade (sem espaços para o caça-palavras)
 const WORDS = [
-  "XPACE", "DANCE", "HIP HOP", "FREESTYLE", "BREAKING",
-  "POPPING", "LOCKING", "WAACKING", "URBAN", "EVOLUÇÃO",
-  "DESAFIO", "CONQUISTAS", "RANKING", "XP", "BATALHA",
-  "STREAMING", "AULAS", "TREINO", "STUDIO", "CYPHER",
-  "COMUNIDADE", "RITMO", "CULTURA", "PASSOS",
+  "XPACE", "DANCE", "FREESTYLE", "BREAKING", "POPPING",
+  "LOCKING", "WAACKING", "RANKING", "BATALHA", "STUDIO",
+  "CYPHER", "RITMO", "CULTURA", "CONQUISTAS", "URBAN",
+  "TREINO", "HIPHOP", "PASSOS", "AULAS", "EVOLUCAO",
 ];
 
-// Sem katakana — caracteres originais com feel de "dados urbanos"
-const SYMBOLS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789↑↓→←×+/|\\-_><≠∞◆◇●○";
+const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// Direções possíveis: →, ↓, ↘, ↗
+const DIRS: [number, number][] = [
+  [0, 1], [1, 0], [1, 1], [-1, 1],
+];
+
+interface PlacedWord {
+  word: string;
+  cells: [number, number][];
+}
 
 interface MatrixRainProps {
   fade?: boolean;
 }
 
-interface Drop {
-  y: number;           // posição y atual (em unidades de fontSize)
-  speed: number;       // velocidade base da coluna
-  pauseFor: number;    // frames que ainda ficará pausada (para exibir a palavra)
-}
+function buildGrid(cols: number, rows: number): { grid: string[][], placed: PlacedWord[] } {
+  const grid: string[][] = Array.from({ length: rows }, () =>
+    Array.from({ length: cols }, () => CHARS[Math.floor(Math.random() * CHARS.length)])
+  );
 
-interface WordDrop {
-  word: string;
-  charIndex: number;   // próximo char da palavra a revelar
-  x: number;           // coluna
-  displayFor: number;  // frames restantes para palavra ficar na tela após completa
-  done: boolean;       // palavra já foi totalmente revelada
+  const placed: PlacedWord[] = [];
+
+  for (const word of WORDS) {
+    let attempts = 0;
+    let success = false;
+
+    while (attempts < 200 && !success) {
+      attempts++;
+      const [dr, dc] = DIRS[Math.floor(Math.random() * DIRS.length)];
+      const row = Math.floor(Math.random() * rows);
+      const col = Math.floor(Math.random() * cols);
+
+      // Verifica se a palavra cabe sem conflito
+      const cells: [number, number][] = [];
+      let fits = true;
+      for (let i = 0; i < word.length; i++) {
+        const r = row + dr * i;
+        const c = col + dc * i;
+        if (r < 0 || r >= rows || c < 0 || c >= cols) { fits = false; break; }
+        if (grid[r][c] !== word[i] && grid[r][c] !== CHARS[Math.floor(Math.random() * CHARS.length)]) {
+          // Permite sobrescrever letras aleatórias, conflita só se já é parte de outra palavra
+        }
+        cells.push([r, c]);
+      }
+      if (!fits) continue;
+
+      // Coloca a palavra na grade
+      for (let i = 0; i < word.length; i++) {
+        const [r, c] = cells[i];
+        grid[r][c] = word[i];
+      }
+      placed.push({ word, cells });
+      success = true;
+    }
+  }
+
+  return { grid, placed };
 }
 
 export function MatrixRain({ fade = true }: MatrixRainProps) {
@@ -41,136 +79,143 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Suporte a telas de alta densidade (Retina, mobile)
     const dpr = window.devicePixelRatio || 1;
+    const isMobile = window.innerWidth < 768;
+    const fontSize = isMobile ? 16 : 14;
+    const cellW = isMobile ? 20 : 18;
+    const cellH = isMobile ? 24 : 20;
+
     let cssWidth = window.innerWidth;
     let cssHeight = window.innerHeight;
-    const isMobile = cssWidth < 768;
 
-    const resize = () => {
+    const setupCanvas = () => {
       cssWidth = window.innerWidth;
       cssHeight = window.innerHeight;
       canvas.width = cssWidth * dpr;
       canvas.height = cssHeight * dpr;
       ctx.scale(dpr, dpr);
     };
-    resize();
+    setupCanvas();
 
-    // Fonte maior no mobile
-    const fontSize = isMobile ? 20 : 16;
-    const wordFontSize = isMobile ? 24 : 20; // palavras ligeiramente maiores
+    let cols = Math.floor(cssWidth / cellW);
+    let rows = Math.floor(cssHeight / cellH);
+    let { grid, placed } = buildGrid(cols, rows);
 
-    let columns = Math.floor(cssWidth / fontSize);
-    let drops: Drop[] = Array.from({ length: columns }, () => ({
-      y: Math.random() * -150,
-      speed: 0.5 + Math.random() * 0.5, // velocidade suave e variada entre colunas
-      pauseFor: 0,
-    }));
+    // Estado da animação
+    let highlightedWordIndex = -1;
+    let highlightTimer = 0;
+    const HIGHLIGHT_DURATION = 120; // frames (~3s a 40ms)
+    const PAUSE_DURATION = 180;     // frames entre highlights (~4.5s)
+    let pauseTimer = 60;            // começa com um delay inicial
 
-    let wordDrops: WordDrop[] = [];
+    // Células que piscam aleatoriamente (renovação de letras)
+    const refreshCell = () => {
+      const r = Math.floor(Math.random() * rows);
+      const c = Math.floor(Math.random() * cols);
+      // Não renova se a célula pertence a uma palavra colocada
+      const isWordCell = placed.some(p => p.cells.some(([pr, pc]) => pr === r && pc === c));
+      if (!isWordCell) {
+        grid[r][c] = CHARS[Math.floor(Math.random() * CHARS.length)];
+      }
+    };
+
     let tick = 0;
-
-    // Aguarda as fontes da marca carregarem antes de iniciar
-    let fontsReady = false;
-    document.fonts.ready.then(() => { fontsReady = true; });
-
-    // Fontes: Steelfish para palavras-destaque, monospace para chuva base
-    const rainFont = `${fontSize}px monospace`;
-    const wordFontStr = (size: number) =>
-      fontsReady
-        ? `bold ${size}px Steelfish, monospace`
-        : `bold ${size}px monospace`;
 
     const draw = () => {
       tick++;
+      ctx.clearRect(0, 0, cssWidth, cssHeight);
 
-      // Rastro lento
-      ctx.fillStyle = "rgba(0, 0, 0, 0.055)";
-      ctx.fillRect(0, 0, cssWidth, cssHeight);
+      // Atualiza 3 células aleatórias por frame para efeito vivo
+      if (tick % 3 === 0) {
+        refreshCell();
+        refreshCell();
+        refreshCell();
+      }
 
-      for (let i = 0; i < drops.length; i++) {
-        const drop = drops[i];
-
-        // Se a coluna está pausada, aguardar antes de continuar
-        if (drop.pauseFor > 0) {
-          drop.pauseFor--;
-          continue;
-        }
-
-        // Avança apenas a cada 2 ticks para velocidade cadenciada
-        if (tick % 2 !== 0) continue;
-
-        const wordDropIndex = wordDrops.findIndex(w => w.x === i);
-
-        if (wordDropIndex !== -1) {
-          const wd = wordDrops[wordDropIndex];
-
-          if (!wd.done && wd.charIndex < wd.word.length) {
-            // Revela próxima letra da palavra
-            const char = wd.word[wd.charIndex];
-            wd.charIndex++;
-
-            ctx.font = wordFontStr(wordFontSize);
-            ctx.fillStyle = "#eb00bc";
-            ctx.shadowBlur = 18;
-            ctx.shadowColor = "#eb00bc";
-            ctx.fillText(char, i * fontSize, drop.y * fontSize);
-            ctx.shadowBlur = 0;
-
-            // Pausa a coluna por alguns frames para dar tempo de ler
-            drop.pauseFor = isMobile ? 8 : 6;
-          } else if (!wd.done) {
-            // Palavra completa — congela por um tempo
-            wd.done = true;
-            wd.displayFor = isMobile ? 60 : 45;
-          } else {
-            wd.displayFor--;
-            if (wd.displayFor <= 0) {
-              wordDrops.splice(wordDropIndex, 1);
-            }
-            // Não avança a coluna enquanto a palavra está parada
-            continue;
-          }
+      // Lógica de highlight: alterna entre pausar e iluminar
+      if (highlightedWordIndex === -1) {
+        if (pauseTimer > 0) {
+          pauseTimer--;
         } else {
-          // Chuva normal: caracteres sutis brancos
-          const char = SYMBOLS.charAt(Math.floor(Math.random() * SYMBOLS.length));
-          const opacity = 0.2 + Math.random() * 0.35;
-          ctx.font = rainFont;
-          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-          ctx.shadowBlur = 0;
-          ctx.fillText(char, i * fontSize, drop.y * fontSize);
+          // Escolhe uma nova palavra aleatória para iluminar
+          highlightedWordIndex = Math.floor(Math.random() * placed.length);
+          highlightTimer = HIGHLIGHT_DURATION;
         }
+      } else {
+        highlightTimer--;
+        if (highlightTimer <= 0) {
+          highlightedWordIndex = -1;
+          pauseTimer = PAUSE_DURATION;
+        }
+      }
 
-        // Avança a gota
-        drop.y += drop.speed;
+      // Desenha a grade
+      // Fontes carregadas via document
+      const fontsReady = document.fonts.check(`${fontSize}px Steelfish`);
+      const baseFont = fontsReady ? `${fontSize}px Steelfish, monospace` : `${fontSize}px monospace`;
+      const wordFont = fontsReady ? `bold ${fontSize + 2}px Steelfish, monospace` : `bold ${fontSize + 2}px monospace`;
 
-        // Reset ao sair da tela
-        if (drop.y * fontSize > cssHeight + fontSize) {
-          drop.y = Math.random() * -50;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const x = c * cellW + cellW / 2;
+          const y = r * cellH + cellH / 2 + fontSize / 2;
 
-          // Injeta palavra secreta com boa probabilidade
-          if (Math.random() > 0.6 && !wordDrops.some(w => w.x === i)) {
-            const word = WORDS[Math.floor(Math.random() * WORDS.length)];
-            wordDrops.push({ word, charIndex: 0, x: i, displayFor: 0, done: false });
+          const char = grid[r][c];
+
+          // Verifica se esta célula pertence à palavra iluminada
+          let isHighlighted = false;
+          if (highlightedWordIndex !== -1) {
+            const hw = placed[highlightedWordIndex];
+            isHighlighted = hw.cells.some(([pr, pc]) => pr === r && pc === c);
           }
+
+          // Verifica se é qualquer palavra (para dar leve destaque fixo)
+          const isAnyWord = placed.some(p => p.cells.some(([pr, pc]) => pr === r && pc === c));
+
+          if (isHighlighted) {
+            // Fade in/out suave baseado no timer
+            const progress = highlightTimer / HIGHLIGHT_DURATION;
+            const alpha = progress < 0.15
+              ? progress / 0.15
+              : progress > 0.85
+              ? (1 - progress) / 0.15
+              : 1;
+
+            ctx.font = wordFont;
+            ctx.fillStyle = `rgba(235, 0, 188, ${alpha * 0.95})`;
+            ctx.shadowBlur = 12 * alpha;
+            ctx.shadowColor = "#eb00bc";
+          } else if (isAnyWord) {
+            // Palavras não iluminadas: levemente mais brilhantes que o fundo
+            ctx.font = baseFont;
+            ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
+            ctx.shadowBlur = 0;
+          } else {
+            // Letras de fundo: muito sutis
+            ctx.font = baseFont;
+            ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.textAlign = "center";
+          ctx.textBaseline = "alphabetic";
+          ctx.fillText(char, x, y);
+          ctx.shadowBlur = 0;
         }
       }
     };
 
-    const intervalId = setInterval(draw, 50);
+    const intervalId = setInterval(draw, 40); // ~25fps — suficiente para este efeito
 
     const handleResize = () => {
-      resize();
-      const newColumns = Math.floor(cssWidth / fontSize);
-      const newDrops: Drop[] = Array.from({ length: newColumns }, (_, x) => (
-        drops[x] ?? {
-          y: Math.random() * -150,
-          speed: 0.5 + Math.random() * 0.5,
-          pauseFor: 0,
-        }
-      ));
-      drops = newDrops;
-      columns = newColumns;
+      setupCanvas();
+      cols = Math.floor(cssWidth / cellW);
+      rows = Math.floor(cssHeight / cellH);
+      const rebuilt = buildGrid(cols, rows);
+      grid = rebuilt.grid;
+      placed = rebuilt.placed;
+      highlightedWordIndex = -1;
+      pauseTimer = 30;
     };
 
     window.addEventListener("resize", handleResize);
@@ -186,8 +231,8 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
         ref={canvasRef}
         className="w-full h-full"
         style={fade ? {
-          maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 100%)",
+          maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,1) 30%, rgba(0,0,0,0.4) 80%, rgba(0,0,0,0) 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,1) 30%, rgba(0,0,0,0.4) 80%, rgba(0,0,0,0) 100%)",
         } : {}}
       />
     </div>
