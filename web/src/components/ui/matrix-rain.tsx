@@ -70,10 +70,21 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
     let wordDrops: WordDrop[] = [];
     let tick = 0;
 
+    // Aguarda as fontes da marca carregarem antes de iniciar
+    let fontsReady = false;
+    document.fonts.ready.then(() => { fontsReady = true; });
+
+    // Fontes: Steelfish para palavras-destaque, monospace para chuva base
+    const rainFont = `${fontSize}px monospace`;
+    const wordFontStr = (size: number) =>
+      fontsReady
+        ? `bold ${size}px Steelfish, monospace`
+        : `bold ${size}px monospace`;
+
     const draw = () => {
       tick++;
 
-      // Rastro lento — aumentar este valor torna o rastro mais curto
+      // Rastro lento
       ctx.fillStyle = "rgba(0, 0, 0, 0.055)";
       ctx.fillRect(0, 0, cssWidth, cssHeight);
 
@@ -99,7 +110,7 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
             const char = wd.word[wd.charIndex];
             wd.charIndex++;
 
-            ctx.font = `bold ${wordFontSize}px monospace`;
+            ctx.font = wordFontStr(wordFontSize);
             ctx.fillStyle = "#eb00bc";
             ctx.shadowBlur = 18;
             ctx.shadowColor = "#eb00bc";
@@ -124,7 +135,7 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
           // Chuva normal: caracteres sutis brancos
           const char = SYMBOLS.charAt(Math.floor(Math.random() * SYMBOLS.length));
           const opacity = 0.2 + Math.random() * 0.35;
-          ctx.font = `${fontSize}px monospace`;
+          ctx.font = rainFont;
           ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
           ctx.shadowBlur = 0;
           ctx.fillText(char, i * fontSize, drop.y * fontSize);
