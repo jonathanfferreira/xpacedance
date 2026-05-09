@@ -2,10 +2,37 @@
 
 import { useEffect, useRef } from "react";
 
+// Dicas que revelam o propósito do app sem entregar tudo
 const WORDS = [
-  "XPACE", "DANCE", "HIP HOP", "FREESTYLE", 
-  "GAMIFICATION", "COREOGRAFIA", "OS", "E-LEARNING", "MATRIX",
-  "CYBERPUNK", "BRUTALISM", "STREAMING"
+  // Identidade
+  "XPACE",
+  "DANCE",
+  // Estilos de dança
+  "HIP HOP",
+  "FREESTYLE",
+  "BREAKING",
+  "POPPING",
+  "LOCKING",
+  "WAACKING",
+  "URBAN",
+  // Objetivo do app
+  "EVOLUÇÃO",
+  "DESAFIO",
+  "CONQUISTAS",
+  "RANKING",
+  "XP",
+  "BATALHA",
+  // Plataforma
+  "STREAMING",
+  "AULAS",
+  "TREINO",
+  "PROFESSOR",
+  "STUDIO",
+  "CYPHER",
+  "COMUNIDADE",
+  "RITMO",
+  "CULTURA",
+  "PASSOS",
 ];
 
 interface MatrixRainProps {
@@ -33,25 +60,44 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
     const nums = "0123456789";
     const alphabet = katakana + latin + nums;
 
-    const fontSize = 16;
+    const fontSize = 18; // Um pouco maior para mais legibilidade
     let columns = Math.floor(width / fontSize);
-    
+
     let drops: number[] = [];
-    let wordDrops: { word: string; index: number; x: number }[] = [];
+    let wordDrops: { word: string; index: number; x: number; tick: number }[] = [];
 
     for (let x = 0; x < columns; x++) {
-      drops[x] = Math.random() * -100; // Começa de alturas negativas aleatórias para não cair tudo igual
+      drops[x] = Math.random() * -120;
     }
 
+    let tick = 0;
+
     const draw = () => {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      tick++;
+
+      // Rastro mais lento: aumentamos o alpha do fade para o rastro durar mais tempo
+      ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
       ctx.fillRect(0, 0, width, height);
 
-      ctx.font = fontSize + "px monospace";
+      ctx.font = `${fontSize}px monospace`;
 
       for (let i = 0; i < drops.length; i++) {
+        // Velocidade reduzida: só avança a chuva a cada 2 ticks
+        if (tick % 2 !== 0) {
+          // Mesmo sem avançar, redesenhamos para manter o glow visível
+          const activeWordIndex = wordDrops.findIndex(w => w.x === i);
+          if (activeWordIndex !== -1) {
+            const aw = wordDrops[activeWordIndex];
+            // Pulsa o glow sem mover
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = "#eb00bc";
+          }
+          continue;
+        }
+
         let text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-        ctx.fillStyle = "rgba(255, 255, 255, 0.5)"; // White for normal rain
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.65)"; // Branco com boa visibilidade
 
         const activeWordIndex = wordDrops.findIndex(w => w.x === i);
         if (activeWordIndex !== -1) {
@@ -59,35 +105,32 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
           if (activeWord.index < activeWord.word.length) {
             text = activeWord.word[activeWord.index];
             activeWord.index++;
-            ctx.fillStyle = "#eb00bc"; // Pink for words (dicas)
-            
-            // Glow effect
-            ctx.shadowBlur = 8;
+            ctx.fillStyle = "#eb00bc"; // Rosa vivo para as dicas
+            ctx.shadowBlur = 14;
             ctx.shadowColor = "#eb00bc";
           } else {
             wordDrops.splice(activeWordIndex, 1);
             ctx.shadowBlur = 0;
           }
         } else {
-            ctx.shadowBlur = 0;
-            // Efeito visual clássico: a cabeça da trilha
-            if (Math.random() > 0.95) {
-                ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-            }
+          ctx.shadowBlur = 0;
+          // Cabeça da trilha: mais brilhante
+          if (Math.random() > 0.92) {
+            ctx.fillStyle = "rgba(255, 255, 255, 1)";
+          }
         }
 
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-        // Reset drops
-        if (drops[i] * fontSize > height && Math.random() > 0.975) {
+        // Reset da coluna
+        if (drops[i] * fontSize > height && Math.random() > 0.97) {
           drops[i] = 0;
-          
-          // Chance de injetar uma palavra secreta ao invés de código aleatório
-          if (Math.random() > 0.8) {
+
+          // Injetar palavra secreta com boa probabilidade
+          if (Math.random() > 0.65) {
             const randomWord = WORDS[Math.floor(Math.random() * WORDS.length)];
-            // Adiciona apenas se não houver outra palavra já descendo nesta coluna
             if (!wordDrops.some(w => w.x === i)) {
-                wordDrops.push({ word: randomWord, index: 0, x: i });
+              wordDrops.push({ word: randomWord, index: 0, x: i, tick: 0 });
             }
           }
         }
@@ -95,18 +138,18 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
       }
     };
 
-    const intervalId = setInterval(draw, 33); // ~30fps
+    const intervalId = setInterval(draw, 50); // ~20fps — velocidade bem mais cadenciada
 
     const handleResize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
-      
+
       const newColumns = Math.floor(width / fontSize);
-      const newDrops = [];
+      const newDrops: number[] = [];
       for (let x = 0; x < newColumns; x++) {
-        newDrops[x] = drops[x] || Math.random() * -100;
+        newDrops[x] = drops[x] ?? Math.random() * -120;
       }
       drops = newDrops;
       columns = newColumns;
@@ -124,7 +167,7 @@ export function MatrixRain({ fade = true }: MatrixRainProps) {
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
       <canvas
         ref={canvasRef}
-        className="w-full h-full opacity-40"
+        className="w-full h-full opacity-70"
         style={fade ? {
           maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 100%)",
           WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 100%)",
